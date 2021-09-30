@@ -1,0 +1,8 @@
+flash-toy-sync-as2/bin/flash-toy-sync-as2.swf
+flash-toy-sync-as3/bin/flash-toy-sync-as2.swf
+flash-toy-sync-as2/src/*
+
+flash-toy-sync-as3/obj
+
+!flash-toy-sync-as2/src/core*
+!flash-toy-sync-as2/src/Main.as
