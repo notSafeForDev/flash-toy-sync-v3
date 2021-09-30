@@ -1,6 +1,14 @@
+/**
+ * This script has to be run before the ActionScript 2.0 version can be compiled
+ * 
+ * It copies directories and files from flash-toy-sync-as3 to flash-toy-sync-as2
+ * Then transpiles the Actionscript 3.0 code into 2.0
+ * 
+ * Note: It won't necessarily work for any other Actionscript 3.0 file, as it is only written based on the code that should be transpiled
+ */
+
 // https://stackoverflow.com/a/26038979
 
-const { trace } = require('console');
 var fs = require('fs');
 var path = require('path');
 
