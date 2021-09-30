@@ -21,12 +21,13 @@ package {
 			var stageElementSelector : StageElementSelector;
 			var animationContainer : MovieClip = MovieClipUtil.create(_container, "animationContainer");
 			var stageElementSelectorOverlay : MovieClip = MovieClipUtil.create(_container, "stageElementSelectorOverlay");
-			var hierarchyPanel : HierarchyPanel = new HierarchyPanel(_container);
+			var hierarchyPanel : HierarchyPanel;
 			
 			var swf : ExternalSWF = new ExternalSWF(_animationPath, animationContainer);
 			
 			swf.onLoaded.listen(this, function(_swf : MovieClip) : void {
 				stageElementSelector = new StageElementSelector(_swf, stageElementSelectorOverlay);
+				hierarchyPanel = new HierarchyPanel(_container, _swf);
 			});
 		}
 	}

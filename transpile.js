@@ -130,12 +130,13 @@ function transpileActionScript3To2(actionscript) {
 
     let lines = actionscript.split("\r\n");
 
-    const packageLineIndex = findActionScriptLineIndex(lines, ["package ", "{"]);
+    let packageLineIndex = findActionScriptLineIndex(lines, ["package ", "{"]);
 
     if (packageLineIndex < 0) {
         return actionscript;
     }
 
+    packageLineIndex = findActionScriptLineIndex(lines, ["package ", "{"]);
     const packageLine = lines[packageLineIndex];
     const packageName = getStringBetween(packageLine, "package", "{").trim();
 
@@ -145,6 +146,12 @@ function transpileActionScript3To2(actionscript) {
         lines.unshift("");
         lines.unshift("import " + packageNameStart + ".*");
     }
+
+    // Add transpiler info
+    lines.unshift("");
+    lines.unshift(" */");
+    lines.unshift(" * This file have been transpiled from Actionscript 3.0 to 2.0, any changes made to this file will be overwritten once it is transpiled again");
+    lines.unshift("/**");
 
     let emptyLinesAfterPackage = 0;
     for (let i = packageLineIndex + 1; i < lines.length; i++) {
