@@ -10,7 +10,11 @@ class core.MouseEvents {
 		
 	}
 	
-	public static function add(_scope, _target : MovieClip, _type : String, _handler : Function) {
+	public static function addOnMouseDown(_scope, _target : MovieClip, _handler : Function) {
+		add(_scope, _target, "mouseDown", _handler);
+	}
+	
+	private static function add(_scope, _target : MovieClip, _type : String, _handler : Function) {
 		var functionName = "";
 		if (_type == "click") {
 			functionName = "onPress"; // Not recommended as that blocks other click events in the children

@@ -10,7 +10,7 @@ package core {
 			
 		}
 		
-		public static function clear(_movieClip : MovieClip) {
+		public static function clear(_movieClip : MovieClip) : void {
 			_movieClip.graphics.clear();
 		}
 		
@@ -36,11 +36,11 @@ package core {
 		 * "miter"		: adds a sharp edge to corners
 		 * @param	_miterLimit		Angle threshold for drawing corners
 		 */
-		public static function setLineStyle(_movieClip : MovieClip, _thickness : Number = NaN, _color : uint = 0, _alpha : Number = 1, _pixelHinting : Boolean = false, _scaleMode : String = "normal", _caps : String = null, _joints : String = null, _miterLimit : Number = 3) {
+		public static function setLineStyle(_movieClip : MovieClip, _thickness : Number = NaN, _color : uint = 0, _alpha : Number = 1, _pixelHinting : Boolean = false, _scaleMode : String = "normal", _caps : String = null, _joints : String = null, _miterLimit : Number = 3) : void {
 			_movieClip.graphics.lineStyle(_thickness, _color, _alpha, _pixelHinting, _scaleMode, _caps, _joints, _miterLimit);
 		}
 		
-		public static function drawRect(_movieClip : MovieClip, _x : Number, _y : Number, _width : Number, _height : Number) {
+		public static function drawRect(_movieClip : MovieClip, _x : Number, _y : Number, _width : Number, _height : Number) : void {
 			_movieClip.graphics.moveTo(_x, _y);
 			_movieClip.graphics.lineTo(_x + _width, _y);
 			_movieClip.graphics.lineTo(_x + _width, _y + _height);
@@ -48,15 +48,15 @@ package core {
 			_movieClip.graphics.lineTo(_x, _y);
 		}
 		
-		public static function moveTo(_movieClip : MovieClip, _x : Number, _y : Number) {
+		public static function moveTo(_movieClip : MovieClip, _x : Number, _y : Number) : void {
 			_movieClip.graphics.moveTo(_x, _y);
 		}
 		
-		public static function lineTo(_movieClip : MovieClip, _x : Number, _y : Number) {
+		public static function lineTo(_movieClip : MovieClip, _x : Number, _y : Number) : void {
 			_movieClip.graphics.lineTo(_x, _y);
 		}
 		
-		public static function beginFill(_movieClip : MovieClip, _color : uint = 0, _alpha : Number = 1) {
+		public static function beginFill(_movieClip : MovieClip, _color : uint = 0, _alpha : Number = 1) : void {
 			_movieClip.graphics.beginFill(_color, _alpha);
 		}
 	}

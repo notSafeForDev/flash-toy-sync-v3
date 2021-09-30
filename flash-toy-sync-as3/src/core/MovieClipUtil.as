@@ -35,7 +35,7 @@
 			children.reverse();
 				
 			// Fill the path array with child names
-			for (var i = 0; i < children.length; i++) {
+			for (var i : Number = 0; i < children.length; i++) {
 				var name : String = children[i].name;
 				
 				// If the name starts with "instance", then it's most likely auto generated, which changes each time
@@ -135,7 +135,7 @@
 			return MovieClip(_movieClip.parent);
 		}
 		
-		public static function getChildIndex(_movieClip) : Number {
+		public static function getChildIndex(_movieClip : MovieClip) : Number {
 			return _movieClip.parent.getChildIndex(_movieClip);
 		}
 		
@@ -155,7 +155,7 @@
 			return _movieClip.visible;
 		}
 		
-		public static function setVisible(_movieClip : MovieClip, _state : Boolean) {
+		public static function setVisible(_movieClip : MovieClip, _state : Boolean) : void {
 			_movieClip.visible = _state;
 		}
 		
@@ -163,7 +163,7 @@
 			return _movieClip.alpha;
 		}
 		
-		public static function setAlpha(_movieClip : MovieClip, _value : Number) {
+		public static function setAlpha(_movieClip : MovieClip, _value : Number) : void {
 			_movieClip.alpha = _value;
 		}
 		
@@ -171,7 +171,7 @@
 			return _movieClip.x;
 		}
 		
-		public static function setX(_movieClip : MovieClip, _value : Number) {
+		public static function setX(_movieClip : MovieClip, _value : Number) : void {
 			_movieClip.x = _value;
 		}
 		
@@ -179,7 +179,7 @@
 			return _movieClip.y;
 		}
 		
-		public static function setY(_movieClip : MovieClip, _value : Number) {
+		public static function setY(_movieClip : MovieClip, _value : Number) : void {
 			_movieClip.y = _value;
 		}
 		
@@ -187,7 +187,7 @@
 			return _movieClip.scaleX;
 		}
 		
-		public static function setScaleX(_movieClip : MovieClip, _value : Number) {
+		public static function setScaleX(_movieClip : MovieClip, _value : Number) : void {
 			_movieClip.scaleX = _value;
 		}
 		
@@ -195,7 +195,7 @@
 			return _movieClip.scaleY;
 		}
 		
-		public static function setScaleY(_movieClip : MovieClip, _value : Number) {
+		public static function setScaleY(_movieClip : MovieClip, _value : Number) : void {
 			_movieClip.scaleY = _value;
 		}
 		

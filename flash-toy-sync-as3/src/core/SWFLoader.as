@@ -40,14 +40,13 @@
 		 * @param	_container	The MovieClip to load the swf into
 		 * @param 	_onLoaded 	(optional) Called when the swf is loaded, the loaded content as a MovieClip is passed to the function
 		 */
-		public function load(_path : String, _container : MovieClip, _onLoaded : Function = null) : void {	// TODO: Check how default paramters works in AS2, if null works	
+		public function load(_path : String, _container : MovieClip, _onLoaded : Function = null) : void {	
 			var loader : Loader = new Loader();
 			
-			function onLoaderComplete(e : Event) {
+			function onLoaderComplete(e : Event) : void {
 				try {
 					 swf = MovieClip(loader.content);
-				} 
-				catch (error) {
+				} catch (error : Error) {
 					if (onError != null) {
 						onError(error);
 					}

@@ -39,7 +39,7 @@ package components {
 			GraphicsUtil.beginFill(background, 0x000000, 0.5);
 			GraphicsUtil.drawRect(background, 0, 20, _width, _height - 20);
 			
-			var draggableWindow = new UIDragableWindow(container, titleBar);
+			var draggableWindow : UIDragableWindow = new UIDragableWindow(container, titleBar);
 		}
 	}
 }

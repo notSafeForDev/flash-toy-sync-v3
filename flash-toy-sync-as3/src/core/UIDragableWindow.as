@@ -27,7 +27,7 @@
 			container.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 		}
 		
-		function onButtonMoveMouseDown(e : MouseEvent) {
+		private function onButtonMoveMouseDown(e : MouseEvent) : void {
 			mouseDragOffset = container.parent.globalToLocal(new Point(e.stageX, e.stageY));
 			mouseDragOffset.x -= container.x;
 			mouseDragOffset.y -= container.y;
@@ -35,7 +35,7 @@
 			isMouseDown = true;
 		}
 		
-		function onEnterFrame(e : Event) {
+		private function onEnterFrame(e : Event) : void {
 			if (isMouseDown == false) {
 				return;
 			}
@@ -53,7 +53,7 @@
 			}
 		}
 		
-		function onMouseUp(e : MouseEvent) {
+		private function onMouseUp(e : MouseEvent) : void {
 			isMouseDown = false;
 		}
 	}

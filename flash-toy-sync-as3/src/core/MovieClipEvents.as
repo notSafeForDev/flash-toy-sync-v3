@@ -12,14 +12,14 @@ package core
 			
 		}
 		
-		public static function addOnEnterFrame(_scope : * , _movieClip : MovieClip, _handler : Function) {
-			_movieClip.addEventListener(Event.ENTER_FRAME, function (e : Event) {
+		public static function addOnEnterFrame(_scope : * , _movieClip : MovieClip, _handler : Function) : void {
+			_movieClip.addEventListener(Event.ENTER_FRAME, function (e : Event) : void {
 				_handler();
 			});
 		}
 		
-		public static function addOnExitFrame(_scope : * , _movieClip : MovieClip, _handler : Function) {
-			_movieClip.addEventListener(Event.EXIT_FRAME, function (e : Event) {
+		public static function addOnExitFrame(_scope : * , _movieClip : MovieClip, _handler : Function) : void {
+			_movieClip.addEventListener(Event.EXIT_FRAME, function (e : Event) : void {
 				_handler();
 			});
 		}

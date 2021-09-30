@@ -23,30 +23,30 @@ package components {
 			overlay = _overlay;
 			
 			MovieClipEvents.addOnEnterFrame(this, overlay, onEnterFrame);
-			MouseEvents.add(this, container, "mouseDown", onMouseDown); // TODO: Change to addOnMouseDown
+			MouseEvents.addOnMouseDown(this, container, onMouseDown);
 		}
 		
-		private function onEnterFrame() {
+		private function onEnterFrame() : void {
 			drawBounds();
 		}
 		
-		private function onMouseDown(_clickedChildren : Array) {
+		private function onMouseDown(_clickedChildren : Array) : void {
 			if (_clickedChildren.length == 0) {
 				selectedChildren.length = 0;
 				return;
 			}
 			
 			selectedChildren.length = 0;
-			for (var i = 0; i < _clickedChildren.length; i++) {
+			for (var i : Number = 0; i < _clickedChildren.length; i++) {
 				selectedChildren.push(_clickedChildren[i]);
 			}
 		}
 		
-		private function drawBounds() {
+		private function drawBounds() : void {
 			GraphicsUtil.clear(overlay);
 			GraphicsUtil.setLineStyle(overlay, 2, 0x00FF00);
 			
-			for (var i = 0; i < selectedChildren.length; i++) {
+			for (var i : Number = 0; i < selectedChildren.length; i++) {
 				var child : MovieClip = selectedChildren[i];
 				if (MovieClipUtil.getParent(child) == null) {
 					continue;

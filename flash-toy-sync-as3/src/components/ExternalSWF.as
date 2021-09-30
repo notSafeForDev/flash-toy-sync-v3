@@ -19,7 +19,7 @@ package components {
 			loader.load(_path, _container, FunctionUtil.bind(this, _onLoaded));
 		}
 		
-		private function _onLoaded(_swf : MovieClip) {
+		private function _onLoaded(_swf : MovieClip) : void {
 			onLoaded.emit(_swf);
 		}
 	}

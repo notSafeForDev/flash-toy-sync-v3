@@ -190,7 +190,7 @@ function transpileActionScript3To2(actionscript) {
 
     // Remove : void
     lines = lines.map(line => {
-        return line.split(") : void ").join("");
+        return line.split(" : void ").join(" : Void ");
     });
 
     if (warnings.length > 0) {

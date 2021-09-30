@@ -8,7 +8,7 @@ package components {
 	 */
 	public class HierarchyPanel {
 		
-		var base : Panel;
+		private var base : Panel;
 		
 		public function HierarchyPanel(_parent : MovieClip) {
 			base = new Panel(_parent, "Hierarchy", 200, 400);
