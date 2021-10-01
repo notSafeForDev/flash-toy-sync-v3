@@ -1,5 +1,6 @@
 package components {
 	
+	import core.Fonts;
 	import flash.display.MovieClip;
 	
 	import core.TextElement;
@@ -31,6 +32,9 @@ package components {
 			
 			var titleText : TextElement = new TextElement(titleBar, _name);
 			titleText.element.selectable = false;
+			titleText.setFont(Fonts.COURIER_NEW);
+			titleText.setBold(true);
+			titleText.setFontSize(14);
 			
 			GraphicsUtil.beginFill(titleBar, 0xFFFFFF, 0.5);
 			GraphicsUtil.drawRect(titleBar, 0, 0, _width, titleBarHeight);

@@ -96,7 +96,7 @@ package components {
 			var name : String = "";
 			
 			for (var i : Number = 0; i < path.length; i++) {
-				name += "   ";
+				name += "  ";
 			}
 			
 			if (_isExpandable == true) {

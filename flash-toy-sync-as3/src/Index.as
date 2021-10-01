@@ -1,10 +1,10 @@
 package {
 	
-	import core.MovieClipEvents;
 	import flash.display.MovieClip;
 	import flash.utils.Timer;
 	
 	import core.MovieClipUtil;
+	import core.MovieClipEvents;
 	
 	import components.HierarchyPanel;
 	import components.ExternalSWF;

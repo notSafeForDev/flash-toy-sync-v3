@@ -1,6 +1,7 @@
 package components {
 	
 	import core.CustomEvent;
+	import core.Fonts;
 	import core.GraphicsUtil;
 	import core.MouseEvents;
 	import core.MovieClipUtil;
@@ -27,6 +28,8 @@ package components {
 			background = MovieClipUtil.create(_parent, "background");
 			text = new TextElement(background, "PLACEHOLDER");
 			text.element.textColor = 0xFFFFFF;
+			text.setFont(Fonts.COURIER_NEW);
+			text.setBold(true);
 			
 			GraphicsUtil.beginFill(background, 0xFFFFFF, 0.2);
 			GraphicsUtil.drawRect(background, 0, 0, _width, 20);
@@ -40,7 +43,7 @@ package components {
 		}
 		
 		public function setText(_value : String) : void {
-			text.element.text = _value;
+			text.setText(_value);
 		}
 		
 		private function onBackgroundMouseDown() : void {
