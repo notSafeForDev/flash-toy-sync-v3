@@ -208,6 +208,9 @@ function transpileActionScript3To2(actionscript) {
         return line.split(" : void ").join(" : Void ");
     });
 
+    // Remove : * (any type declaration)
+    replaceInActionScriptLines(lines, ["(", " : *", ")"], " : *", "");
+
     if (warnings.length > 0) {
         console.log(warnings.join("\n"));
     }

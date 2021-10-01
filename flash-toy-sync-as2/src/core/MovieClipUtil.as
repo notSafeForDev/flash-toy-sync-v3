@@ -97,12 +97,36 @@ class core.MovieClipUtil {
 		}
 	}
 	
+	public static function hitTest(_child : MovieClip, _stageX : Number, _stageY : Number, _shapeFlag : Boolean) : Boolean {
+		return _child.hitTest(_stageX, _stageY, _shapeFlag);
+	}
+	
 	public static function create(_parent : MovieClip, _name : String) : MovieClip {
 		return _parent.createEmptyMovieClip(_name, _parent.getNextHighestDepth());
+	}
+
+	public static function remove(_movieClip : MovieClip) : Void {
+		 // MovieClips created through Adobe Flash/Animate, have a negative depth, and can't be removed
+		 // this gives it a positive depth so that it can be removed
+		_movieClip.swapDepths(10000);
+		_movieClip.removeMovieClip();
 	}
 	
 	public static function getParent(_movieClip : MovieClip) : MovieClip {
 		return _movieClip._parent;
+	}
+	
+	public static function getParents(_movieClip : MovieClip) : Array {
+		var parents : Array = [];
+		var parent = _movieClip._parent;
+		while (true) {
+			if (typeof parent != "movieclip") {
+				break;
+			}
+			parents.push(parent);
+			parent = parent.parent;
+		}
+		return parents;
 	}
 	
 	static function hasNestedAnimations(_topParent : MovieClip) : Boolean {

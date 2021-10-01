@@ -17,6 +17,7 @@ package core {
 			element.width = 0;
 			element.height = 0;
 			element.autoSize = TextFieldAutoSize.LEFT;
+			element.selectable = false;
 			_parent.addChild(element);
 		}
 	}

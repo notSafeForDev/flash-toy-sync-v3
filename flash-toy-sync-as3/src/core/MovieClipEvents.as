@@ -17,11 +17,5 @@ package core
 				_handler();
 			});
 		}
-		
-		public static function addOnExitFrame(_scope : * , _movieClip : MovieClip, _handler : Function) : void {
-			_movieClip.addEventListener(Event.EXIT_FRAME, function (e : Event) : void {
-				_handler();
-			});
-		}
 	}
 }

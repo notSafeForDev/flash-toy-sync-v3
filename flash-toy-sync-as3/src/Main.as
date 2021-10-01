@@ -1,5 +1,6 @@
 package {
 	
+	import core.StageUtil;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -19,6 +20,8 @@ package {
 		private function init(e : Event = null) : void {
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
+			StageUtil.initialize(stage);
+			
 			var container : MovieClip = new MovieClip();
 			container.name = "root";
 			stage.addChild(container);

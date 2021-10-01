@@ -124,6 +124,18 @@
 			return maxFrames;
 		}
 		
+		/**
+		 * Checks if a position on the stage intersects with a child
+		 * @param	_child 		The child to check against
+		 * @param	_stageX		The horizontal position on the stage
+		 * @param	_stageY		The vertical position on the stage
+		 * @param	_shapeFlag	Whether it should take into account the shape of the child, if it's set to false, it will count it as a hit as long as the position is anywhere within the child's bounding box
+		 * @return	Whether the position intersected with the child
+		 */
+		public static function hitTest(_child : MovieClip, _stageX : Number, _stageY : Number, _shapeFlag : Boolean = false) : Boolean {
+			return _child.hitTestPoint(_stageX, _stageY, _shapeFlag);
+		}
+		
 		public static function create(_parent : MovieClip, _name : String = "") : MovieClip {
 			var movieClip : MovieClip = new MovieClip();
 			movieClip.name = _name;
@@ -131,8 +143,32 @@
 			return movieClip;
 		}
 		
+		public static function remove(_movieClip : MovieClip) : void {
+			if (_movieClip.parent != null) {
+				_movieClip.parent.removeChild(_movieClip);
+			}
+		}
+		
 		public static function getParent(_movieClip : MovieClip) : MovieClip {
 			return MovieClip(_movieClip.parent);
+		}
+		
+		public static function getParents(_movieClip : MovieClip) : Array {
+			if (_movieClip.parent is MovieClip == false) {
+				return [];
+			}
+			
+			var parents : Array = [];
+			var parent : MovieClip = MovieClip(_movieClip.parent);
+			while (parent is MovieClip) {
+				parents.push(parent);
+				if (parent.parent is MovieClip) {
+					parent = MovieClip(parent.parent);
+				} else {
+					break;
+				}
+			}
+			return parents;
 		}
 		
 		public static function getChildIndex(_movieClip : MovieClip) : Number {

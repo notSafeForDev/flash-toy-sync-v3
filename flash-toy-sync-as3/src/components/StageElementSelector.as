@@ -3,6 +3,7 @@ package components {
 	import flash.display.MovieClip;
 	import flash.geom.Rectangle;
 	
+	import core.StageUtil;
 	import core.FunctionUtil;
 	import core.MovieClipUtil;
 	import core.GraphicsUtil;
@@ -30,15 +31,18 @@ package components {
 			drawBounds();
 		}
 		
-		private function onMouseDown(_clickedChildren : Array) : void {
-			if (_clickedChildren.length == 0) {
-				selectedChildren.length = 0;
-				return;
-			}
-			
+		private function onMouseDown() : void {
 			selectedChildren.length = 0;
-			for (var i : Number = 0; i < _clickedChildren.length; i++) {
-				selectedChildren.push(_clickedChildren[i]);
+			
+			var nestedChildren : Array = MovieClipUtil.getNestedChildren(container);
+			
+			for (var i : Number = 0; i < nestedChildren.length; i++) {
+				var stageX : Number = StageUtil.getMouseX();
+				var stageY : Number = StageUtil.getMouseY();
+				var wasHit : Boolean = MovieClipUtil.hitTest(nestedChildren[i], stageX, stageY, true);
+				if (wasHit == true) {
+					selectedChildren.push(nestedChildren[i]);
+				}
 			}
 		}
 		

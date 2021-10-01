@@ -5,28 +5,66 @@
 	
 	public class StageUtil {
 		
-		public static function makeWindowed(_child : MovieClip) {
-			_child.stage.displayState = "normal";
+		private static var stage : Stage;
+		
+		public static function initialize(_stage : Stage) : void {
+			stage = _stage;
 		}
 		
-		public static function makeFullscreen(_child : MovieClip) {
-			_child.stage.displayState = "fullScreenInteractive";
+		public static function makeWindowed() : void {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			stage.displayState = "normal";
 		}
 		
-		public static function isWindowed(_child : MovieClip) : Boolean {
-			return _child.stage.displayState == "normal";
+		public static function makeFullscreen() : void {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			stage.displayState = "fullScreenInteractive";
 		}
 		
-		public static function isFullscreen(_child : MovieClip) : Boolean {
-			return _child.stage.displayState != "normal";
+		public static function isWindowed() : Boolean {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			return stage.displayState == "normal";
 		}
 		
-		public static function getWidth(_child : MovieClip) : Number {
-			return _child.stage.stageWidth;
+		public static function isFullscreen() : Boolean {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			return stage.displayState != "normal";
 		}
 		
-		public static function getHeight(_child : MovieClip) : Number {
-			return _child.stage.stageHeight;
+		public static function getWidth() : Number {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			return stage.stageWidth;
+		}
+		
+		public static function getHeight() : Number {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			return stage.stageHeight;
+		}
+		
+		public static function getMouseX() : Number {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			return stage.mouseX;
+		}
+		
+		public static function getMouseY() : Number {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			return stage.mouseY;
 		}
 	}
 }

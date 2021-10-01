@@ -18,24 +18,17 @@ package core
 		 * @param	_target		The movieClip to capture mouse events on
 		 * @param	_handler	The callback, expects: (clickedChildren : []), each child of the target that is under the cursor gets passed to this function
 		 */
-		public static function addOnMouseDown(_scope : * , _target : MovieClip, _handler : Function) : void {
-			add(_scope, _target, MouseEvent.MOUSE_DOWN, _handler);
+		public static function addOnMouseDown(_scope : *, _target : MovieClip, _handler : Function, _arg : * = undefined) : void {
+			add(_scope, _target, MouseEvent.MOUSE_DOWN, _handler, _arg);
 		}
 		
-		private static function add(_scope : *, _target : MovieClip, _type : String, _handler : Function) : void {
+		private static function add(_scope : * , _target : MovieClip, _type : String, _handler : Function, _arg : * = undefined) : void {
 			_target.addEventListener(_type, function(e : MouseEvent) : void {
-				var nestedChildren : Array = MovieClipUtil.getNestedChildren(_target);
-				var clickedChildren : Array = [];
-				
-				for (var i : Number = 0; i < nestedChildren.length; i++) {
-					var child : MovieClip = nestedChildren[i];
-					var hitting : Boolean = child.hitTestPoint(e.stageX, e.stageY, true);
-					if (hitting == true) {
-						clickedChildren.push(child);
-					}
+				if (_arg != undefined) {
+					_handler(_arg);
+				} else {
+					_handler();
 				}
-				
-				_handler(clickedChildren);
 			});
 		}
 	}

@@ -19,4 +19,11 @@
 		
 		return -1;
 	}
+	
+	static function remove(_array : Array, _searchElement) : Void {
+		var index : Number = indexOf(_array, _searchElement);
+		if (index >= 0) {
+			_array.splice(index, 1);
+		}
+	}
 }
