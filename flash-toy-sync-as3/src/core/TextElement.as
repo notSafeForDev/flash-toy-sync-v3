@@ -10,6 +10,16 @@ package core {
 	 */
 	public class TextElement {
 		
+		public static var AUTO_SIZE_LEFT : String = "left";
+		public static var AUTO_SIZE_RIGHT : String = "right";
+		public static var AUTO_SIZE_CENTER : String = "center";
+		public static var AUTO_SIZE_NONE : String = "none";
+		
+		public static var ALIGN_LEFT : String = "left";
+		public static var ALIGN_RIGHT : String = "right";
+		public static var ALIGN_CENTER : String = "center";
+		public static var ALIGN_JUSTIFY : String = "justify";
+		
 		public var element : TextField;
 	
 		private var textFormat : TextFormat;
@@ -19,7 +29,7 @@ package core {
 			element.name = "TextField_" + _value;
 			element.width = 0;
 			element.height = 0;
-			element.autoSize = TextFieldAutoSize.LEFT;
+			element.autoSize = AUTO_SIZE_LEFT;
 			element.selectable = false;
 			_parent.addChild(element);
 			
@@ -28,13 +38,30 @@ package core {
 			setText(_value);
 		}
 		
+		public function setX(_value : Number) : void {
+			element.x = _value;
+		}
+		
+		public function setY(_value : Number) : void {
+			element.y = _value;
+		}
+		
 		public function setText(_value : String) : void {
 			element.text = _value;
 			element.setTextFormat(textFormat);
 		}
 		
+		public function setAutoSize(_value : String) : void {
+			element.autoSize = _value;
+		}
+		
 		public function setFont(_value : String) : void {
 			textFormat.font = _value;
+			setText(element.text);
+		}
+		
+		public function setFontSize(_value : Number) : void {
+			textFormat.size = _value;
 			setText(element.text);
 		}
 		
@@ -48,8 +75,8 @@ package core {
 			setText(element.text);
 		}
 		
-		public function setFontSize(_value : Number) : void {
-			textFormat.size = _value;
+		public function setAlign(_value : String) : void {
+			textFormat.align = _value;
 			setText(element.text);
 		}
 	}

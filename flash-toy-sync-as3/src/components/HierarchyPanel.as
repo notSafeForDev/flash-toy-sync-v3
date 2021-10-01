@@ -111,7 +111,8 @@ package components {
 			
 			name += path.length > 0 ? path[path.length - 1] : "root";
 			
-			listItem.setText(name);
+			listItem.setNameText(name);
+			listItem.setFrameValues(MovieClipUtil.getCurrentFrame(_child), MovieClipUtil.getTotalFrames(_child));
 		}
 		
 		private function onListItemMouseDown(_index : Number) : void {
