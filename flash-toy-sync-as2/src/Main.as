@@ -9,7 +9,7 @@ class Main {
 		// entry point
 		// var animationContainer : MovieClip = _root.createEmptyMovieClip("AnimationContainer", _root.getNextHighestDepth())
 		StageUtil.initialize();
-		var index : Index = new Index(_root, "animations/midna-3x-pleasure.swf");
+		var index : Index = new Index(_root, "animations/besped-solo-shemale.swf");
 	}
 
 	public function Main() {

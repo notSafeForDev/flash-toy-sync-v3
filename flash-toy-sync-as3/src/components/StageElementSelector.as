@@ -24,7 +24,9 @@ package components {
 			overlay = _overlay;
 			
 			MovieClipEvents.addOnEnterFrame(this, overlay, onEnterFrame);
-			MouseEvents.addOnMouseDown(this, container, onMouseDown);
+			MouseEvents.addOnMouseDownPassThrough(this, container, onMouseDown);
+			
+			// _target.getObjectsUnderPoint // TODO: See if it can be used to improve selection
 		}
 		
 		private function onEnterFrame() : void {

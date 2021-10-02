@@ -51,6 +51,10 @@ package components {
 			MovieClipUtil.setVisible(background, _value);
 		}
 		
+		public function setIndex(_value : Number) : void {
+			index = _value;
+		}
+		
 		public function setNameText(_value : String) : void {
 			nameText.setText(_value);
 		}

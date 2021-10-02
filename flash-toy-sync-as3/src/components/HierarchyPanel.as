@@ -43,8 +43,9 @@ package components {
 				var validChildren : Array = [];
 				
 				for (i = 0; i < nestedChildren.length; i++) {
+					var totalFrames : Number = MovieClipUtil.getTotalFrames(nestedChildren[i]);
 					var hasNestedAnimations : Boolean = MovieClipUtil.hasNestedAnimations(nestedChildren[i]);
-					if (hasNestedAnimations == true) {
+					if (hasNestedAnimations == true || totalFrames > 1) {
 						validChildren.push(nestedChildren[i]);
 					}
 				}
@@ -112,6 +113,7 @@ package components {
 			name += path.length > 0 ? path[path.length - 1] : "root";
 			
 			listItem.setNameText(name);
+			listItem.setIndex(_index);
 			listItem.setFrameValues(MovieClipUtil.getCurrentFrame(_child), MovieClipUtil.getTotalFrames(_child));
 		}
 		
