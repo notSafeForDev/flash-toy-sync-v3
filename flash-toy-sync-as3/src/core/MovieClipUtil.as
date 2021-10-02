@@ -92,16 +92,20 @@
 		/**
 		 * Get all nested children of a parent
 		 * @param	_topParent	The parent
+		 * @param 	_evaluator	A function (function(_child : MovieClip) : Boolean), which when returning false, filters out the child and any of it's nested children
+		 * @param 	_scope		The scope for the evaluator function, needed for compatiblity with AS2
 		 * @return An array of all nested children
 		 */
-		public static function getNestedChildren(_topParent : MovieClip) : Array {
+		public static function getNestedChildren(_topParent : MovieClip, _evaluator : Function = null, _scope : * = null) : Array {
 			var children : Array = [];
 			
 			for (var i : int = 0; i < _topParent.numChildren; i++) {
 				if (_topParent.getChildAt(i) is MovieClip) {
 					var child : MovieClip = MovieClip(_topParent.getChildAt(i));
-					children.push(child);
-					children = children.concat(getNestedChildren(child));
+					if (_evaluator == null || _evaluator(child) == true) {
+						children.push(child);
+						children = children.concat(getNestedChildren(child));
+					}
 				}
 			}
 			

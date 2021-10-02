@@ -4,7 +4,7 @@
 		var args : Array = arguments.slice(2);
 		return function() {
 			var allArguments : Array = args.concat(arguments);
-			_function.apply(_scope, allArguments);
+			return _function.apply(_scope, allArguments);
 		}
 	}
 }

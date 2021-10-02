@@ -80,5 +80,9 @@ package core {
 			}
 			return parents;
 		}
+		
+		public static function isDisplayObject(_object : * ) : Boolean {
+			return _object is DisplayObject;
+		}
 	}
 }

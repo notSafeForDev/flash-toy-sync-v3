@@ -44,7 +44,7 @@ class core.DisplayObjectUtil {
 		return parents;
 	}
 	
-	private static function isDisplayObject(_object) : Boolean {
+	public static function isDisplayObject(_object) : Boolean {
 		return typeof _object == "movieclip" || _object["_visible"] != undefined
 	}
 }

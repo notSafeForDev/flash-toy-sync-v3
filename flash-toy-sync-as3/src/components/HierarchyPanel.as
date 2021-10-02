@@ -1,5 +1,8 @@
 package components {
 	
+	import core.Debug;
+	import core.DisplayObjectUtil;
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	
 	import core.ArrayUtil;
@@ -26,14 +29,31 @@ package components {
 			animationContainer = _animationContainer;
 		}
 		
+		// Provides significant performance increase for when children are collapsed in AS2, with a negligible difference in AS3
+		private function shouldIncludeChildEvaluator(_child : MovieClip) : Boolean {
+			var parent : DisplayObject = DisplayObjectUtil.getParent(_child);
+			var parentOfParent : DisplayObject = null;
+			if (DisplayObjectUtil.isDisplayObject(DisplayObjectUtil.getParent(parent)) == true) {
+				parentOfParent = DisplayObjectUtil.getParent(parent);
+			}
+			
+			return ArrayUtil.indexOf(expandedChildren, parent) >= 0 || (parentOfParent != null && ArrayUtil.indexOf(expandedChildren, parentOfParent) >= 0);
+		}
+		
 		public function update() : void {
 			displayedChildren.length = 0;
 			displayedChildren.push(animationContainer);
 			
-			var nestedChildren : Array = MovieClipUtil.getNestedChildren(animationContainer);
+			var startTime : Number = Debug.getTime();
+			
+			var nestedChildren : Array = MovieClipUtil.getNestedChildren(animationContainer, shouldIncludeChildEvaluator, this);
 			var i : Number = 0;
 			var child : MovieClip;
 			var parent : MovieClip;
+			
+			// trace(nestedChildren.length);
+			var endTime : Number = Debug.getTime();
+			// trace("Hierarchy: " + endTime - startTime);
 			
 			// Each index of this array corresponds to each nested child, with each value corresponding to the number of children it has
 			// We use this to determine if a list item should be expandable

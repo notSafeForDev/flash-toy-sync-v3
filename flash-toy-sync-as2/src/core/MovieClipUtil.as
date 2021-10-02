@@ -1,4 +1,5 @@
-﻿import flash.geom.Rectangle;
+﻿import core.FunctionUtil;
+import flash.geom.Rectangle;
 class core.MovieClipUtil {
 	
 	static function getChildPath(_topParent : MovieClip, _child : MovieClip) : Array {
@@ -60,13 +61,24 @@ class core.MovieClipUtil {
 		return child;
 	}
 	
-	static function getNestedChildren(_topParent : MovieClip) : Array {
+	static function getNestedChildren(_topParent : MovieClip, _evaluator : Function, _scope) : Array {
 		var children : Array = [];
+		var evaluator : Function = _evaluator;
+		if (_evaluator != undefined && _scope != undefined) {
+			evaluator = FunctionUtil.bind(_scope, _evaluator);
+		}
 		
 		for (var childName : String in _topParent) {
 			if (typeof _topParent[childName] == "movieclip") {
-				children.push(_topParent[childName]);
-				children = children.concat(getNestedChildren(_topParent[childName]));
+				var child : MovieClip = _topParent[childName];
+				// trace("Evaluator: " + evaluator + ", Evaluated: " + evaluator(child));
+				if (evaluator == undefined || evaluator(child) == true) {
+					children.push(_topParent[childName]);
+					children = children.concat(getNestedChildren(child, evaluator));
+				}
+				if (evaluator == undefined || evaluator(child) == false) {
+					// trace("Has no evaluator or can't find: " + child);
+				}
 			}
 		}
 		

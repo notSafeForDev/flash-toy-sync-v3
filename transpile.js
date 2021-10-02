@@ -209,7 +209,7 @@ function transpileActionScript3To2(actionscript) {
     });
 
     // Repace : DisplayObject with : MovieClip
-    replaceInActionScriptLines(lines, [" : DisplayObject "], " : DisplayObject ", " : MovieClip ");
+    replaceInActionScriptLines(lines, [" : DisplayObject"], " : DisplayObject", " : MovieClip");
 
     // Remove : * (any type declaration)
     replaceInActionScriptLines(lines, ["(", " : *", ")"], " : *", "");
