@@ -71,13 +71,9 @@ class core.MovieClipUtil {
 		for (var childName : String in _topParent) {
 			if (typeof _topParent[childName] == "movieclip") {
 				var child : MovieClip = _topParent[childName];
-				// trace("Evaluator: " + evaluator + ", Evaluated: " + evaluator(child));
 				if (evaluator == undefined || evaluator(child) == true) {
 					children.push(_topParent[childName]);
 					children = children.concat(getNestedChildren(child, evaluator));
-				}
-				if (evaluator == undefined || evaluator(child) == false) {
-					// trace("Has no evaluator or can't find: " + child);
 				}
 			}
 		}
@@ -142,7 +138,35 @@ class core.MovieClipUtil {
 	}
 	
 	static function hasNestedAnimations(_topParent : MovieClip) : Boolean {
-		return getMaxFramesInChildren(_topParent) > 1;
+		var output : Boolean = false;
+		
+		iterateOverChildren(_topParent, function(_child : MovieClip) : Boolean {
+			if (_child._totalframes > 1) {
+				output = true;
+				return false;
+			}
+			return true;
+		});
+		
+		return output;
+	}
+	
+	static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope) : Void {
+		var handler : Function = _handler;
+		if (_handler != undefined && _scope != undefined) {
+			handler = FunctionUtil.bind(_scope, _handler);
+		}
+		
+		for (var childName : String in _topParent) {
+			if (typeof _topParent[childName] == "movieclip") {
+				var child : MovieClip = _topParent[childName];
+				var shouldStop : Boolean = _handler(child) == false;
+				if (shouldStop == true) {
+					break;
+				}
+				iterateOverChildren(child, _handler);
+			}
+		}
 	}
 	
 	static function getCurrentFrame(_movieClip : MovieClip) : Number {

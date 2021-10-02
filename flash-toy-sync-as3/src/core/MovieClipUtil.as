@@ -6,8 +6,32 @@
 	public class MovieClipUtil {
 		
 		/**
-		 * Get a path to a nested child
-		 * Used in conjunction with getChildFromPath
+		 * Get the name used for the child in a child path
+		 * @param	_child	The child
+		 * @param	_depth	How deeply nested a child is, 1 means it's a direct child to the parent
+		 * @return	The name
+		 */
+		private static function getChildPathPart(_child : MovieClip, _depth : int) : String {
+			// If the name starts with "instance", then it's most likely auto generated, which changes each time
+			// So only return the actual name if that isn't the case
+			if (_child.name.indexOf("instance") != 0) {
+				return _child.name;
+			}
+				
+			var name : String = "";
+			
+			// Otherwise we use hashes followed by the child index, in order to generate a unique name that won't change each time
+			// The number of hashes to add are based on how deeply nested the child is, 1 if it's a direct child of the parent
+			while (name.length <= _depth) {
+				name += "#";
+			}
+			
+			name += _child.parent.getChildIndex(_child);
+			return name;
+		}
+		
+		/**
+		 * Get a path to a nested child, used in conjunction with getChildFromPath
 		 * @param	_topParent	The MovieClip to start generating the path from
 		 * @param	_child		The target MovieClip
 		 * @return 	An array of strings representing the path to a nested child
@@ -36,28 +60,14 @@
 				
 			// Fill the path array with child names
 			for (var i : Number = 0; i < children.length; i++) {
-				var name : String = children[i].name;
-				
-				// If the name starts with "instance", then it's most likely auto generated, which changes each time
-				// So we instead use hashes followed by the child index, in order to generate a unique name that won't change each time
-				if (name.indexOf("instance") == 0) {
-					name = "";
-					// The number of hashes to add are based on how deeply nested the child is, 1 if it's a direct child of the parent
-					while (name.length <= i) {
-						name += "#";
-					}
-					name += children[i].parent.getChildIndex(children[i]);
-				}
-				
-				path.push(name);
+				path.push(getChildPathPart(children[i], i));
 			}
 			
 			return path;
 		}
 		
 		/**
-		 * Get a nested child from a path
-		 * Used in conjunction with getChildPath
+		 * Get a nested child from a path, used in conjunction with getChildPath
 		 * @param	_topParent	The MovieClip that is parent to the first child in the path
 		 * @param	_path		An array of strings representing the path to a nested child
 		 * @return 	The child at the end of the path, or null if a child can't be found
@@ -92,7 +102,7 @@
 		/**
 		 * Get all nested children of a parent
 		 * @param	_topParent	The parent
-		 * @param 	_evaluator	A function (function(_child : MovieClip) : Boolean), which when returning false, filters out the child and any of it's nested children
+		 * @param 	_evaluator	A function (_child : MovieClip) : Boolean - which when returning false, filters out the child and any of it's nested children
 		 * @param 	_scope		The scope for the evaluator function, needed for compatiblity with AS2
 		 * @return An array of all nested children
 		 */
@@ -179,8 +189,43 @@
 			return _movieClip.parent.getChildIndex(_movieClip);
 		}
 		
+		/**
+		 * Check if a parent has any nested children with more than 1 total frame
+		 * @param	_topParent	The parent
+		 * @return	Wether it's true or not
+		 */
 		public static function hasNestedAnimations(_topParent : MovieClip) : Boolean {
-			return getMaxFramesInChildren(_topParent) > 1;
+			var output : Boolean = false;
+			
+			iterateOverChildren(_topParent, function(_child : MovieClip) : Boolean {
+				if (_child.totalFrames > 1) {
+					output = true;
+					return false;
+				}
+				return true;
+			}, undefined);
+			
+			return output;
+		}
+		
+		/**
+		 * Calls a callback for each nested child to the parent 
+		 * @param	_topParent	The parent
+		 * @param	_handler	A function (_child : MovieClip) : Boolean - When this returns false, it stops iterating
+		 * @param	_scope		The scope for the function, required for AS2 compatibility
+		 */
+		public static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope : *) : void {
+			for (var i : int = 0; i < _topParent.numChildren; i++) {
+				var child : * = _topParent.getChildAt(i);
+				if (child is MovieClip == false) {
+					continue;
+				}
+				var shouldStop : Boolean = _handler(child) == false;
+				if (shouldStop == true) {
+					break;
+				}
+				iterateOverChildren(child, _handler, _scope);
+			}
 		}
 		
 		public static function getCurrentFrame(_movieClip : MovieClip) : Number {

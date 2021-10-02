@@ -45,15 +45,15 @@ package components {
 			displayedChildren.push(animationContainer);
 			
 			var startTime : Number = Debug.getTime();
+			var latestTime : Number = Debug.getTime();
 			
 			var nestedChildren : Array = MovieClipUtil.getNestedChildren(animationContainer, shouldIncludeChildEvaluator, this);
 			var i : Number = 0;
 			var child : MovieClip;
 			var parent : MovieClip;
 			
-			// trace(nestedChildren.length);
-			var endTime : Number = Debug.getTime();
-			// trace("Hierarchy: " + endTime - startTime);
+			var elapsedTimeNestedChildren : Number = Debug.getTime() - latestTime;
+			latestTime = Debug.getTime();
 			
 			// Each index of this array corresponds to each nested child, with each value corresponding to the number of children it has
 			// We use this to determine if a list item should be expandable
@@ -73,6 +73,9 @@ package components {
 				nestedChildren = validChildren;
 			}
 			
+			var elapsedTimeExcludedChildren : Number = Debug.getTime() - latestTime;
+			latestTime = Debug.getTime();
+			
 			for (i = 0; i < nestedChildren.length; i++) {
 				parentsChildCounts.push(0);
 				parent = MovieClipUtil.getParent(nestedChildren[i]);
@@ -86,6 +89,9 @@ package components {
 				}
 			}
 			
+			var elapsedTimeDisplayedChildren : Number = Debug.getTime() - latestTime;
+			latestTime = Debug.getTime();
+			
 			for (i = 0; i < displayedChildren.length; i++) {
 				child = displayedChildren[i];
 				var nestedChildIndex : Number = ArrayUtil.indexOf(nestedChildren, child);
@@ -98,6 +104,17 @@ package components {
 			for (i = displayedChildren.length; i < listItems.length; i++) {
 				listItems[i].setVisible(false);
 			}
+			
+			var elapsedTimeUpdateList : Number = Debug.getTime() - latestTime;
+			var endTime : Number = Debug.getTime();
+			
+			/* trace(
+				"Hierarchy Total: " + (endTime - startTime).toString() + 
+				", Nested: " + (elapsedTimeNestedChildren).toString() + 
+				", Excluded: " + (elapsedTimeExcludedChildren).toString() +
+				", Displayed: " + (elapsedTimeDisplayedChildren).toString() +
+				", List: " + (elapsedTimeUpdateList).toString()
+			); */
 		}
 		
 		private function updateListItem(_child : MovieClip, _isExpandable : Boolean, _index : Number) : void {
