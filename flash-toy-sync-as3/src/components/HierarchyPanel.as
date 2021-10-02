@@ -29,7 +29,7 @@ package components {
 			animationContainer = _animationContainer;
 		}
 		
-		// Provides significant performance increase for when children are collapsed in AS2, with a negligible difference in AS3
+		// Provides significant performance increase for when children are collapsed in AS2, with a slight increase in AS3
 		private function shouldIncludeChildEvaluator(_child : MovieClip) : Boolean {
 			var parent : DisplayObject = DisplayObjectUtil.getParent(_child);
 			var parentOfParent : DisplayObject = null;

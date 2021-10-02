@@ -104,7 +104,7 @@
 					var child : MovieClip = MovieClip(_topParent.getChildAt(i));
 					if (_evaluator == null || _evaluator(child) == true) {
 						children.push(child);
-						children = children.concat(getNestedChildren(child));
+						children = children.concat(getNestedChildren(child, _evaluator, _scope));
 					}
 				}
 			}
