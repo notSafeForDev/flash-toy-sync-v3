@@ -1,5 +1,6 @@
 package {
 	
+	import core.Debug;
 	import flash.display.MovieClip;
 	import flash.utils.Timer;
 	
@@ -47,9 +48,9 @@ package {
 		}
 		
 		private function onEnterFrame() : void {
-			// var startTime : int = flash.utils.getTimer();
+			var startTime : Number = Debug.getTime();
 			hierarchyPanel.update();
-			// var endTime : int = flash.utils.getTimer();
+			var endTime : Number = Debug.getTime();
 			// trace(endTime - startTime);
 		}
 	}

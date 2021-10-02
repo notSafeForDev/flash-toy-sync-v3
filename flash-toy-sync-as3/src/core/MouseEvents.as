@@ -1,5 +1,6 @@
 package core 
 {
+	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.events.MouseEvent;
@@ -26,7 +27,7 @@ package core
 					return;
 				}
 				
-				var parents : Array = MovieClipUtil.getParents(MovieClip(e.target));
+				var parents : Array = DisplayObjectUtil.getParents(DisplayObject(e.target));
 				if (parents.indexOf(_target) < 0 && (e.target is MovieClip == false || MovieClip(e.target) != _target)) {
 					return;
 				}
