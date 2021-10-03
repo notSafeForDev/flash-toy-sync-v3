@@ -13,13 +13,21 @@ package components {
 	 */
 	public class HierarchyPanel {
 		
+		private var base : Panel;
+		
 		private var panelWidth : Number = 200;
 		private var panelHeight : Number = 400;
 		
-		private var base : Panel;
 		private var animationContainer : MovieClip;
+		
+		private var nestedChildren : Array = [];
+		private var nestedChildrenDepths : Array = [];
+		
 		private var expandedChildren : Array = [];
+		
 		private var displayedChildren : Array = [];
+		private var displayedChildrenDepths : Array = [];
+		
 		private var listItems : Array = [];
 		
 		public var excludeChildrenWithoutNestedAnimations : Boolean = true;
@@ -29,53 +37,63 @@ package components {
 			animationContainer = _animationContainer;
 		}
 		
-		// Provides significant performance increase for when children are collapsed in AS2, with a slight increase in AS3
-		private function shouldIncludeChildEvaluator(_child : MovieClip) : Boolean {
+		// Used to updated nestedChildren, which we use to determine which elements to display in the list
+		private function nestedChildrenIterator(_child : MovieClip, _depth : Number) : Number {
 			var parent : DisplayObject = DisplayObjectUtil.getParent(_child);
 			var parentOfParent : DisplayObject = null;
 			if (DisplayObjectUtil.isDisplayObject(DisplayObjectUtil.getParent(parent)) == true) {
 				parentOfParent = DisplayObjectUtil.getParent(parent);
 			}
 			
-			return ArrayUtil.indexOf(expandedChildren, parent) >= 0 || (parentOfParent != null && ArrayUtil.indexOf(expandedChildren, parentOfParent) >= 0);
+			if (excludeChildrenWithoutNestedAnimations == true) {
+				var totalFrames : Number = MovieClipUtil.getTotalFrames(_child);
+				var hasNestedAnimations : Boolean = MovieClipUtil.hasNestedAnimations(_child);
+				if (hasNestedAnimations == false && totalFrames == 1) {
+					return MovieClipUtil.ITERATE_SKIP_NESTED;
+				}
+			}
+			
+			var shouldInclude : Boolean = ArrayUtil.indexOf(expandedChildren, parent) >= 0 || (parentOfParent != null && ArrayUtil.indexOf(expandedChildren, parentOfParent) >= 0);
+			
+			if (shouldInclude == true) {
+				nestedChildren.push(_child);
+				nestedChildrenDepths.push(_depth);
+				return MovieClipUtil.ITERATE_CONTINUE;
+			}
+			
+			return MovieClipUtil.ITERATE_SKIP_NESTED;
 		}
 		
 		public function update() : void {
-			displayedChildren.length = 0;
-			displayedChildren.push(animationContainer);
-			
 			var startTime : Number = Debug.getTime();
 			var latestTime : Number = Debug.getTime();
 			
-			var nestedChildren : Array = MovieClipUtil.getNestedChildren(animationContainer, shouldIncludeChildEvaluator, this);
-			var i : Number = 0;
-			var child : MovieClip;
-			var parent : MovieClip;
+			nestedChildren.length = 0;
+			nestedChildrenDepths.length = 0;
+			
+			displayedChildren.length = 0;
+			displayedChildren.push(animationContainer);
+			displayedChildrenDepths.length = 0;
+			displayedChildrenDepths.push(0);
+			
+			// This updates nestedChildren and nestedChildrenDepths
+			MovieClipUtil.iterateOverChildren(animationContainer, nestedChildrenIterator, this);
 			
 			var elapsedTimeNestedChildren : Number = Debug.getTime() - latestTime;
 			latestTime = Debug.getTime();
+			
+			var i : Number = 0;
+			var child : MovieClip;
+			var parent : MovieClip;
 			
 			// Each index of this array corresponds to each nested child, with each value corresponding to the number of children it has
 			// We use this to determine if a list item should be expandable
 			var parentsChildCounts : Array = [];
 			
-			if (excludeChildrenWithoutNestedAnimations == true) {
-				var validChildren : Array = [];
-				
-				for (i = 0; i < nestedChildren.length; i++) {
-					var totalFrames : Number = MovieClipUtil.getTotalFrames(nestedChildren[i]);
-					var hasNestedAnimations : Boolean = MovieClipUtil.hasNestedAnimations(nestedChildren[i]);
-					if (hasNestedAnimations == true || totalFrames > 1) {
-						validChildren.push(nestedChildren[i]);
-					}
-				}
-				
-				nestedChildren = validChildren;
-			}
-			
 			var elapsedTimeExcludedChildren : Number = Debug.getTime() - latestTime;
 			latestTime = Debug.getTime();
 			
+			// Set the children to display in the list and update information used to determine if a child can be expanded or not
 			for (i = 0; i < nestedChildren.length; i++) {
 				parentsChildCounts.push(0);
 				parent = MovieClipUtil.getParent(nestedChildren[i]);
@@ -86,21 +104,27 @@ package components {
 				
 				if (ArrayUtil.indexOf(expandedChildren, parent) >= 0) {
 					displayedChildren.push(nestedChildren[i]);
+					displayedChildrenDepths.push(nestedChildrenDepths[i]);
 				}
 			}
 			
 			var elapsedTimeDisplayedChildren : Number = Debug.getTime() - latestTime;
 			latestTime = Debug.getTime();
 			
+			// Update list items
 			for (i = 0; i < displayedChildren.length; i++) {
 				child = displayedChildren[i];
+				
+				var depth : Number = displayedChildrenDepths[i];
 				var nestedChildIndex : Number = ArrayUtil.indexOf(nestedChildren, child);
 				var childCount : Number = parentsChildCounts[nestedChildIndex];
 				var isExpandable : Boolean = childCount > 0 || i == 0;
+				var isExpanded : Boolean = ArrayUtil.indexOf(expandedChildren, child) >= 0
 				
-				updateListItem(child, isExpandable, i);
+				updateListItem(child, depth, i, isExpandable, isExpanded);
 			}
 			
+			// Hide list items that are not needed
 			for (i = displayedChildren.length; i < listItems.length; i++) {
 				listItems[i].setVisible(false);
 			}
@@ -117,41 +141,20 @@ package components {
 			); */
 		}
 		
-		private function updateListItem(_child : MovieClip, _isExpandable : Boolean, _index : Number) : void {
+		private function updateListItem(_child : MovieClip, _childDepth : Number, _listIndex : Number, _isExpandable : Boolean, _isExpanded : Boolean) : void {
 			var listItem : HierarchyPanelListItem;
 			
-			if (listItems.length <= _index) {
-				listItem = new HierarchyPanelListItem(base.content, _index, panelWidth);
+			if (listItems.length <= _listIndex) {
+				listItem = new HierarchyPanelListItem(base.content, _listIndex, panelWidth);
 				listItem.onMouseDown.listen(this, onListItemMouseDown);
 				listItems.push(listItem);
 			} else {
-				listItem = listItems[_index]
+				listItem = listItems[_listIndex]
 			}
 			
 			listItem.setVisible(true);
 			
-			var path : Array = MovieClipUtil.getChildPath(animationContainer, _child);
-			var name : String = "";
-			
-			for (var i : Number = 0; i < path.length; i++) {
-				name += "  ";
-			}
-			
-			if (_isExpandable == true) {
-				if (ArrayUtil.indexOf(expandedChildren, _child) >= 0) {
-					name += "v ";
-				} else {
-					name += "> ";
-				}
-			} else {
-				name += "  ";
-			}
-			
-			name += path.length > 0 ? path[path.length - 1] : "root";
-			
-			listItem.setNameText(name);
-			listItem.setIndex(_index);
-			listItem.setFrameValues(MovieClipUtil.getCurrentFrame(_child), MovieClipUtil.getTotalFrames(_child));
+			listItem.update(_child, _childDepth, _isExpandable, _isExpanded);
 		}
 		
 		private function onListItemMouseDown(_index : Number) : void {

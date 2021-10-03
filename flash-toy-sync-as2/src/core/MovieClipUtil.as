@@ -1,6 +1,22 @@
 ﻿import core.FunctionUtil;
+import core.MovieClipUtil;
 import flash.geom.Rectangle;
 class core.MovieClipUtil {
+	
+	static function getChildPathPart(_child : MovieClip, _depth : Number) : String {
+		if (_child._name.indexOf("instance") != 0) {
+			return _child._name;
+		}
+			
+		var name : String = "";
+		
+		while (name.length <= _depth) {
+			name += "#";
+		}
+		
+		name += getChildIndex(_child).toString();
+		return name;
+	}
 	
 	static function getChildPath(_topParent : MovieClip, _child : MovieClip) : Array {
 		if (_child == _topParent) {
@@ -22,18 +38,8 @@ class core.MovieClipUtil {
 		
 		children.reverse();
 		
-		for (var i = 0; i < children.length; i++) {
-			var name : String = children[i]._name;
-			
-			if (name.indexOf("instance") == 0) {
-				name = "";
-				while (name.length <= i) {
-					name += "#";
-				}
-				name += getChildIndex(children[i]).toString();
-			}
-			
-			path.push(name);
+		for (var i : Number = 0; i < children.length; i++) {
+			path.push(getChildPathPart(children[i], i));
 		}
 		
 		return path;
@@ -61,19 +67,22 @@ class core.MovieClipUtil {
 		return child;
 	}
 	
-	static function getNestedChildren(_topParent : MovieClip, _evaluator : Function, _scope) : Array {
+	static function getNestedChildren(_topParent : MovieClip, _evaluator : Function, _scope, _currentDepth : Number) : Array {
 		var children : Array = [];
 		var evaluator : Function = _evaluator;
 		if (_evaluator != undefined && _scope != undefined) {
 			evaluator = FunctionUtil.bind(_scope, _evaluator);
 		}
+		if (_currentDepth == undefined) {
+			_currentDepth = 0;
+		}
 		
 		for (var childName : String in _topParent) {
 			if (typeof _topParent[childName] == "movieclip") {
 				var child : MovieClip = _topParent[childName];
-				if (evaluator == undefined || evaluator(child) == true) {
+				if (evaluator == undefined || evaluator(child, _currentDepth + 1) == true) {
 					children.push(_topParent[childName]);
-					children = children.concat(getNestedChildren(child, evaluator));
+					children = children.concat(getNestedChildren(child, evaluator, undefined, _currentDepth + 1));
 				}
 			}
 		}
@@ -140,31 +149,40 @@ class core.MovieClipUtil {
 	static function hasNestedAnimations(_topParent : MovieClip) : Boolean {
 		var output : Boolean = false;
 		
-		iterateOverChildren(_topParent, function(_child : MovieClip) : Boolean {
+		iterateOverChildren(_topParent, function(_child : MovieClip) : Number {
 			if (_child._totalframes > 1) {
 				output = true;
-				return false;
+				return MovieClipUtil.ITERATE_ABORT;
 			}
-			return true;
+			return MovieClipUtil.ITERATE_CONTINUE;
 		});
 		
 		return output;
 	}
 	
-	static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope) : Void {
+	static var ITERATE_CONTINUE : Number = 0;
+	static var ITERATE_SKIP_NESTED : Number = 1;
+	static var ITERATE_ABORT : Number = 2;
+	
+	static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope, _currentDepth : Number) : Void {
 		var handler : Function = _handler;
 		if (_handler != undefined && _scope != undefined) {
 			handler = FunctionUtil.bind(_scope, _handler);
+		}
+		if (_currentDepth == undefined) {
+			_currentDepth = 0;
 		}
 		
 		for (var childName : String in _topParent) {
 			if (typeof _topParent[childName] == "movieclip") {
 				var child : MovieClip = _topParent[childName];
-				var shouldStop : Boolean = _handler(child) == false;
-				if (shouldStop == true) {
+				var code : Number = handler(child, _currentDepth + 1);
+				if (code == ITERATE_ABORT) {
 					break;
 				}
-				iterateOverChildren(child, _handler);
+				if (code != ITERATE_SKIP_NESTED) {
+					iterateOverChildren(child, handler, _scope, _currentDepth + 1);
+				}
 			}
 		}
 	}

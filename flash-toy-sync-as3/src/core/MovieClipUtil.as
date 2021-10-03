@@ -11,7 +11,7 @@
 		 * @param	_depth	How deeply nested a child is, 1 means it's a direct child to the parent
 		 * @return	The name
 		 */
-		private static function getChildPathPart(_child : MovieClip, _depth : int) : String {
+		public static function getChildPathPart(_child : MovieClip, _depth : int) : String {
 			// If the name starts with "instance", then it's most likely auto generated, which changes each time
 			// So only return the actual name if that isn't the case
 			if (_child.name.indexOf("instance") != 0) {
@@ -106,15 +106,15 @@
 		 * @param 	_scope		The scope for the evaluator function, needed for compatiblity with AS2
 		 * @return An array of all nested children
 		 */
-		public static function getNestedChildren(_topParent : MovieClip, _evaluator : Function = null, _scope : * = null) : Array {
+		public static function getNestedChildren(_topParent : MovieClip, _evaluator : Function = null, _scope : * = null, _currentDepth : Number = 0) : Array {
 			var children : Array = [];
 			
 			for (var i : int = 0; i < _topParent.numChildren; i++) {
 				if (_topParent.getChildAt(i) is MovieClip) {
 					var child : MovieClip = MovieClip(_topParent.getChildAt(i));
-					if (_evaluator == null || _evaluator(child) == true) {
+					if (_evaluator == null || _evaluator(child, _currentDepth + 1) == true) {
 						children.push(child);
-						children = children.concat(getNestedChildren(child, _evaluator, _scope));
+						children = children.concat(getNestedChildren(child, _evaluator, _scope, _currentDepth + 1));
 					}
 				}
 			}
@@ -197,34 +197,47 @@
 		public static function hasNestedAnimations(_topParent : MovieClip) : Boolean {
 			var output : Boolean = false;
 			
-			iterateOverChildren(_topParent, function(_child : MovieClip) : Boolean {
+			iterateOverChildren(_topParent, function(_child : MovieClip, _depth : Number) : Number {
 				if (_child.totalFrames > 1) {
 					output = true;
-					return false;
+					return ITERATE_ABORT;
 				}
-				return true;
+				return ITERATE_CONTINUE;
 			}, undefined);
 			
 			return output;
 		}
 		
+		/** Return this from the iterateOverChildren handler in order to keep iterating over children */
+		public static var ITERATE_CONTINUE : Number = 0;
+		/** Return this from the iterateOverChildren handler in order to skip the nested children of the current child */
+		public static var ITERATE_SKIP_NESTED : Number = 1;
+		/** Return this from the iterateOverChildren handler in order to stop iterating over children */
+		public static var ITERATE_ABORT : Number = 2;
+		
 		/**
 		 * Calls a callback for each nested child to the parent 
 		 * @param	_topParent	The parent
-		 * @param	_handler	A function (_child : MovieClip) : Boolean - When this returns false, it stops iterating
+		 * @param	_handler	A function (_child : MovieClip, _depth : Number) : Number - The callback
+		 * The handler should return one of the following codes:
+		 * ITERATE_CONTINUE 	: Keep iterating over children
+		 * ITERATE_SKIP_NESTED  : Skip the nested children of the current child
+		 * ITERATE_ABORT		: Stop iterating over children
 		 * @param	_scope		The scope for the function, required for AS2 compatibility
 		 */
-		public static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope : *) : void {
+		public static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope : *, _currentDepth : Number = 0) : void {
 			for (var i : int = 0; i < _topParent.numChildren; i++) {
 				var child : * = _topParent.getChildAt(i);
 				if (child is MovieClip == false) {
 					continue;
 				}
-				var shouldStop : Boolean = _handler(child) == false;
-				if (shouldStop == true) {
+				var code : Number = _handler(child, _currentDepth + 1);
+				if (code == ITERATE_ABORT) {
 					break;
 				}
-				iterateOverChildren(child, _handler, _scope);
+				if (code != ITERATE_SKIP_NESTED) {
+					iterateOverChildren(child, _handler, _scope, _currentDepth + 1);
+				}
 			}
 		}
 		

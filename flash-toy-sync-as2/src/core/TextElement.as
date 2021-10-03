@@ -51,6 +51,9 @@ class core.TextElement {
 	}
 	
 	public function setText(_value : String) : Void {
+		if (element.text == _value) {
+			return; // Important for performance when updating many texts frequently
+		}
 		element.text = _value;
 		element.setTextFormat(textFormat);
 		updateX();

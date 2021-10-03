@@ -14,6 +14,8 @@ package components {
 	public class HierarchyPanelListItem {
 		
 		private var index : Number;
+		private var child : MovieClip;
+		private var isExpanded : Boolean = false;
 		
 		private var background : MovieClip;
 		private var nameText : TextElement;
@@ -51,16 +53,38 @@ package components {
 			MovieClipUtil.setVisible(background, _value);
 		}
 		
-		public function setIndex(_value : Number) : void {
-			index = _value;
+		public function update(_child : MovieClip, _depth : Number, _isExpandable : Boolean, _isExpanded : Boolean) : void {
+			if (_child != child || _isExpanded != isExpanded) {
+				child = _child;
+				isExpanded = _isExpanded;
+				updateNameText(_depth, _isExpandable, _isExpanded);
+			}
+			
+			updateFramesText();
 		}
 		
-		public function setNameText(_value : String) : void {
-			nameText.setText(_value);
+		private function updateNameText(_depth : Number, _isExpandable : Boolean, _isExpanded : Boolean) : void {
+			var name : String = "";
+			
+			for (var i : Number = 0; i < _depth; i++) {
+				name += "  ";
+			}
+			
+			if (_isExpandable == true && _isExpanded == true) {
+				name += "v ";
+			} else if (_isExpandable == true && _isExpanded == false) {
+				name += "> ";
+			} else {
+				name += "  ";
+			}
+			
+			name += _depth == 0 ? "root" : MovieClipUtil.getChildPathPart(child, _depth);
+			
+			nameText.setText(name);
 		}
 		
-		public function setFrameValues(_currentFrame : Number, _totalFrames : Number) : void {
-			framesText.setText(_currentFrame + "/" + _totalFrames);
+		private function updateFramesText() : void {
+			framesText.setText(MovieClipUtil.getCurrentFrame(child) + "/" + MovieClipUtil.getTotalFrames(child));
 		}
 		
 		private function onBackgroundMouseDown() : void {
