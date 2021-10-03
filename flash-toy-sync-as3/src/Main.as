@@ -26,7 +26,7 @@ package {
 			container.name = "root";
 			stage.addChild(container);
 			
-			new Index(container, "animations/blazblue-makoto-sex-session.swf");
+			new Index(container, "animations/karas-nightlife.swf");
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package core {
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.Shape;
 	import flash.geom.Rectangle;
 	/**
 	 * ...
@@ -83,6 +84,10 @@ package core {
 		
 		public static function isDisplayObject(_object : * ) : Boolean {
 			return _object is DisplayObject;
+		}
+		
+		public static function isShape(_object : * ) : Boolean {
+			return _object is Shape;
 		}
 	}
 }

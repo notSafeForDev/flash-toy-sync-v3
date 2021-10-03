@@ -47,4 +47,9 @@ class core.DisplayObjectUtil {
 	public static function isDisplayObject(_object) : Boolean {
 		return typeof _object == "movieclip" || _object["_visible"] != undefined
 	}
+	
+	// For providing comaptibility with AS3
+	public static function isShape(_object) : Boolean {
+		return false;
+	}
 }

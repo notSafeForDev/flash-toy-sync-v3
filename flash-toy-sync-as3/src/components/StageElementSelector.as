@@ -24,8 +24,10 @@ package components {
 		private var overlay : MovieClip;
 		
 		private var selectedChildren : Array = [];
+		private var selectedChildrenDepths : Array = [];
 		private var selectedChildrenParents : Array = [];
 		private var selectedChildrenBounds : Array = [];
+		private var selectedChildrenMissingParentFrameCounts : Array = [];
 		
 		public function StageElementSelector(_container : MovieClip, _overlay : MovieClip) {
 			container = _container;
@@ -43,6 +45,8 @@ package components {
 			selectedChildren.length = 0;
 			selectedChildrenParents.length = 0;
 			selectedChildrenBounds.length = 0;
+			selectedChildrenDepths.length = 0;
+			selectedChildrenMissingParentFrameCounts.length = 0;
 			
 			var nestedChildren : Array = DisplayObjectUtil.getNestedChildren(container);
 			var stageX : Number = StageUtil.getMouseX();
@@ -51,10 +55,12 @@ package components {
 			for (var i : Number = 0; i < nestedChildren.length; i++) {				
 				var wasHit : Boolean = DisplayObjectUtil.hitTest(nestedChildren[i], stageX, stageY, true);
 				if (wasHit == true) {
-					var parent : DisplayObject = DisplayObjectUtil.getParent(nestedChildren[i]);
+					var parents : Array = DisplayObjectUtil.getParents(nestedChildren[i]);
 					selectedChildren.push(nestedChildren[i]);
-					selectedChildrenParents.push(parent);
-					selectedChildrenBounds.push(DisplayObjectUtil.getBounds(nestedChildren[i], parent));
+					selectedChildrenParents.push(parents[0]);
+					selectedChildrenDepths.push(parents.length);
+					selectedChildrenBounds.push(DisplayObjectUtil.getBounds(nestedChildren[i], parents[0]));
+					selectedChildrenMissingParentFrameCounts.push(0);
 				}
 			}
 		}
@@ -69,10 +75,21 @@ package components {
 				var displayObject : DisplayObject = selectedChildren[i];
 				var parent : DisplayObject = DisplayObjectUtil.getParent(displayObject);
 				
-				// This part only appears to be useful for AS3, as AS3 is able to access all nested shapes
-				if (parent == null) {
-					var targetBounds : Rectangle = selectedChildrenBounds[i];
+				var hasInvalidParent : Boolean = parent == null || (selectedChildrenDepths[i] > DisplayObjectUtil.getParents(displayObject).length);
+				
+				if (hasInvalidParent == true) {
+					selectedChildrenMissingParentFrameCounts[i]++;
+				} else {
+					selectedChildrenMissingParentFrameCounts[i] = 0;
+				}
+				
+				var sizeThreshold : Number = 0.05;
+				var positionThreshold : Number = 50;
+				
+				var targetBounds : Rectangle = selectedChildrenBounds[i];
 					
+				// This part only appears to be useful for AS3, as AS3 is able to access all nested shapes
+				if (hasInvalidParent == true) {
 					for (var i2 : Number = 0; i2 < selectedChildrenParents[i].numChildren; i2++) {
 						var otherDisplayObject : DisplayObject = selectedChildrenParents[i].getChildAt(i2);
 						if (otherDisplayObject == null) {
@@ -82,14 +99,15 @@ package components {
 						var otherParent : DisplayObject = DisplayObjectUtil.getParent(otherDisplayObject);
 						var otherBounds : Rectangle = DisplayObjectUtil.getBounds(otherDisplayObject, otherParent);
 						
-						var similarityThreshold : Number = 100;
-						var hasSimiliarWidth : Boolean = Math.abs(targetBounds.width - otherBounds.width) <= targetBounds.width * 0.2;
-						var hasSimiliarHeight : Boolean = Math.abs(targetBounds.height - otherBounds.height) <= targetBounds.height * 0.2;
-						var hasSimilarXPosition : Boolean = Math.abs(targetBounds.x - otherBounds.x) <= similarityThreshold;
-						var hasSimilarYPosition : Boolean = Math.abs(targetBounds.y - otherBounds.y) <= similarityThreshold;
+						var hasSimiliarWidth : Boolean = Math.abs(targetBounds.width - otherBounds.width) <= targetBounds.width * sizeThreshold;
+						var hasSimiliarHeight : Boolean = Math.abs(targetBounds.height - otherBounds.height) <= targetBounds.height * sizeThreshold;
+						var hasSimilarXPosition : Boolean = Math.abs(targetBounds.x - otherBounds.x) <= positionThreshold
+						var hasSimilarYPosition : Boolean = Math.abs(targetBounds.y - otherBounds.y) <= positionThreshold;
 						
 						if (hasSimiliarWidth == true && hasSimiliarHeight == true && hasSimilarXPosition == true && hasSimilarYPosition == true) {
 							selectedChildren[i] = otherDisplayObject;
+							selectedChildrenParents[i] = otherParent;
+							selectedChildrenBounds[i] = otherBounds;
 							break;
 						}
 					}
@@ -98,18 +116,33 @@ package components {
 				displayObject = selectedChildren[i]; // Incase it have changed
 				parent = DisplayObjectUtil.getParent(displayObject);
 				
-				if (parent != null) {
+				if (hasInvalidParent && selectedChildrenMissingParentFrameCounts[i] >= 3) {
+					selectedChildren.splice(i, 1);
+					selectedChildrenParents.splice(i, 1);
+					selectedChildrenBounds.splice(i, 1);
+					selectedChildrenDepths.splice(i, 1);
+					selectedChildrenMissingParentFrameCounts.splice(i, 1);
+					i--;
+					continue;
+				}
+				
+				if (hasInvalidParent == true) {
+					hasInvalidParent = parent == null || (selectedChildrenDepths[i] > DisplayObjectUtil.getParents(displayObject));
+				} else {
 					selectedChildrenBounds[i] = DisplayObjectUtil.getBounds(displayObject, parent);
 				}
 				
-				var selectedChildParent : DisplayObject = DisplayObjectUtil.getParent(selectedChildren[i]);
-				if (selectedChildParent != null) {
-					var bounds : Rectangle = DisplayObjectUtil.getBounds(selectedChildren[i], overlay);
+				if (hasInvalidParent == false) {
+					if (DisplayObjectUtil.isShape(displayObject) == true) {
+						GraphicsUtil.setLineStyle(overlay, 2, 0xFFFF00);
+					} else {
+						GraphicsUtil.setLineStyle(overlay, 4, 0x00FF00);
+					}
+					
+					var bounds : Rectangle = DisplayObjectUtil.getBounds(displayObject, overlay);
 					GraphicsUtil.drawRect(overlay, bounds.x, bounds.y, bounds.width, bounds.height);
 				}
 			}
-			
-			// trace(Debug.getTime() - startTime);
 		}
 	}
 }
