@@ -54,6 +54,7 @@ package components {
 			}
 			
 			var shouldInclude : Boolean = ArrayUtil.indexOf(expandedChildren, parent) >= 0 || (parentOfParent != null && ArrayUtil.indexOf(expandedChildren, parentOfParent) >= 0);
+			shouldInclude = shouldInclude || parent == animationContainer
 			
 			if (shouldInclude == true) {
 				nestedChildren.push(_child);
@@ -69,7 +70,9 @@ package components {
 			var latestTime : Number = Debug.getTime();
 			
 			nestedChildren.length = 0;
+			nestedChildren.push(animationContainer);
 			nestedChildrenDepths.length = 0;
+			nestedChildrenDepths.push(0);
 			
 			displayedChildren.length = 0;
 			displayedChildren.push(animationContainer);
@@ -88,13 +91,13 @@ package components {
 			
 			// Each index of this array corresponds to each nested child, with each value corresponding to the number of children it has
 			// We use this to determine if a list item should be expandable
-			var parentsChildCounts : Array = [];
+			var parentsChildCounts : Array = [0];
 			
 			var elapsedTimeExcludedChildren : Number = Debug.getTime() - latestTime;
 			latestTime = Debug.getTime();
 			
 			// Set the children to display in the list and update information used to determine if a child can be expanded or not
-			for (i = 0; i < nestedChildren.length; i++) {
+			for (i = 1; i < nestedChildren.length; i++) {
 				parentsChildCounts.push(0);
 				parent = MovieClipUtil.getParent(nestedChildren[i]);
 				var parentIndex : Number = ArrayUtil.indexOf(nestedChildren, parent);
@@ -118,7 +121,7 @@ package components {
 				var depth : Number = displayedChildrenDepths[i];
 				var nestedChildIndex : Number = ArrayUtil.indexOf(nestedChildren, child);
 				var childCount : Number = parentsChildCounts[nestedChildIndex];
-				var isExpandable : Boolean = childCount > 0 || i == 0;
+				var isExpandable : Boolean = childCount > 0;
 				var isExpanded : Boolean = ArrayUtil.indexOf(expandedChildren, child) >= 0
 				
 				updateListItem(child, depth, i, isExpandable, isExpanded);

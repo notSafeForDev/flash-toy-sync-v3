@@ -15,6 +15,7 @@ package components {
 		
 		private var index : Number;
 		private var child : MovieClip;
+		private var isExpandable : Boolean = false;
 		private var isExpanded : Boolean = false;
 		
 		private var background : MovieClip;
@@ -54,8 +55,9 @@ package components {
 		}
 		
 		public function update(_child : MovieClip, _depth : Number, _isExpandable : Boolean, _isExpanded : Boolean) : void {
-			if (_child != child || _isExpanded != isExpanded) {
+			if (_child != child || _isExpandable != isExpandable || _isExpanded != isExpanded) {
 				child = _child;
+				isExpandable = _isExpandable;
 				isExpanded = _isExpanded;
 				updateNameText(_depth, _isExpandable, _isExpanded);
 			}
