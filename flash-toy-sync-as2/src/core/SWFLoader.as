@@ -31,7 +31,7 @@ class core.SWFLoader {
 		loader.addListener(listener);
 		
 		listener.onLoadInit = function() {
-			_onLoaded(_container);
+			_onLoaded(_container, -1, -1, -1);
 		}
 		
 		listener.onLoadError = function(target_mc : MovieClip, errorCode : String, httpStatus : Number) {

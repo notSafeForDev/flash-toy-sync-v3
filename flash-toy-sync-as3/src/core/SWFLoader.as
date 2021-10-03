@@ -55,7 +55,7 @@
 				
 				_container.addChild(loader);
 				if (_onLoaded != null) {
-					_onLoaded(swf);
+					_onLoaded(swf, loader.contentLoaderInfo.width, loader.contentLoaderInfo.height, loader.contentLoaderInfo.frameRate);
 				}
 			}
 			

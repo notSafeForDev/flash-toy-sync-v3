@@ -13,7 +13,7 @@
 		public var onKeyReleased : Function;
 		
 		function KeyboardManager(_child : MovieClip) {
-			_child.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) {
+			_child.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) : void {
 				// Control and Shift are handled differently 
 				// as certain combinations that includes those keys prevents keyboard events from getting triggered
 				if (e.ctrlKey == true && isKeyPressed(Keyboard.CONTROL) == false) {
@@ -27,7 +27,7 @@
 					pressedKeys.push(e.keyCode);
 				}
 				
-				for (var i = 0; i < shortcuts.length; i++) {
+				for (var i : int = 0; i < shortcuts.length; i++) {
 					if (shortcuts[i].enabled == false) {
 						continue;
 					}
@@ -41,7 +41,7 @@
 				}
 			});
 			
-			_child.stage.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) {
+			_child.stage.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) : void {
 				var ctrlKeyIndex : int = pressedKeys.indexOf(Keyboard.CONTROL);
 				if (ctrlKeyIndex >= 0 && e.ctrlKey == false) {
 					pressedKeys.splice(ctrlKeyIndex, 1);
@@ -74,7 +74,7 @@
 		 * @param	_handler	The function to call when the combination of keys are pressed
 		 */
 		public function addShortcut(_scope : *, _keyCodes : Array, _handler : Function) : KeyboardShortcut {
-			var shortcut = new KeyboardShortcut(_keyCodes, _handler);
+			var shortcut : KeyboardShortcut = new KeyboardShortcut(_keyCodes, _handler);
 			shortcuts.push(shortcut);
 			return shortcut;
 		}

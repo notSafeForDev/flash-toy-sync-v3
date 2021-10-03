@@ -7,6 +7,13 @@
 		initialized = true;
 	}
 	
+	static function setFrameRate(_frameRate : Number) : Void {
+		if (initialized == false) {
+			trace("The StageUtil has to be initialized before any of it's other functions can be called");
+		}
+		// It's not possible to set the frame rate at runtime in AS2
+	}
+	
 	static function makeWindowed() : Void {
 		if (initialized == false) {
 			trace("The StageUtil has to be initialized before any of it's other functions can be called");

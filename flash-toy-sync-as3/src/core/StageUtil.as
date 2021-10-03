@@ -11,6 +11,13 @@
 			stage = _stage;
 		}
 		
+		public static function setFrameRate(_frameRate : Number) : void {
+			if (stage == null) {
+				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
+			}
+			stage.frameRate = _frameRate;
+		}
+		
 		public static function makeWindowed() : void {
 			if (stage == null) {
 				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");

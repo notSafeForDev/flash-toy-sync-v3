@@ -20,10 +20,12 @@
 		return -1;
 	}
 	
-	static function remove(_array : Array, _searchElement) : Void {
+	static function remove(_array : Array, _searchElement) : Boolean {
 		var index : Number = indexOf(_array, _searchElement);
 		if (index >= 0) {
 			_array.splice(index, 1);
+			return true;
 		}
+		return false;
 	}
 }
