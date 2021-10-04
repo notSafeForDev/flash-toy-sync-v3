@@ -25,6 +25,7 @@ class core.KeyboardManager {
 				}
 				if (self.pressedKeys.toString() == self.shortcuts[i].keyCodes.toString()) {
 					self.shortcuts[i].handler();
+					break;
 				}
 			}
 			

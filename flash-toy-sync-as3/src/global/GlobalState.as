@@ -2,6 +2,8 @@ package global {
 	
 	import core.ArrayUtil;
 	import core.StageUtil;
+	import core.stateTypes.BooleanState;
+	import core.stateTypes.MovieClipState;
 	import core.stateTypes.NumberState;
 	
 	/**
@@ -14,17 +16,20 @@ package global {
 		
 		public static var animationWidth : NumberState;
 		public static var animationHeight : NumberState;
+		public static var selectedChild : MovieClipState;
+		public static var selectedChildCurrentFrame : NumberState;
+		public static var isForceStopped : BooleanState;
 		
 		private static var allStates : Array;
 		private static var currentStateValues : Array;
 		
 		public static function init() : void {
-			animationWidth = new NumberState(StageUtil.getWidth());
-			animationHeight = new NumberState(StageUtil.getHeight());
-			
 			allStates = [
-				animationWidth, 
-				animationHeight
+				animationWidth = new NumberState(StageUtil.getWidth()),
+				animationHeight = new NumberState(StageUtil.getHeight()),
+				selectedChild = new MovieClipState(null),
+				selectedChildCurrentFrame = new NumberState( -1),
+				isForceStopped = new BooleanState(false)
 			];
 			
 			currentStateValues = [];

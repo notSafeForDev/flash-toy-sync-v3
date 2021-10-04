@@ -38,6 +38,10 @@ package core {
 			setText(_value);
 		}
 		
+		public function setMouseEnabled(_value : Boolean) : void {
+			element.mouseEnabled = _value;
+		}
+		
 		public function setX(_value : Number) : void {
 			element.x = _value;
 		}

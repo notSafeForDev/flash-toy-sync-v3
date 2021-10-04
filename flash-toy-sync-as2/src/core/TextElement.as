@@ -31,6 +31,10 @@ class core.TextElement {
 		setText(_value);
 	}
 	
+	public function setMouseEnabled(_value : Boolean) : Void {
+		// Mouse enabled isn't available in AS2
+	}
+	
 	private function updateX() : Void {
 		if (element.autoSize == AUTO_SIZE_RIGHT) {
 			element._x = x - element.textWidth;

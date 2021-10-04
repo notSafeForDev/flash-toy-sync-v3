@@ -1,3 +1,4 @@
+import flash.geom.Point;
 import flash.geom.Rectangle;
 /**
  * ...
@@ -44,6 +45,22 @@ class core.DisplayObjectUtil {
 		return parents;
 	}
 	
+	public static function getWidth(_object : MovieClip) : Number {
+		return _object._width;
+	}
+	
+	public static function setWidth(_object : MovieClip, _value : Number) : Void {
+		_object._width = _value;
+	}
+	
+	public static function getHeight(_object : MovieClip) : Number {
+		return _object._height;
+	}
+	
+	public static function setHeight(_object : MovieClip, _value : Number) : Void {
+		_object._height = _value;
+	}
+
 	public static function isDisplayObject(_object) : Boolean {
 		return typeof _object == "movieclip" || _object["_visible"] != undefined
 	}
@@ -51,5 +68,17 @@ class core.DisplayObjectUtil {
 	// For providing comaptibility with AS3
 	public static function isShape(_object) : Boolean {
 		return false;
+	}
+	
+	public static function localToGlobal(_object : MovieClip, _x : Number, _y : Number) : Point {
+		var point : Point = new Point(_x, _y);
+		_object.localToGlobal(point);
+		return point;
+	}
+	
+	public static function globalToLocal(_object : MovieClip, _x : Number, _y : Number) : Point {
+		var point : Point = new Point(_x, _y);
+		_object.globalToLocal(point);
+		return point;
 	}
 }

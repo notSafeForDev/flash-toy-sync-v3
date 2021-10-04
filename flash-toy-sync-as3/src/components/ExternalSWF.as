@@ -25,6 +25,8 @@ package components {
 		private var currentTargetX : Number = 0;
 		private var currentTargetY : Number = 0;
 		
+		private var forceStoppedChild : MovieClip = null;
+		
 		public function ExternalSWF(_path : String, _container : MovieClip) {
 			onLoaded = new CustomEvent();
 			onError = new CustomEvent();
@@ -33,10 +35,14 @@ package components {
 			loader.load(_path, _container, FunctionUtil.bind(this, _onLoaded));
 			loader.onError =  FunctionUtil.bind(this, _onError);
 			
-			GlobalState.listen([GlobalState.animationWidth, GlobalState.animationHeight], this, onStateUpdate);
+			GlobalState.listen([GlobalState.animationWidth, GlobalState.animationHeight], this, onAnimationSizeStateUpdate);
+			GlobalState.listen([GlobalState.isForceStopped], this, onIsForceStoppedStateUpdate);
+			
+			GlobalEvents.stepFrameBackwards.listen(this, onStepFrameBackwards);
+			GlobalEvents.stepFrameForwards.listen(this, onStepFrameForwards);
 		}
 		
-		private function onStateUpdate(_state : GlobalStateSnapshot) : void {
+		private function onAnimationSizeStateUpdate(_state : GlobalStateSnapshot) : void {
 			contentWidth = _state.animationWidth;
 			contentHeight = _state.animationHeight;
 			
@@ -46,6 +52,33 @@ package components {
 			
 			updateTargetValues();
 			updatePositionAndSize();
+		}
+		
+		private function onIsForceStoppedStateUpdate(_state : GlobalStateSnapshot) : void {
+			if (_state.isForceStopped == true && _state.selectedChild != null) {
+				forceStoppedChild = _state.selectedChild;
+				forceStoppedChild.stop();
+			} else if (_state.isForceStopped == false && forceStoppedChild != null) {
+				forceStoppedChild.play();
+				forceStoppedChild = null;
+			}
+		}
+		
+		private function onStepFrameBackwards() : void {
+			stepFrame(-1);
+		}
+		
+		private function onStepFrameForwards() : void {
+			stepFrame(1);
+		}
+		
+		private function stepFrame(_direction : Number) : void {
+			var selectedChild : MovieClip = GlobalState.selectedChild.getState();
+			if (selectedChild != null) {
+				forceStoppedChild = selectedChild;
+				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
+				selectedChild.gotoAndStop(currentFrame + _direction);
+			}
 		}
 		
 		private function _onLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
@@ -67,8 +100,8 @@ package components {
 		}
 		
 		private function onEnterFrame() : void {
-			if (loadedSWF == null) {
-				throw new Error("Unable to update external swf, the swf have not been loaded yet");
+			if (forceStoppedChild != null) {
+				forceStoppedChild.stop();
 			}
 			
 			var scaleX : Number = MovieClipUtil.getScaleX(loadedSWF);

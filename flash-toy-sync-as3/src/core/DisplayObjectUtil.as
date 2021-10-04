@@ -2,6 +2,7 @@ package core {
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Shape;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	/**
 	 * ...
@@ -82,12 +83,36 @@ package core {
 			return parents;
 		}
 		
+		public static function getWidth(_object : DisplayObject) : Number {
+			return _object.width;
+		}
+		
+		public static function setWidth(_object : DisplayObject, _value : Number) : void {
+			_object.width = _value;
+		}
+		
+		public static function getHeight(_object : DisplayObject) : Number {
+			return _object.height;
+		}
+		
+		public static function setHeight(_object : DisplayObject, _value : Number) : void {
+			_object.height = _value;
+		}
+		
 		public static function isDisplayObject(_object : * ) : Boolean {
 			return _object is DisplayObject;
 		}
 		
 		public static function isShape(_object : * ) : Boolean {
 			return _object is Shape;
+		}
+		
+		public static function localToGlobal(_object : DisplayObject, _x : Number, _y : Number) : Point {
+			return _object.localToGlobal(new Point(_x, _y));
+		}
+		
+		public static function globalToLocal(_object : DisplayObject, _x : Number, _y : Number) : Point {
+			return _object.globalToLocal(new Point(_x, _y));
 		}
 	}
 }

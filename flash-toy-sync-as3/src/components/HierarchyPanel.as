@@ -1,10 +1,12 @@
 package components {
 	
+	import core.CustomEvent;
 	import core.Debug;
 	import core.DisplayObjectUtil;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import global.GlobalEvents;
+	import global.GlobalState;
 	
 	import core.ArrayUtil;
 	import core.MovieClipUtil;
@@ -33,9 +35,13 @@ package components {
 		
 		public var excludeChildrenWithoutNestedAnimations : Boolean = true;
 		
+		public var onSelectChild : CustomEvent;
+		
 		public function HierarchyPanel(_parent : MovieClip, _animationContainer : MovieClip) {
 			base = new Panel(_parent, "Hierarchy", panelWidth, panelHeight);
 			animationContainer = _animationContainer;
+			
+			onSelectChild = new CustomEvent();
 			
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
@@ -156,18 +162,25 @@ package components {
 			
 			if (listItems.length <= _listIndex) {
 				listItem = new HierarchyPanelListItem(base.content, _listIndex, panelWidth);
-				listItem.onMouseDown.listen(this, onListItemMouseDown);
+				listItem.onSelect.listen(this, onListItemSelect);
+				listItem.onExpand.listen(this, onListItemExpand);
 				listItems.push(listItem);
 			} else {
 				listItem = listItems[_listIndex]
 			}
 			
 			listItem.setVisible(true);
+			listItem.setHighlighted(GlobalState.selectedChild.getState() == _child);
 			
 			listItem.update(_child, _childDepth, _isExpandable, _isExpanded);
 		}
 		
-		private function onListItemMouseDown(_index : Number) : void {
+		private function onListItemSelect(_index : Number) : void {
+			var child : MovieClip = displayedChildren[_index];
+			onSelectChild.emit(child);
+		}
+		
+		private function onListItemExpand(_index : Number) : void {
 			var child : MovieClip = displayedChildren[_index];
 			if (ArrayUtil.indexOf(expandedChildren, child) < 0) {
 				expandedChildren.push(child);

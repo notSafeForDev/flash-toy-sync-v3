@@ -33,6 +33,7 @@
 					}
 					if (pressedKeys.toString() == shortcuts[i].keyCodes.toString()) {
 						shortcuts[i].handler();
+						break;
 					}
 				}
 				

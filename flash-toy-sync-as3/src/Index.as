@@ -1,25 +1,24 @@
 package {
 	
-	import components.Borders;
-	import core.Timeout;
-	import core.StageUtil;
-	import core.stateTypes.NumberState;
 	import flash.display.MovieClip;
 	import flash.display.StageScaleMode;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
-	import global.GlobalEvents;
-	import global.GlobalState;
-	import global.GlobalStateSnapshot;
 	
 	import core.Debug;
 	import core.KeyboardManager;
 	import core.MovieClipUtil;
+	import core.StageUtil;
 	import core.MovieClipEvents;
 	
+	import global.GlobalEvents;
+	import global.GlobalState;
+	
+	import components.Borders;
 	import components.HierarchyPanel;
 	import components.ExternalSWF;
 	import components.StageElementSelector;
+	
 	/**
 	 * ...
 	 * @author notSafeForDev
@@ -64,20 +63,24 @@ package {
 			hierarchyPanel = new HierarchyPanel(container, _swf);
 			hierarchyPanel.excludeChildrenWithoutNestedAnimations = true;
 			
-			var isValidSize : Boolean = _width > 0 && _height > 0
+			hierarchyPanel.onSelectChild.listen(this, onHierarchyPanelSelectChild);
+			
+			var isValidSize : Boolean = _width > 0 && _height > 0;
 			var targetWidth : Number = isValidSize ? _width : StageUtil.getWidth();
 			var targetHeight : Number = isValidSize ? _height : StageUtil.getHeight();
 			
 			if (isValidSize == false) {
-				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.RIGHT], onKeyboardShortcutDecreaseSWFWidth);
-				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.LEFT], onKeyboardShortcutIncreaseSWFWidth);
-				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.DOWN], onKeyboardShortcutDecreaseSWFHeight);
-				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.UP], onKeyboardShortcutIncreaseSWFHeight);
+				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.RIGHT], onDecreaseSWFWidthShortcut);
+				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.LEFT], onIncreaseSWFWidthShortcut);
+				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.DOWN], onDecreaseSWFHeightShortcut);
+				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.UP], onIncreaseSWFHeightShortcut);
 			}
 			
 			// animation.gotoAndStop(1910); // midna-3x-pleasure before cum scene
 			// animation.gotoAndStop(1230); // pleasure-bonbon before cum scene
-			keyboardManager.addShortcut(this, [Keyboard.ENTER], onKeyboardShortcutPlay);
+			keyboardManager.addShortcut(this, [Keyboard.ENTER], onForceStopShortcut);
+			keyboardManager.addShortcut(this, [Keyboard.LEFT], onStepFrameBackwardsShortcut);
+			keyboardManager.addShortcut(this, [Keyboard.RIGHT], onStepFrameForwardsShortcut);
 			
 			GlobalState.animationWidth.setState(targetWidth);
 			GlobalState.animationHeight.setState(targetHeight);
@@ -87,26 +90,58 @@ package {
 			MovieClipEvents.addOnEnterFrame(this, container, onEnterFrame);
 		}
 		
-		private function onKeyboardShortcutPlay() : void {
-			animation.play(); // TODO: Set a playing state
+		private function onHierarchyPanelSelectChild(_child : MovieClip) : void {
+			if (GlobalState.selectedChild.getState() == _child) {
+				return;
+			}
+			
+			GlobalState.selectedChild.setState(_child);
+			GlobalState.selectedChildCurrentFrame.setState(MovieClipUtil.getCurrentFrame(_child));
+			GlobalState.isForceStopped.setState(false);
 		}
 		
-		private function onKeyboardShortcutDecreaseSWFWidth() : void {
+		private function onForceStopShortcut() : void {
+			if (GlobalState.selectedChild.getState() != null) {
+				var isForceStopped : Boolean = GlobalState.isForceStopped.getState();
+				GlobalState.isForceStopped.setState(!isForceStopped);
+				if (isForceStopped == true ) {
+					GlobalEvents.resumePlayingSelectedChild.emit();
+				} else {
+					GlobalEvents.forceStopSelectedChild.emit();
+				}
+			}
+		}
+		
+		private function onStepFrameBackwardsShortcut() : void {
+			if (GlobalState.selectedChild.getState() != null) {
+				GlobalState.isForceStopped.setState(true);
+				GlobalEvents.stepFrameBackwards.emit();
+			}
+		}
+		
+		private function onStepFrameForwardsShortcut() : void {
+			if (GlobalState.selectedChild.getState() != null) {
+				GlobalState.isForceStopped.setState(true);
+				GlobalEvents.stepFrameForwards.emit();
+			}
+		}
+		
+		private function onDecreaseSWFWidthShortcut() : void {
 			GlobalState.animationWidth.setState(GlobalState.animationWidth.getState() - 10);
 			GlobalEvents.animationManualResize.emit();
 		}
 		
-		private function onKeyboardShortcutIncreaseSWFWidth() : void {
+		private function onIncreaseSWFWidthShortcut() : void {
 			GlobalState.animationWidth.setState(GlobalState.animationWidth.getState() + 10);
 			GlobalEvents.animationManualResize.emit();
 		}
 		
-		private function onKeyboardShortcutDecreaseSWFHeight() : void {
+		private function onDecreaseSWFHeightShortcut() : void {
 			GlobalState.animationHeight.setState(GlobalState.animationHeight.getState() - 10);
 			GlobalEvents.animationManualResize.emit();
 		}
 		
-		private function onKeyboardShortcutIncreaseSWFHeight() : void {
+		private function onIncreaseSWFHeightShortcut() : void {
 			GlobalState.animationHeight.setState(GlobalState.animationHeight.getState() + 10);
 			GlobalEvents.animationManualResize.emit();
 		}
@@ -117,6 +152,11 @@ package {
 		
 		private function onEnterFrame() : void {
 			GlobalEvents.enterFrame.emit();
+			
+			var selectedChild : MovieClip = GlobalState.selectedChild.getState();
+			var currentFrame : Number = selectedChild != null ? MovieClipUtil.getCurrentFrame(selectedChild) : -1;
+			GlobalState.selectedChildCurrentFrame.setState(currentFrame);
+			
 			var startTime : Number = Debug.getTime();
 			GlobalState.notifyListeners();
 			var endTime : Number = Debug.getTime();
