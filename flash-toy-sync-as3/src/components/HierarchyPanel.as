@@ -4,6 +4,7 @@ package components {
 	import core.DisplayObjectUtil;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import global.GlobalEvents;
 	
 	import core.ArrayUtil;
 	import core.MovieClipUtil;
@@ -35,6 +36,12 @@ package components {
 		public function HierarchyPanel(_parent : MovieClip, _animationContainer : MovieClip) {
 			base = new Panel(_parent, "Hierarchy", panelWidth, panelHeight);
 			animationContainer = _animationContainer;
+			
+			GlobalEvents.enterFrame.listen(this, onEnterFrame);
+		}
+		
+		private function onEnterFrame() : void {
+			update();
 		}
 		
 		// Used to updated nestedChildren, which we use to determine which elements to display in the list
@@ -65,7 +72,7 @@ package components {
 			return MovieClipUtil.ITERATE_SKIP_NESTED;
 		}
 		
-		public function update() : void {
+		private function update() : void {
 			var startTime : Number = Debug.getTime();
 			var latestTime : Number = Debug.getTime();
 			

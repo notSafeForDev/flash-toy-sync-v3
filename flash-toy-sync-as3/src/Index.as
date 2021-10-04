@@ -3,10 +3,14 @@ package {
 	import components.Borders;
 	import core.Timeout;
 	import core.StageUtil;
+	import core.stateTypes.NumberState;
 	import flash.display.MovieClip;
 	import flash.display.StageScaleMode;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
+	import global.GlobalEvents;
+	import global.GlobalState;
+	import global.GlobalStateSnapshot;
 	
 	import core.Debug;
 	import core.KeyboardManager;
@@ -37,6 +41,9 @@ package {
 				throw new Error("Unable construct Index, the container is not valid");
 			}
 			
+			GlobalState.init();
+			GlobalEvents.init();
+			
 			container = _container;
 			animationContainer = MovieClipUtil.create(_container, "animationContainer");
 			borders = new Borders(_container, 0x000000);
@@ -57,9 +64,11 @@ package {
 			hierarchyPanel = new HierarchyPanel(container, _swf);
 			hierarchyPanel.excludeChildrenWithoutNestedAnimations = true;
 			
-			borders.update(externalSWF.getWidth() / externalSWF.getHeight());
+			var isValidSize : Boolean = _width > 0 && _height > 0
+			var targetWidth : Number = isValidSize ? _width : StageUtil.getWidth();
+			var targetHeight : Number = isValidSize ? _height : StageUtil.getHeight();
 			
-			if (externalSWF.isUsingDefaultSize() == true) {
+			if (isValidSize == false) {
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.RIGHT], onKeyboardShortcutDecreaseSWFWidth);
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.LEFT], onKeyboardShortcutIncreaseSWFWidth);
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.DOWN], onKeyboardShortcutDecreaseSWFHeight);
@@ -70,37 +79,36 @@ package {
 			// animation.gotoAndStop(1230); // pleasure-bonbon before cum scene
 			keyboardManager.addShortcut(this, [Keyboard.ENTER], onKeyboardShortcutPlay);
 			
+			GlobalState.animationWidth.setState(targetWidth);
+			GlobalState.animationHeight.setState(targetHeight);
+			
 			// We add the onEnterFrame listener on the container, instead of the animation, for better compatibility with AS2
 			// As the contents of _swf can be replaced by the loaded swf file
 			MovieClipEvents.addOnEnterFrame(this, container, onEnterFrame);
 		}
 		
 		private function onKeyboardShortcutPlay() : void {
-			animation.play();
+			animation.play(); // TODO: Set a playing state
 		}
 		
 		private function onKeyboardShortcutDecreaseSWFWidth() : void {
-			externalSWF.decreaseWidth(10);
-			borders.update(externalSWF.getWidth() / externalSWF.getHeight());
-			borders.makeTransparentForADuration(1);
+			GlobalState.animationWidth.setState(GlobalState.animationWidth.getState() - 10);
+			GlobalEvents.animationManualResize.emit();
 		}
 		
 		private function onKeyboardShortcutIncreaseSWFWidth() : void {
-			externalSWF.increaseWidth(10);
-			borders.update(externalSWF.getWidth() / externalSWF.getHeight());
-			borders.makeTransparentForADuration(1);
+			GlobalState.animationWidth.setState(GlobalState.animationWidth.getState() + 10);
+			GlobalEvents.animationManualResize.emit();
 		}
 		
 		private function onKeyboardShortcutDecreaseSWFHeight() : void {
-			externalSWF.decreaseHeight(10);
-			borders.update(externalSWF.getWidth() / externalSWF.getHeight());
-			borders.makeTransparentForADuration(1);
+			GlobalState.animationHeight.setState(GlobalState.animationHeight.getState() - 10);
+			GlobalEvents.animationManualResize.emit();
 		}
 		
 		private function onKeyboardShortcutIncreaseSWFHeight() : void {
-			externalSWF.increaseHeight(10);
-			borders.update(externalSWF.getWidth() / externalSWF.getHeight());
-			borders.makeTransparentForADuration(1);
+			GlobalState.animationHeight.setState(GlobalState.animationHeight.getState() + 10);
+			GlobalEvents.animationManualResize.emit();
 		}
 		
 		private function onSWFError(_error : Error) : void {
@@ -108,9 +116,9 @@ package {
 		}
 		
 		private function onEnterFrame() : void {
+			GlobalEvents.enterFrame.emit();
 			var startTime : Number = Debug.getTime();
-			externalSWF.update();
-			hierarchyPanel.update();
+			GlobalState.notifyListeners();
 			var endTime : Number = Debug.getTime();
 			// trace(endTime - startTime);
 		}

@@ -1,7 +1,5 @@
 package components {
 	
-	import core.Debug;
-	import core.DisplayObjectUtil;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Shape;
@@ -13,7 +11,11 @@ package components {
 	import core.MovieClipUtil;
 	import core.GraphicsUtil;
 	import core.MouseEvents;
-	import core.MovieClipEvents;
+	import core.Debug;
+	import core.DisplayObjectUtil;
+
+	import global.GlobalEvents;
+
 	/**
 	 * ...
 	 * @author notSafeForDev
@@ -33,8 +35,8 @@ package components {
 			container = _container;
 			overlay = _overlay;
 			
-			MovieClipEvents.addOnEnterFrame(this, overlay, onEnterFrame);
 			MouseEvents.addOnMouseDownPassThrough(this, container, onMouseDown);
+			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
 		private function onEnterFrame() : void {

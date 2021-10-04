@@ -3,6 +3,9 @@ package components {
 	import core.MovieClipUtil;
 	import core.StageUtil;
 	import flash.display.MovieClip;
+	import global.GlobalEvents;
+	import global.GlobalState;
+	import global.GlobalStateSnapshot;
 	
 	import core.CustomEvent;
 	import core.FunctionUtil;
@@ -22,8 +25,6 @@ package components {
 		private var currentTargetX : Number = 0;
 		private var currentTargetY : Number = 0;
 		
-		private var _isUsingDefaultSize : Boolean;
-		
 		public function ExternalSWF(_path : String, _container : MovieClip) {
 			onLoaded = new CustomEvent();
 			onError = new CustomEvent();
@@ -31,6 +32,20 @@ package components {
 			var loader : SWFLoader = new SWFLoader();
 			loader.load(_path, _container, FunctionUtil.bind(this, _onLoaded));
 			loader.onError =  FunctionUtil.bind(this, _onError);
+			
+			GlobalState.listen([GlobalState.animationWidth, GlobalState.animationHeight], this, onStateUpdate);
+		}
+		
+		private function onStateUpdate(_state : GlobalStateSnapshot) : void {
+			contentWidth = _state.animationWidth;
+			contentHeight = _state.animationHeight;
+			
+			if (loadedSWF == null) {
+				return;
+			}
+			
+			updateTargetValues();
+			updatePositionAndSize();
 		}
 		
 		private function _onLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
@@ -39,70 +54,19 @@ package components {
 			contentWidth = _width > 0 ? _width : StageUtil.getWidth();
 			contentHeight = _height > 0 ? _height : StageUtil.getHeight();
 			
-			_isUsingDefaultSize = _width <= 0 || _height <= 0;
-			
 			updateTargetValues();
 			updatePositionAndSize();
 			
 			onLoaded.emit(_swf, _width, _height, _fps);
+			
+			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
 		private function _onError(_error : Error) : void {
 			onError.emit(_error);
 		}
 		
-		public function isWidthSet() : Boolean {
-			return contentWidth > 0;
-		}
-		
-		public function isHeightSet() : Boolean {
-			return contentHeight > 0;
-		}
-		
-		public function isUsingDefaultSize() : Boolean {
-			return _isUsingDefaultSize;
-		}
-		
-		public function getWidth() : Number {
-			return contentWidth;
-		}
-		
-		public function getHeight() : Number {
-			return contentHeight;
-		}
-		
-		public function setSize(_width : Number, _height : Number) : void {
-			if (loadedSWF == null) {
-				throw new Error("Unable to set size of external swf, the swf have not been loaded yet");
-			}
-			
-			contentWidth = _width;
-			contentHeight = _height;
-			updateTargetValues();
-			updatePositionAndSize();
-		}
-		
-		public function increaseWidth(_amount : Number) : Number {
-			setSize(contentWidth + _amount, contentHeight);
-			return contentWidth;
-		}
-		
-		public function decreaseWidth(_amount : Number) : Number {
-			setSize(Math.max(10, contentWidth - _amount), contentHeight);
-			return contentWidth;
-		}
-		
-		public function increaseHeight(_amount : Number) : Number {
-			setSize(contentWidth, contentHeight + _amount);
-			return contentHeight;
-		}
-		
-		public function decreaseHeight(_amount : Number) : Number {
-			setSize(contentWidth, Math.max(10, contentHeight - _amount));
-			return contentHeight;
-		}
-		
-		public function update() : void {
+		private function onEnterFrame() : void {
 			if (loadedSWF == null) {
 				throw new Error("Unable to update external swf, the swf have not been loaded yet");
 			}
