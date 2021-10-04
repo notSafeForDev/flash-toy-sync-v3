@@ -15,18 +15,14 @@ package components {
 		
 		private var loadedSWF : MovieClip;
 		
-		private var shouldScaleUpUniformaly : Boolean = true;
-		
-		private var loadedSWFWidth : Number = -1;
-		private var loadedSWFHeight : Number = -1;
+		private var contentWidth : Number;
+		private var contentHeight : Number;
 		
 		private var currentTargetScale : Number = 1;
 		private var currentTargetX : Number = 0;
 		private var currentTargetY : Number = 0;
-		private var zoomAmount : Number = 1;
 		
-		private var defaultWidth : Number = 1280;
-		private var defaultHeight : Number = 720;
+		private var _isUsingDefaultSize : Boolean;
 		
 		public function ExternalSWF(_path : String, _container : MovieClip) {
 			onLoaded = new CustomEvent();
@@ -34,13 +30,16 @@ package components {
 			
 			var loader : SWFLoader = new SWFLoader();
 			loader.load(_path, _container, FunctionUtil.bind(this, _onLoaded));
+			loader.onError =  FunctionUtil.bind(this, _onError);
 		}
 		
 		private function _onLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
 			loadedSWF = _swf;
 			
-			loadedSWFWidth = _width;
-			loadedSWFHeight = _height;
+			contentWidth = _width > 0 ? _width : StageUtil.getWidth();
+			contentHeight = _height > 0 ? _height : StageUtil.getHeight();
+			
+			_isUsingDefaultSize = _width <= 0 || _height <= 0;
 			
 			updateTargetValues();
 			updatePositionAndSize();
@@ -51,52 +50,63 @@ package components {
 		private function _onError(_error : Error) : void {
 			onError.emit(_error);
 		}
-	
-		private function updateTargetValues() : void {
-			currentTargetScale = getTargetScale();
-			currentTargetX = getTargetX(currentTargetScale);
-			currentTargetY = getTargetY(currentTargetScale);
-		}
 		
 		public function isWidthSet() : Boolean {
-			return loadedSWFWidth > 0;
+			return contentWidth > 0;
 		}
 		
 		public function isHeightSet() : Boolean {
-			return loadedSWFHeight > 0;
+			return contentHeight > 0;
+		}
+		
+		public function isUsingDefaultSize() : Boolean {
+			return _isUsingDefaultSize;
+		}
+		
+		public function getWidth() : Number {
+			return contentWidth;
+		}
+		
+		public function getHeight() : Number {
+			return contentHeight;
+		}
+		
+		public function setSize(_width : Number, _height : Number) : void {
+			if (loadedSWF == null) {
+				throw new Error("Unable to set size of external swf, the swf have not been loaded yet");
+			}
+			
+			contentWidth = _width;
+			contentHeight = _height;
+			updateTargetValues();
+			updatePositionAndSize();
 		}
 		
 		public function increaseWidth(_amount : Number) : Number {
-			loadedSWFWidth = isWidthSet() ? loadedSWFWidth + _amount : _amount;
-			updateTargetValues();
-			updatePositionAndSize();
-			return loadedSWFWidth;
+			setSize(contentWidth + _amount, contentHeight);
+			return contentWidth;
 		}
 		
 		public function decreaseWidth(_amount : Number) : Number {
-			var target : Number = loadedSWFWidth - _amount;
-			loadedSWFWidth = Math.max(target, _amount);
-			updateTargetValues();
-			updatePositionAndSize();
-			return loadedSWFWidth;
+			setSize(Math.max(10, contentWidth - _amount), contentHeight);
+			return contentWidth;
 		}
 		
 		public function increaseHeight(_amount : Number) : Number {
-			loadedSWFHeight = isHeightSet() ? loadedSWFHeight + _amount : _amount;
-			updateTargetValues();
-			updatePositionAndSize();
-			return loadedSWFHeight;
+			setSize(contentWidth, contentHeight + _amount);
+			return contentHeight;
 		}
 		
 		public function decreaseHeight(_amount : Number) : Number {
-			var target : Number = loadedSWFHeight - _amount;
-			loadedSWFHeight = Math.max(target, _amount);
-			updateTargetValues();
-			updatePositionAndSize();
-			return loadedSWFHeight;
+			setSize(contentWidth, Math.max(10, contentHeight - _amount));
+			return contentHeight;
 		}
 		
 		public function update() : void {
+			if (loadedSWF == null) {
+				throw new Error("Unable to update external swf, the swf have not been loaded yet");
+			}
+			
 			var scaleX : Number = MovieClipUtil.getScaleX(loadedSWF);
 			var scaleY : Number = MovieClipUtil.getScaleY(loadedSWF);
 			
@@ -104,12 +114,13 @@ package components {
 			var minScale : Number = Math.min(scaleX, scaleY);
 			
 			// Handle when the loadedSWF have been scaled up on it's own, such as when there's a camera zoom effect as part of the animation
-			if (minScale > currentTargetScale && shouldScaleUpUniformaly == true) {
-				var scaledUpWidth : Number = loadedSWFWidth * scaleX;
-				var scaledUpHeight : Number = loadedSWFHeight * scaleY;
+			if (maxScale > currentTargetScale) {
+				var scaledUpWidth : Number = contentWidth * scaleX;
+				var scaledUpHeight : Number = contentHeight * scaleY;
 				
-				var correctedScaledUpWidth : Number = loadedSWFWidth * minScale;
-				var correctedScaledUpHeight : Number = loadedSWFHeight * minScale;
+				// we use minScale in order to make sure that it scales up uniformally on x and y
+				var correctedScaledUpWidth : Number = contentWidth * minScale;
+				var correctedScaledUpHeight : Number = contentHeight * minScale;
 				
 				var x : Number = MovieClipUtil.getX(loadedSWF);
 				var y : Number = MovieClipUtil.getY(loadedSWF);
@@ -118,29 +129,23 @@ package components {
 				MovieClipUtil.setScaleY(loadedSWF, minScale);
 				
 				// Offset the x and y position so that the center of the screen ends up in the same place as it were before correcting it's scale
-				MovieClipUtil.setX(loadedSWF, x + (correctedScaledUpWidth - scaledUpWidth) * 0.5);
-				MovieClipUtil.setY(loadedSWF, y + (correctedScaledUpHeight - scaledUpHeight) * 0.5);
+				MovieClipUtil.setX(loadedSWF, x - (correctedScaledUpWidth - scaledUpWidth) * 0.5);
+				MovieClipUtil.setY(loadedSWF, y - (correctedScaledUpHeight - scaledUpHeight) * 0.5);
 			}
 			
 			// Handle when the loadedSWF have been scaled down on it's own
-			if (maxScale < currentTargetScale) {
+			if (maxScale <= currentTargetScale) {
 				updatePositionAndSize();
 			}
 		}
 		
-		private function updatePositionAndSize() : void {
-			if (loadedSWF == null) {
-				throw new Error("Unable to update position and size of swf, it have not been loaded yet");
-			}
-			
-			if (isWidthSet() == false && isHeightSet() == false) {
-				MovieClipUtil.setX(loadedSWF, 0);
-				MovieClipUtil.setY(loadedSWF, 0);
-				MovieClipUtil.setScaleX(loadedSWF, 1);
-				MovieClipUtil.setScaleY(loadedSWF, 1);
-				return;
-			}
-			
+		private function updateTargetValues() : void {
+			currentTargetScale = getTargetScale();
+			currentTargetX = getTargetX(currentTargetScale);
+			currentTargetY = getTargetY(currentTargetScale);
+		}
+		
+		private function updatePositionAndSize() : void {			
 			MovieClipUtil.setX(loadedSWF, currentTargetX);
 			MovieClipUtil.setY(loadedSWF, currentTargetY);
 			MovieClipUtil.setScaleX(loadedSWF, currentTargetScale);
@@ -148,23 +153,18 @@ package components {
 		}
 		
 		private function getTargetX(_scale : Number) : Number {
-			var width : Number = isWidthSet() ? loadedSWFWidth : defaultWidth;
-			return (StageUtil.getWidth() - (width * _scale)) / 2;
+			return (StageUtil.getWidth() - (contentWidth * _scale)) / 2;
 		}
 		
 		private function getTargetY(_scale : Number) : Number {
-			var height : Number = isHeightSet() ? loadedSWFHeight : defaultHeight;
-			return (StageUtil.getHeight() - (height * _scale)) / 2;
+			return (StageUtil.getHeight() - (contentHeight * _scale)) / 2;
 		}
 		
 		private function getTargetScale() : Number {
-			var width : Number = isWidthSet() ? loadedSWFWidth : defaultWidth;
-			var height : Number = isHeightSet() ? loadedSWFHeight : defaultHeight;
+			var scaleX : Number = StageUtil.getWidth() / contentWidth;
+			var scaleY : Number = StageUtil.getHeight() / contentHeight;
 			
-			var maxScaleX : Number = (StageUtil.getWidth() / width);
-			var maxScaleY : Number = (StageUtil.getHeight() / height);
-			
-			return Math.min(maxScaleX, maxScaleY);
+			return Math.min(scaleX, scaleY);
 		}
 	}
 }

@@ -26,21 +26,21 @@ class core.SWFLoader {
 	public function load(_path : String, _container : MovieClip, _onLoaded : Function) {		
 		var self = this;
 		
-		var listener : Object = {};
-		var loader : MovieClipLoader = new MovieClipLoader();
-		loader.addListener(listener);
-		
-		listener.onLoadInit = function() {
-			_onLoaded(_container, -1, -1, -1);
-		}
-		
-		listener.onLoadError = function(target_mc : MovieClip, errorCode : String, httpStatus : Number) {
-			if (self.onError != null) {
-				self.onError(errorCode);
+		var listener : Object = {
+			onLoadInit: function() {
+				_onLoaded(_container, -1, -1, -1);
+			},
+			onLoadError: function(target_mc : MovieClip, errorCode : String, httpStatus : Number) {
+				if (self.onError != null) {
+					self.onError(errorCode);
+				}
 			}
 		}
 		
-		_container._lockroot = true;
+		var loader : MovieClipLoader = new MovieClipLoader();
+		loader.addListener(listener);
+		
+		_container._lockroot = true; // This ensures that the loaded swf still references it's own root, instead of the project's root
 		loader.loadClip(_path, _container);
 	}
 }
