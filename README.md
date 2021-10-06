@@ -1,26 +1,20 @@
 # Flash Toy Sync V3
-## _Control your sex toy through the ancient technology known as flash_
 
-Flash toy sync is being developed to make existing flash games able to control different kind of sex toys. For stroker toys, it does that by syncing the toys movements, to the movements in the animations.
+Flash toy sync is being developed to make existing flash games able to control different kind of sex toys. For stroker toys, it does that by syncing the toy's movements, to the movements in the animations.
 
-#
-#
+&nbsp;
 
 ## Download
 
 You will be able to download a build of the project [here](https://github.com/notSafeForDev/flash-toy-sync-v3/releases).
 
-#
-#
+&nbsp;
 
 ## Supported Toys
 
 - None ([theHandy](https://www.thehandy.com/) will be implemented first)
 
-#
-#
-
----
+&nbsp;
 
 ## Development
 
@@ -42,27 +36,28 @@ For VSCode there is the [Actionscript & MXML](https://github.com/BowlerHatLLC/vs
 ... I will add more instructions later.
 
 
-#
-#
+&nbsp;
 
 ## Troubleshooting
 
-#
+### FlashDevelop
 
-#### FlashDevelop
+<details>
+  <summary>It closes as soon as you open the program:</summary>
+  Try opening a different script file.
+</details>
 
-Issue: It closes when I attempt to open it:
-Try opening a different script file.
+<details>
+  <summary>When attempting to test the project, it gives you an error that the process is already in use by a different application:</summary>
+  End the flash player process through the task manager (windows).
+</details>
 
-Issue: When attempting to test the project, it gives me an error that the process is already in use by a different application:
-End the flash player process through the task manager (windows).
+<details>
+  <summary>The flash player process doesn't appear in the task manager:</summary>
+  Click the stop button near the test button.
+</details>
 
-Issue: The flash player process doesn't appear in the task manager:
-Click the stop button near the test button.
-
-#
-
----
+&nbsp;
 
 ## License
 
