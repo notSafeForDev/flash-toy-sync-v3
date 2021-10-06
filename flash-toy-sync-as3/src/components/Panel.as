@@ -49,5 +49,10 @@ package components {
 			MovieClipUtil.remove(content);
 			content = MovieClipUtil.create(background, "content");
 		}
+		
+		public function setPosition(_x : Number, _y : Number) : void {
+			MovieClipUtil.setX(container, _x);
+			MovieClipUtil.setY(container, _y);
+		}
 	}
 }

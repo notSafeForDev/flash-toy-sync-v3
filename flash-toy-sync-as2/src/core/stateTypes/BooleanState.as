@@ -19,7 +19,7 @@ class core.stateTypes.BooleanState {
 		return listener;
 	}
 	
-	public function setState(_value : Boolean) : Void {
+	public function setState(_value : Boolean) : Void {		
 		if (_value == value) {
 			return;
 		}

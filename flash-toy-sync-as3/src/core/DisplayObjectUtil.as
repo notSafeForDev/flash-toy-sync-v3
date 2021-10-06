@@ -10,6 +10,10 @@ package core {
 	 */
 	public class DisplayObjectUtil {
 		
+		public static function getName(_object : DisplayObject) : String {
+			return _object.name;
+		}
+		
 		/**
 		 * Get all nested children of a parent
 		 * @param	_topParent	The parent

@@ -3,7 +3,6 @@ package components {
 	import flash.display.MovieClip;
 	import global.GlobalEvents;
 	import global.GlobalState;
-	import global.GlobalStateSnapshot;
 	
 	import core.Timeout;
 	import core.MovieClipUtil;
@@ -27,7 +26,7 @@ package components {
 			color = _color;
 			currentColor = _color;
 			
-			GlobalState.listen([GlobalState.animationWidth, GlobalState.animationHeight], this, onStateChange);
+			GlobalState.listen(this, onStateChange, [GlobalState.animationWidth, GlobalState.animationHeight]);
 			GlobalEvents.animationManualResize.listen(this, onAnimationManualResize);
 		}
 		
@@ -35,8 +34,8 @@ package components {
 			makeTransparentForADuration(1);
 		}
 		
-		private function onStateChange(_state : GlobalStateSnapshot) : void {
-			update(_state.animationWidth / _state.animationHeight);
+		private function onStateChange() : void {
+			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
 		}
 		
 		private function update(_aspectRatio : Number) : void {
@@ -67,7 +66,7 @@ package components {
 		private function makeTransparentForADuration(_seconds : Number) : void {
 			MovieClipUtil.setAlpha(element, 0.25);
 			currentColor = 0xFF0000;
-			update(GlobalState.animationWidth.getState() / GlobalState.animationHeight.getState());
+			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
 			
 			Timeout.clear(makeTransparentTimeout);
 			makeTransparentTimeout = Timeout.set(this, doneMakingItTransparent, _seconds * 1000);
@@ -76,7 +75,7 @@ package components {
 		private function doneMakingItTransparent() : void {
 			MovieClipUtil.setAlpha(element, 1);
 			currentColor = color;
-			update(GlobalState.animationWidth.getState() / GlobalState.animationHeight.getState());
+			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
 		}
 	}
 }

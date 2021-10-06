@@ -14,9 +14,7 @@ package components {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class HierarchyPanel {
-		
-		private var base : Panel;
+	public class HierarchyPanel extends Panel {
 		
 		private var panelWidth : Number = 200;
 		private var panelHeight : Number = 400;
@@ -38,9 +36,9 @@ package components {
 		public var onSelectChild : CustomEvent;
 		
 		public function HierarchyPanel(_parent : MovieClip, _animationContainer : MovieClip) {
-			base = new Panel(_parent, "Hierarchy", panelWidth, panelHeight);
-			animationContainer = _animationContainer;
+			super(_parent, "Hierarchy", panelWidth, panelHeight);
 			
+			animationContainer = _animationContainer;
 			onSelectChild = new CustomEvent();
 			
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
@@ -161,7 +159,7 @@ package components {
 			var listItem : HierarchyPanelListItem;
 			
 			if (listItems.length <= _listIndex) {
-				listItem = new HierarchyPanelListItem(base.content, _listIndex, panelWidth);
+				listItem = new HierarchyPanelListItem(content, _listIndex, panelWidth);
 				listItem.onSelect.listen(this, onListItemSelect);
 				listItem.onExpand.listen(this, onListItemExpand);
 				listItems.push(listItem);
@@ -170,7 +168,7 @@ package components {
 			}
 			
 			listItem.setVisible(true);
-			listItem.setHighlighted(GlobalState.selectedChild.getState() == _child);
+			listItem.setHighlighted(GlobalState.selectedChild.state == _child);
 			
 			listItem.update(_child, _childDepth, _isExpandable, _isExpanded);
 		}

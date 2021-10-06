@@ -6,6 +6,10 @@ import flash.geom.Rectangle;
  */
 class core.DisplayObjectUtil {
 	
+	public static function getName(_displayObject : MovieClip) : String {
+		return _displayObject._name;
+	}
+	
 	public static function getNestedChildren(_topParent : MovieClip) : Array {
 		var children : Array = [];
 		

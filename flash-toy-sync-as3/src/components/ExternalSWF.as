@@ -5,7 +5,6 @@ package components {
 	import flash.display.MovieClip;
 	import global.GlobalEvents;
 	import global.GlobalState;
-	import global.GlobalStateSnapshot;
 	
 	import core.CustomEvent;
 	import core.FunctionUtil;
@@ -35,16 +34,17 @@ package components {
 			loader.load(_path, _container, FunctionUtil.bind(this, _onLoaded));
 			loader.onError =  FunctionUtil.bind(this, _onError);
 			
-			GlobalState.listen([GlobalState.animationWidth, GlobalState.animationHeight], this, onAnimationSizeStateUpdate);
-			GlobalState.listen([GlobalState.isForceStopped], this, onIsForceStoppedStateUpdate);
+			GlobalState.listen(this, onAnimationSizeStateUpdate, [GlobalState.animationWidth, GlobalState.animationHeight]);
+			GlobalState.listen(this, onIsForceStoppedStateUpdate, [GlobalState.isForceStopped]);
 			
 			GlobalEvents.stepFrameBackwards.listen(this, onStepFrameBackwards);
 			GlobalEvents.stepFrameForwards.listen(this, onStepFrameForwards);
+			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
-		private function onAnimationSizeStateUpdate(_state : GlobalStateSnapshot) : void {
-			contentWidth = _state.animationWidth;
-			contentHeight = _state.animationHeight;
+		private function onAnimationSizeStateUpdate() : void {
+			contentWidth = GlobalState.animationWidth.state;
+			contentHeight = GlobalState.animationHeight.state;
 			
 			if (loadedSWF == null) {
 				return;
@@ -54,11 +54,12 @@ package components {
 			updatePositionAndSize();
 		}
 		
-		private function onIsForceStoppedStateUpdate(_state : GlobalStateSnapshot) : void {
-			if (_state.isForceStopped == true && _state.selectedChild != null) {
-				forceStoppedChild = _state.selectedChild;
+		private function onIsForceStoppedStateUpdate() : void {
+			var selectedChild : MovieClip = GlobalState.selectedChild.state;
+			if (GlobalState.isForceStopped.state == true && GlobalState.selectedChild.state != null) {
+				forceStoppedChild = GlobalState.selectedChild.state;
 				forceStoppedChild.stop();
-			} else if (_state.isForceStopped == false && forceStoppedChild != null) {
+			} else if (GlobalState.isForceStopped.state == false && forceStoppedChild != null) {
 				forceStoppedChild.play();
 				forceStoppedChild = null;
 			}
@@ -73,7 +74,7 @@ package components {
 		}
 		
 		private function stepFrame(_direction : Number) : void {
-			var selectedChild : MovieClip = GlobalState.selectedChild.getState();
+			var selectedChild : MovieClip = GlobalState.selectedChild.state;
 			if (selectedChild != null) {
 				forceStoppedChild = selectedChild;
 				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
