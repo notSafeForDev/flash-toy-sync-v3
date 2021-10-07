@@ -26,7 +26,7 @@ package {
 			container.name = "root";
 			stage.addChild(container);
 			
-			new Index(container, "animations/purple-demin-girl.swf");
+			new Index(container, "animations/karas-nightlife.swf");
 			
 			// List of flash animations and how well the current automation tools will work on them
 			/*

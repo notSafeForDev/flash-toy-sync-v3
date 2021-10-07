@@ -3,6 +3,9 @@
 */
 
 import flash.geom.Point;
+import flash.geom.Rectangle;
+
+import core.DisplayObjectUtil;
 
 class core.UIScrollArea {
 	
@@ -20,6 +23,8 @@ class core.UIScrollArea {
 		content = _content;
 		mask = _mask;
 		handle = _handle;
+		
+		content.setMask(mask);
 		
 		stage = handle.stage;
 		
@@ -41,6 +46,17 @@ class core.UIScrollArea {
 		handle.onReleaseOutside = function() {
 			self.onMouseUp();
 		}
+	}
+	
+	public function isElementVisible(_child : MovieClip) : Boolean {
+		var yInsideMask : Number = _child._y + content._y;
+		return yInsideMask + _child._height >= 0 && yInsideMask <= mask._height;
+	}
+	
+	public function isElementBoundsVisible(_child : MovieClip) : Boolean {
+		var maskBounds : Rectangle = DisplayObjectUtil.getBounds(mask, content.parent);
+		var childBounds : Rectangle = DisplayObjectUtil.getBounds(_child, content.parent);
+		return maskBounds.intersects(childBounds);
 	}
 	
 	private function onHandleMouseDown() {

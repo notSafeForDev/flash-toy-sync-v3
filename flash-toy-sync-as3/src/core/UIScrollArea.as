@@ -5,10 +5,12 @@
 package core {
 	
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.events.Event;
 	import flash.display.Stage;
+	import flash.geom.Rectangle;
 	
 	public class UIScrollArea {
 		
@@ -22,10 +24,12 @@ package core {
 		private var mouseDragOffset : Point;
 		private var isMouseDown : Boolean = false;
 		
-		function UIScrollArea(_content : DisplayObject, _mask : DisplayObject, _handle : DisplayObject) {
+		function UIScrollArea(_content : DisplayObject, _mask : DisplayObject, _handle : DisplayObject) : void {
 			content = _content;
 			mask = _mask;
 			handle = _handle;
+			
+			content.mask = mask;
 			
 			stage = handle.stage;
 			
@@ -34,7 +38,28 @@ package core {
 			handle.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 		
-		private function onHandleMouseDown(e : MouseEvent) {
+		/**
+		 * Checks if an element is inside the mask vertically, assuming it's origin is at the top
+		 * @param	_child		A child of the content container
+		 * @return	Whether it's visible or not
+		 */
+		public function isElementVisible(_child : DisplayObject) : Boolean {
+			var yInsideMask : Number = _child.y + content.y;
+			return yInsideMask + _child.height >= 0 && yInsideMask <= mask.height;
+		}
+		
+		/**
+		 * Checks if an element bounds is visible inside the mask, should only be used when isElementVisible isn't sufficient as this is significantly slower
+		 * @param	_child		A child of the content container
+		 * @return 	Whether it's visible or not
+		 */
+		public function isElementBoundsVisible(_child : DisplayObject) : Boolean {
+			var maskBounds : Rectangle = mask.getBounds(content.parent);
+			var childBounds : Rectangle = _child.getBounds(content.parent);
+			return maskBounds.intersects(childBounds);
+		}
+		
+		private function onHandleMouseDown(e : MouseEvent) : void {
 			mouseDragOffset = handle.parent.globalToLocal(new Point(e.stageX, e.stageY));
 			mouseDragOffset.x -= handle.x;
 			mouseDragOffset.y -= handle.y;
@@ -42,11 +67,11 @@ package core {
 			isMouseDown = true;
 		}
 		
-		private function onStageMouseUp(e : MouseEvent) {
+		private function onStageMouseUp(e : MouseEvent) : void {
 			isMouseDown = false;
 		}
 		
-		private function onEnterFrame(e : Event) {
+		private function onEnterFrame(e : Event) : void {
 			handle.height = mask.height * (mask.height / content.height);
 			handle.height = Math.min(handle.height, mask.height);
 			handle.y = getHandleYAtProgress();
@@ -64,7 +89,7 @@ package core {
 			content.y = -(content.height - mask.height) * progress;
 		}
 		
-		private function getHandleYAtProgress() {
+		private function getHandleYAtProgress() : Number {
 			var range : Number = mask.height - handle.height;
 			return range * progress;
 		}

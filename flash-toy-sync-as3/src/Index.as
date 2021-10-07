@@ -45,6 +45,8 @@ package {
 		private var wasResumedAfterForceStop : Boolean = false;
 		private var frameWhenChildWasSelected : Number = -1;
 		
+		private var lastFrameTime : Number;
+		
 		public function Index(_container : MovieClip, _animationPath : String) {
 			if (_container == null) {
 				throw new Error("Unable construct Index, the container is not valid");
@@ -65,6 +67,8 @@ package {
 			externalSWF = new ExternalSWF(_animationPath, animationContainer);
 			externalSWF.onLoaded.listen(this, onSWFLoaded);
 			externalSWF.onError.listen(this, onSWFError);
+			
+			lastFrameTime = Debug.getTime();
 		}
 		
 		private function onSWFLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
@@ -94,6 +98,7 @@ package {
 			
 			// animation.gotoAndStop(1910); // midna-3x-pleasure before cum scene
 			// animation.gotoAndStop(1230); // pleasure-bonbon before cum scene
+			// animation.gotoAndStop(256); // midna-3x-pleasure menu
 			keyboardManager.addShortcut(this, [Keyboard.ENTER], onForceStopShortcut);
 			keyboardManager.addShortcut(this, [Keyboard.LEFT], onStepFrameBackwardsShortcut);
 			keyboardManager.addShortcut(this, [Keyboard.RIGHT], onStepFrameForwardsShortcut);
@@ -143,10 +148,9 @@ package {
 			
 			var startTime : Number = Debug.getTime();
 			globalStateManager.notifyListeners();
+			GlobalEvents.enterFrame.emit();
 			var endTime : Number = Debug.getTime();
 			// trace(endTime - startTime);
-			
-			GlobalEvents.enterFrame.emit();
 		}
 		
 		private function onHierarchyPanelSelectChild(_child : MovieClip) : void {

@@ -1,23 +1,28 @@
 package components {
 	
+	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
+
 	import core.CustomEvent;
 	import core.Debug;
 	import core.DisplayObjectUtil;
-	import flash.display.DisplayObject;
-	import flash.display.MovieClip;
-	import global.GlobalEvents;
-	import global.GlobalState;
-	
+	import core.GraphicsUtil;
+	import core.UIScrollArea;
 	import core.ArrayUtil;
 	import core.MovieClipUtil;
+
+	import global.GlobalEvents;
+	import global.GlobalState;
+
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
 	public class HierarchyPanel extends Panel {
 		
-		private var panelWidth : Number = 200;
-		private var panelHeight : Number = 400;
+		private var contentWidth : Number = 200;
+		private var contentHeight : Number = 300;
+		private var scrollBarWidth : Number = 10;
 		
 		private var animationContainer : MovieClip;
 		
@@ -29,6 +34,10 @@ package components {
 		private var displayedChildren : Array = [];
 		private var displayedChildrenDepths : Array = [];
 		
+		private var uiScrollArea : UIScrollArea;
+		
+		private var scrollContainer : MovieClip;
+		
 		private var listItems : Array = [];
 		
 		public var excludeChildrenWithoutNestedAnimations : Boolean = true;
@@ -36,7 +45,19 @@ package components {
 		public var onSelectChild : CustomEvent;
 		
 		public function HierarchyPanel(_parent : MovieClip, _animationContainer : MovieClip) {
-			super(_parent, "Hierarchy", panelWidth, panelHeight);
+			super(_parent, "Hierarchy", contentWidth, contentHeight);
+			
+			scrollContainer = MovieClipUtil.create(content, "scrollContainer");
+			
+			var scrollBar : MovieClip = MovieClipUtil.create(content, "scrollBar");
+			GraphicsUtil.beginFill(scrollBar, 0xFFFFFF);
+			GraphicsUtil.drawRect(scrollBar, contentWidth - scrollBarWidth, 0, scrollBarWidth, scrollBarWidth);
+			
+			var mask : MovieClip = MovieClipUtil.create(content, "mask");
+			GraphicsUtil.beginFill(mask, 0xFF0000, 0.5);
+			GraphicsUtil.drawRect(mask, 0, 0, contentWidth - 10, contentHeight);
+			
+			uiScrollArea = new UIScrollArea(scrollContainer, mask, scrollBar);
 			
 			animationContainer = _animationContainer;
 			onSelectChild = new CustomEvent();
@@ -65,7 +86,7 @@ package components {
 			}
 			
 			var shouldInclude : Boolean = ArrayUtil.indexOf(expandedChildren, parent) >= 0 || (parentOfParent != null && ArrayUtil.indexOf(expandedChildren, parentOfParent) >= 0);
-			shouldInclude = shouldInclude || parent == animationContainer
+			shouldInclude = shouldInclude || parent == animationContainer;
 			
 			if (shouldInclude == true) {
 				nestedChildren.push(_child);
@@ -77,9 +98,6 @@ package components {
 		}
 		
 		private function update() : void {
-			var startTime : Number = Debug.getTime();
-			var latestTime : Number = Debug.getTime();
-			
 			nestedChildren.length = 0;
 			nestedChildren.push(animationContainer);
 			nestedChildrenDepths.length = 0;
@@ -89,6 +107,9 @@ package components {
 			displayedChildren.push(animationContainer);
 			displayedChildrenDepths.length = 0;
 			displayedChildrenDepths.push(0);
+			
+			var startTime : Number = Debug.getTime();
+			var latestTime : Number = Debug.getTime();
 			
 			// This updates nestedChildren and nestedChildrenDepths
 			MovieClipUtil.iterateOverChildren(animationContainer, nestedChildrenIterator, this);
@@ -129,13 +150,31 @@ package components {
 			for (i = 0; i < displayedChildren.length; i++) {
 				child = displayedChildren[i];
 				
-				var depth : Number = displayedChildrenDepths[i];
-				var nestedChildIndex : Number = ArrayUtil.indexOf(nestedChildren, child);
-				var childCount : Number = parentsChildCounts[nestedChildIndex];
-				var isExpandable : Boolean = childCount > 0;
-				var isExpanded : Boolean = ArrayUtil.indexOf(expandedChildren, child) >= 0
+				var listItem : HierarchyPanelListItem;
 				
-				updateListItem(child, depth, i, isExpandable, isExpanded);
+				if (i >= listItems.length) {
+					listItem = new HierarchyPanelListItem(scrollContainer, i, contentWidth - scrollBarWidth);
+					listItem.onSelect.listen(this, onListItemSelect);
+					listItem.onExpand.listen(this, onListItemExpand);
+					listItems.push(listItem);
+				} else {
+					listItem = listItems[i];
+					listItem.setVisible(true);
+				}
+				
+				var isVisible : Boolean = uiScrollArea.isElementVisible(listItem.background);
+				
+				if (isVisible == true) {
+					var depth : Number = displayedChildrenDepths[i];
+					var nestedChildIndex : Number = ArrayUtil.indexOf(nestedChildren, child);
+					var childCount : Number = parentsChildCounts[nestedChildIndex];
+					var isExpandable : Boolean = childCount > 0;
+					var isExpanded : Boolean = ArrayUtil.indexOf(expandedChildren, child) >= 0;
+					
+					listItem.setVisible(true);
+					listItem.setHighlighted(GlobalState.selectedChild.state == child);
+					listItem.update(child, depth, isExpandable, isExpanded);
+				}
 			}
 			
 			// Hide list items that are not needed
@@ -153,24 +192,6 @@ package components {
 				", Displayed: " + (elapsedTimeDisplayedChildren).toString() +
 				", List: " + (elapsedTimeUpdateList).toString()
 			); */
-		}
-		
-		private function updateListItem(_child : MovieClip, _childDepth : Number, _listIndex : Number, _isExpandable : Boolean, _isExpanded : Boolean) : void {
-			var listItem : HierarchyPanelListItem;
-			
-			if (listItems.length <= _listIndex) {
-				listItem = new HierarchyPanelListItem(content, _listIndex, panelWidth);
-				listItem.onSelect.listen(this, onListItemSelect);
-				listItem.onExpand.listen(this, onListItemExpand);
-				listItems.push(listItem);
-			} else {
-				listItem = listItems[_listIndex]
-			}
-			
-			listItem.setVisible(true);
-			listItem.setHighlighted(GlobalState.selectedChild.state == _child);
-			
-			listItem.update(_child, _childDepth, _isExpandable, _isExpanded);
 		}
 		
 		private function onListItemSelect(_index : Number) : void {

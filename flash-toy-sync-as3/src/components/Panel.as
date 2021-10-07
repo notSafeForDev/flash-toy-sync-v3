@@ -20,7 +20,7 @@ package components {
 		public var background : MovieClip;
 		public var content : MovieClip;
 		
-		public function Panel(_parent : MovieClip, _name : String, _width : Number, _height : Number) {
+		public function Panel(_parent : MovieClip, _name : String, _contentWidth : Number, _contentHeight : Number) {
 			var instanceName : String = _name.split(" ").join("");
 			
 			container = MovieClipUtil.create(_parent, instanceName);
@@ -37,10 +37,10 @@ package components {
 			titleText.setFontSize(14);
 			
 			GraphicsUtil.beginFill(titleBar, 0xFFFFFF, 0.5);
-			GraphicsUtil.drawRect(titleBar, 0, 0, _width, titleBarHeight);
+			GraphicsUtil.drawRect(titleBar, 0, 0, _contentWidth, titleBarHeight);
 			
 			GraphicsUtil.beginFill(background, 0x000000, 0.5);
-			GraphicsUtil.drawRect(background, 0, 0, _width, _height - titleBarHeight);
+			GraphicsUtil.drawRect(background, 0, 0, _contentWidth, _contentHeight);
 			
 			var draggableWindow : UIDragableWindow = new UIDragableWindow(container, titleBar);
 		}

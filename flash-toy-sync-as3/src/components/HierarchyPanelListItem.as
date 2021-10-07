@@ -22,10 +22,11 @@ package components {
 		private var depth : Number;
 		
 		private var width : Number;
+		private var height : Number = 20;
 		private var isExpandable : Boolean = false;
 		private var isExpanded : Boolean = false;
 		
-		private var background : MovieClip;
+		public var background : MovieClip;
 		private var nameText : TextElement;
 		private var framesText : TextElement;
 		
@@ -39,7 +40,7 @@ package components {
 			onSelect = new CustomEvent();
 			onExpand = new CustomEvent();
 			
-			background = MovieClipUtil.create(_parent, "background");
+			background = MovieClipUtil.create(_parent, "background" + _index);
 			background.useHandCursor = true;
 			background.buttonMode = true;
 			
@@ -59,7 +60,7 @@ package components {
 			
 			updateBackground(false);
 			
-			MovieClipUtil.setY(background, _index * 20);
+			MovieClipUtil.setY(background, _index * height);
 			
 			MouseEvents.addOnMouseDown(this, background, onBackgroundMouseDown);
 		}
@@ -72,8 +73,12 @@ package components {
 		
 		public function setVisible(_value : Boolean) : void {
 			MovieClipUtil.setVisible(background, _value);
+			// We also move it up if it's not supposed to be visible, as it otherwise would count towards the scrollable height
 			if (_value == false) {
 				setHighlighted(false);
+				MovieClipUtil.setY(background, 0);
+			} else {
+				MovieClipUtil.setY(background, index * height);
 			}
 		}
 		
