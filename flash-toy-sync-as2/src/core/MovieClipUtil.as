@@ -7,7 +7,7 @@ class core.MovieClipUtil {
 		if (_child._name.indexOf("instance") != 0) {
 			return _child._name;
 		}
-			
+		
 		var name : String = "";
 		
 		while (name.length <= _depth) {

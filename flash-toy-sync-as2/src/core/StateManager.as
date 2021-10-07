@@ -89,7 +89,7 @@ class core.StateManager {
 	private function notifyListener(_listener : Object, _updatedStatesReferences : Array) : Void {
 		var shouldNotify : Boolean = _listener.stateReferences.length == 0;
 		for (var i : Number = 0; i < _listener.stateReferences.length; i++) {
-			if (_updatedStatesReferences.indexOf(_listener.stateReferences[i]) >= 0) {
+			if (ArrayUtil.indexOf(_updatedStatesReferences, _listener.stateReferences[i]) >= 0) {
 				shouldNotify = true;
 				break;
 			}

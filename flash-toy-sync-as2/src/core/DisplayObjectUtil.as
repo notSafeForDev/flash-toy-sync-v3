@@ -10,6 +10,21 @@ class core.DisplayObjectUtil {
 		return _displayObject._name;
 	}
 	
+	public static function getChildren(_parent : MovieClip) : Array {
+		var children : Array = [];
+		
+		for (var childName : String in _parent) {
+			if (isDisplayObject(_parent[childName]) == true) {
+				children.push(_parent[childName]);
+			}
+		}
+		
+		// We reverse the children as in AS2, they are ordered from highest to lowest depth, where as in AS3, it's the other way around
+		children.reverse();
+		
+		return children;
+	}
+	
 	public static function getNestedChildren(_topParent : MovieClip) : Array {
 		var children : Array = [];
 		

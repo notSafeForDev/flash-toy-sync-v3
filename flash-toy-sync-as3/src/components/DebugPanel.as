@@ -27,12 +27,15 @@ package components {
 		private var totalAddedTexts : Number = 0;
 		
 		public function DebugPanel(_parent : MovieClip) {
-			super(_parent, "Debug", 200, 110);
+			super(_parent, "Debug", 200, 170);
 			
 			selectedChildText = addText();
 			currentFrameText = addText();
 			isForceStoppedText = addText();
 			isPlayingText = addText();
+			skippedFromFrameText = addText();
+			skippedToFrameText = addText();
+			stoppedAtFrameText = addText();
 			
 			GlobalState.listen(this, onAnyStateUpdate, []);
 		}
@@ -41,7 +44,7 @@ package components {
 			var selectedChild : MovieClip = GlobalState.selectedChild.state;
 			
 			if (selectedChild == null) {
-				selectedChildText.setText("Selected: -");
+				selectedChildText.setText("Selected: null");
 			} else {
 				selectedChildText.setText("Selected: " + DisplayObjectUtil.getName(selectedChild));
 			}
@@ -49,6 +52,9 @@ package components {
 			currentFrameText.setText("Frame: " + GlobalState.currentFrame.state);
 			isForceStoppedText.setText("Force stopped: " + GlobalState.isForceStopped.state);
 			isPlayingText.setText("Playing: " + GlobalState.isPlaying.state);
+			skippedFromFrameText.setText("Skipped from: " + GlobalState.skippedFromFrame.state);
+			skippedToFrameText.setText("Skipped to: " + GlobalState.skippedToFrame.state);
+			stoppedAtFrameText.setText("Stopped at: " + GlobalState.stoppedAtFrame.state);
 		}
 		
 		private function addText() : TextElement {

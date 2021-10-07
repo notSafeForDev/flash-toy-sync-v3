@@ -108,18 +108,29 @@ package {
 		
 		private function onEnterFrame() : void {
 			var selectedChild : MovieClip = GlobalState.selectedChild.state;
+			var lastCurrentFrame : Number = GlobalState.currentFrame.state;
 			
 			var currentFrame : Number = selectedChild != null ? MovieClipUtil.getCurrentFrame(selectedChild) : -1;
-			var lastCurrentFrame : Number = GlobalState.currentFrame.state;
 			var isStopped : Boolean = currentFrame >= 0 && currentFrame == lastCurrentFrame;
 			var isNotExpectedFrame : Boolean = selectedChildExpectedNextFrame >= 0 && currentFrame != lastCurrentFrame;
+			var newIsPlayingState : Boolean = selectedChild != null && isStopped == false && GlobalState.isForceStopped.state == false;
 			
-			globalState._isPlaying.setState(selectedChild != null && isStopped == false && GlobalState.isForceStopped.state == false);
+			if (newIsPlayingState == false && GlobalState.isPlaying.state == true && GlobalState.isForceStopped.state == false) {
+				globalState._stoppedAtFrame.setState(currentFrame);
+			}
+			
+			globalState._isPlaying.setState(newIsPlayingState);
 			
 			if (lastCurrentFrame >= 0) {
 				if (isNotExpectedFrame && currentFrame != selectedChildExpectedNextFrame && GlobalState.isForceStopped.state == false) {
-					// trace("It's frame was changed from " + lastCurrentFrame + ", to " + currentFrame + ". Expected: " + selectedChildExpectedNextFrame);
-					// TODO: Set states for where it "exited" and where it "entered"
+					globalState._skippedFromFrame.setState(GlobalState.currentFrame.state);
+					globalState._skippedToFrame.setState(currentFrame);
+					globalState._stoppedAtFrame.setState(-1);
+				}
+				if (lastCurrentFrame == MovieClipUtil.getTotalFrames(selectedChild) && currentFrame == 1) {
+					globalState._skippedFromFrame.setState(lastCurrentFrame);
+					globalState._skippedToFrame.setState(currentFrame);
+					globalState._stoppedAtFrame.setState(-1);
 				}
 			}
 			
@@ -149,6 +160,9 @@ package {
 			globalState._currentFrame.setState(currentFrame);
 			globalState._isPlaying.setState(false);
 			globalState._isForceStopped.setState(false);
+			globalState._skippedFromFrame.setState(-1);
+			globalState._skippedToFrame.setState(-1);
+			globalState._stoppedAtFrame.setState(-1);
 			
 			selectedChildExpectedNextFrame = -1; // Expect nothing, since we don't know if it's stopped or not
 			frameWhenChildWasSelected = currentFrame;

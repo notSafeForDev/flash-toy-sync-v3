@@ -1,11 +1,15 @@
 package components {
 	
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.ui.Keyboard;
 	
+	import core.Timeout;
+	import core.KeyboardManager;
 	import core.StageUtil;
 	import core.FunctionUtil;
 	import core.MovieClipUtil;
@@ -15,6 +19,7 @@ package components {
 	import core.DisplayObjectUtil;
 
 	import global.GlobalEvents;
+	import global.GlobalState;
 
 	/**
 	 * ...
@@ -31,16 +36,55 @@ package components {
 		private var selectedChildrenBounds : Array = [];
 		private var selectedChildrenMissingParentFrameCounts : Array = [];
 		
+		private var keyboardManager : KeyboardManager;
+		
+		private var lastChildAtMousePosition : DisplayObject;
+		
+		private var highlightChildTimeout : Number;
+		private var shouldHighlightSelectedChild : Boolean;
+		
 		public function StageElementSelector(_container : MovieClip, _overlay : MovieClip) {
 			container = _container;
 			overlay = _overlay;
 			
+			keyboardManager = new KeyboardManager(_container);
+			highlightChildTimeout = -1;
+			
 			MouseEvents.addOnMouseDownPassThrough(this, container, onMouseDown);
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
+			GlobalState.listen(this, onSelectedChildChanged, [GlobalState.selectedChild]);
 		}
 		
 		private function onEnterFrame() : void {
-			drawBounds();
+			GraphicsUtil.clear(overlay);
+			
+			if (keyboardManager.isKeyPressed(Keyboard.E) == true) {
+				var child : DisplayObject = getChildAtMousePosition(GlobalState.selectedChild.state || container);
+				drawBounds(GlobalState.selectedChild.state || container);
+				if (child != null) {
+					drawBounds(child);
+				}
+			}
+		
+			if (shouldHighlightSelectedChild == true) {
+				drawBounds(GlobalState.selectedChild.state);
+			}
+			
+			// drawBoundsOfClickedChildren();
+		}
+		
+		private function onSelectedChildChanged() : void {
+			if (GlobalState.selectedChild.state == null) {
+				return;
+			}
+		
+			Timeout.clear(highlightChildTimeout);
+			shouldHighlightSelectedChild = true;
+			highlightChildTimeout = Timeout.set(this, stopHighlightingSelectedChild, 500);
+		}
+		
+		private function stopHighlightingSelectedChild() : void {
+			shouldHighlightSelectedChild = false;
 		}
 		
 		private function onMouseDown() : void {
@@ -50,24 +94,92 @@ package components {
 			selectedChildrenDepths.length = 0;
 			selectedChildrenMissingParentFrameCounts.length = 0;
 			
+			var childrenAtMousePosition : Array = getChildrenAtMousePosition();
+			
+			for (var i : Number = 0; i < childrenAtMousePosition.length; i++) {
+				var parents : Array = DisplayObjectUtil.getParents(childrenAtMousePosition[i]);
+				selectedChildren.push(childrenAtMousePosition[i]);
+				selectedChildrenParents.push(parents[0]);
+				selectedChildrenDepths.push(parents.length);
+				selectedChildrenBounds.push(DisplayObjectUtil.getBounds(childrenAtMousePosition[i], parents[0]));
+				selectedChildrenMissingParentFrameCounts.push(0);
+			}
+		}
+		
+		private function getChildrenAtMousePosition() : Array {
 			var nestedChildren : Array = DisplayObjectUtil.getNestedChildren(container);
 			var stageX : Number = StageUtil.getMouseX();
 			var stageY : Number = StageUtil.getMouseY();
+			var childrenAtMousePosition : Array = [];
 			
 			for (var i : Number = 0; i < nestedChildren.length; i++) {				
 				var wasHit : Boolean = DisplayObjectUtil.hitTest(nestedChildren[i], stageX, stageY, true);
 				if (wasHit == true) {
-					var parents : Array = DisplayObjectUtil.getParents(nestedChildren[i]);
-					selectedChildren.push(nestedChildren[i]);
-					selectedChildrenParents.push(parents[0]);
-					selectedChildrenDepths.push(parents.length);
-					selectedChildrenBounds.push(DisplayObjectUtil.getBounds(nestedChildren[i], parents[0]));
-					selectedChildrenMissingParentFrameCounts.push(0);
+					childrenAtMousePosition.push(nestedChildren[i]);
 				}
 			}
+			
+			return childrenAtMousePosition;
 		}
 		
-		private function drawBounds() : void {
+		private function getChildAtMousePosition(_topParent : DisplayObjectContainer) : DisplayObject {
+			var child : DisplayObject = null;
+			var children : Array = DisplayObjectUtil.getChildren(_topParent);
+			var isFirstIteration : Boolean = true;
+			var isDone : Boolean = false;
+			var stageMousePoint : Point = new Point(StageUtil.getMouseX(), StageUtil.getMouseY());
+			
+			while (isDone == false) {
+				var closestChild : DisplayObject = null;
+				var closestChildDistance : Number = -1;
+				
+				// We iterate from the last child to the first, as they are ordered from highest to lowest depth
+				for (var i : Number = children.length - 1; i >= 0; i--) {
+					var bounds : Rectangle = DisplayObjectUtil.getBounds(children[i], DisplayObjectUtil.getParent(container));
+					if (bounds.containsPoint(stageMousePoint) == false) {
+						continue;
+					}
+					if (isFirstIteration == true && DisplayObjectUtil.hitTest(children[i], stageMousePoint.x, stageMousePoint.y, true) == true) {
+						closestChild = children[i];
+						break;
+					} else if (isFirstIteration == true) {
+						continue;
+					}
+					var boundsCenterPoint : Point = new Point(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+					var distance : Number = Point.distance(stageMousePoint, boundsCenterPoint);
+					if (closestChild == null || distance < closestChildDistance) {
+						closestChild = children[i];
+						closestChildDistance = distance;
+					}
+				}
+				if (closestChild != null) {
+					child = closestChild;
+					children = DisplayObjectUtil.getChildren(child);
+				} else {
+					isDone = true;
+				}
+				isFirstIteration = false;
+			}
+			
+			return child;
+		}
+		
+		private function drawBounds(_object : DisplayObject) : void {
+			if (_object == null) {
+				return;
+			}
+			
+			if (DisplayObjectUtil.isShape(_object) == true) {
+				GraphicsUtil.setLineStyle(overlay, 2, 0xFFFF00);
+			} else {
+				GraphicsUtil.setLineStyle(overlay, 4, 0x00FF00);
+			}
+			
+			var bounds : Rectangle = DisplayObjectUtil.getBounds(_object, overlay);
+			GraphicsUtil.drawRect(overlay, bounds.x, bounds.y, bounds.width, bounds.height);
+		}
+		
+		private function drawBoundsOfClickedChildren() : void {
 			GraphicsUtil.clear(overlay);
 			GraphicsUtil.setLineStyle(overlay, 2, 0x00FF00);
 			
@@ -135,14 +247,7 @@ package components {
 				}
 				
 				if (hasInvalidParent == false) {
-					if (DisplayObjectUtil.isShape(displayObject) == true) {
-						GraphicsUtil.setLineStyle(overlay, 2, 0xFFFF00);
-					} else {
-						GraphicsUtil.setLineStyle(overlay, 4, 0x00FF00);
-					}
-					
-					var bounds : Rectangle = DisplayObjectUtil.getBounds(displayObject, overlay);
-					GraphicsUtil.drawRect(overlay, bounds.x, bounds.y, bounds.width, bounds.height);
+					drawBounds(displayObject);
 				}
 			}
 		}

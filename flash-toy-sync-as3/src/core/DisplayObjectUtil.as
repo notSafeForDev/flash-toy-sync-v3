@@ -14,6 +14,24 @@ package core {
 			return _object.name;
 		}
 		
+		public static function getChildren(_parent : DisplayObject) : Array {
+			if (_parent is DisplayObjectContainer == false) {
+				return [];
+			}
+			
+			var parent : DisplayObjectContainer = DisplayObjectContainer(_parent);
+			var children : Array = [];
+			for (var i : int = 0; i < parent.numChildren; i++) {
+				var child : DisplayObject = parent.getChildAt(i);
+				// Children sometimes become null, likely due to them not being included on the current frame of the parent
+				if (child != null) {
+					children.push(child);
+				}
+			}
+			
+			return children;
+		}
+		
 		/**
 		 * Get all nested children of a parent
 		 * @param	_topParent	The parent
@@ -101,6 +119,10 @@ package core {
 		
 		public static function setHeight(_object : DisplayObject, _value : Number) : void {
 			_object.height = _value;
+		}
+		
+		public static function isDisplayObjectContainer(_object : * ) : Boolean {
+			return _object is DisplayObjectContainer;
 		}
 		
 		public static function isDisplayObject(_object : * ) : Boolean {

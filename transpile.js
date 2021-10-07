@@ -208,6 +208,9 @@ function transpileActionScript3To2(actionscript) {
         return line.split(" : void ").join(" : Void ");
     });
 
+    // Repace : DisplayObjectContainer with : MovieClip
+    replaceInActionScriptLines(lines, [" : DisplayObjectContainer"], " : DisplayObjectContainer", " : MovieClip");
+
     // Repace : DisplayObject with : MovieClip
     replaceInActionScriptLines(lines, [" : DisplayObject"], " : DisplayObject", " : MovieClip");
 
