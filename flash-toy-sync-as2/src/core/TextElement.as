@@ -54,6 +54,14 @@ class core.TextElement {
 		element._y = _value;
 	}
 	
+	public function setWidth(_value : Number) : Void {
+		element._width = _value;
+	}
+	
+	public function setHeight(_value : Number) : Void {
+		element._height = _value;
+	}
+	
 	public function setText(_value : String) : Void {
 		if (element.text == _value) {
 			return; // Important for performance when updating many texts frequently
@@ -67,28 +75,40 @@ class core.TextElement {
 		element.autoSize = _value;
 	}
 	
-	public function setFont(_value : String) : Void {
+	public function setFont(_value : String, _isEmbedded : Boolean) : Void {
+		if (_isEmbedded == true) {
+			element.embedFonts = true;
+		}
 		textFormat.font = _value;
-		setText(element.text);
+		element.setTextFormat(textFormat);
 	}
 	
 	public function setFontSize(_value : Number) : Void {
 		textFormat.size = _value;
-		setText(element.text);
+		element.setTextFormat(textFormat);
 	}
 	
 	public function setBold(_value : Boolean) : Void {
 		textFormat.bold = _value;
-		setText(element.text);
+		element.setTextFormat(textFormat);
 	}
 	
 	public function setItalic(_value : Boolean) : Void {
 		textFormat.italic = _value;
-		setText(element.text);
+		element.setTextFormat(textFormat);
 	}
 	
 	public function setAlign(_value : String) : Void {
 		textFormat.align = _value;
-		setText(element.text);
+		element.setTextFormat(textFormat);
+	}
+	
+	public function setUnderline(_value : Boolean) : Void {
+		textFormat.underline = _value;
+		element.setTextFormat(textFormat);
+	}
+	
+	public function setFilters(_filters : Array) : Void {
+		element.filters = _filters;
 	}
 }

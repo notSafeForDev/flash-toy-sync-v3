@@ -3,6 +3,10 @@ package global {
 	import core.ArrayUtil;
 	import core.StageUtil;
 	import core.StateManager;
+	import core.stateTypes.DisplayObjectState;
+	import core.stateTypes.DisplayObjectStateReference;
+	import core.stateTypes.PointState;
+	import core.stateTypes.PointStateReference;
 	
 	import core.stateTypes.BooleanState;
 	import core.stateTypes.BooleanStateReference;
@@ -36,6 +40,34 @@ package global {
 		/** The child that is curently selected */
 		public var _selectedChild : MovieClipState;
 		public static var selectedChild : MovieClipStateReference;
+		
+		/** The child that the user have clicked on */
+		public var _clickedChild : DisplayObjectState;
+		public static var clickedChild : DisplayObjectStateReference;
+
+		/** The child that the stimulation marker is attached to */
+		public var _stimulationMarkerAttachedTo : DisplayObjectState;
+		public static var stimulationMarkerAttachedTo : DisplayObjectStateReference;
+		
+		/** The child that the base marker is attached to */
+		public var _baseMarkerAttachedTo : DisplayObjectState;
+		public static var baseMarkerAttachedTo : DisplayObjectStateReference;
+		
+		/** The child that the tip marker is attached to */
+		public var _tipMarkerAttachedTo : DisplayObjectState;
+		public static var tipMarkerAttachedTo : DisplayObjectStateReference;
+		
+		/** The local position inside the attached to object where the marker should be placed */
+		public var _stimulationMarkerPoint : PointState;
+		public static var stimulationMarkerPoint : PointStateReference;
+		
+		/** The local position inside the attached to object where the marker should be placed */
+		public var _baseMarkerPoint : PointState;
+		public static var baseMarkerPoint : PointStateReference;
+		
+		/** The local position inside the attached to object where the marker should be placed */
+		public var _tipMarkerPoint : PointState;
+		public static var tipMarkerPoint : PointStateReference;
 		
 		/** The current frame for the selected child */
 		public var _currentFrame : NumberState;
@@ -87,6 +119,41 @@ package global {
 			added = _stateManager.addMovieClipState(null);
 			_selectedChild = added.state;
 			GlobalState.selectedChild = added.reference;
+			
+			// clickedChild
+			added = _stateManager.addDisplayObjectState(null);
+			_clickedChild = added.state;
+			GlobalState.clickedChild = added.reference;
+			
+			// stimulationMarkerAttachedTo
+			added = _stateManager.addDisplayObjectState(null);
+			_stimulationMarkerAttachedTo = added.state;
+			GlobalState.stimulationMarkerAttachedTo = added.reference;
+			
+			// baseMarkerAttachedTo
+			added = _stateManager.addDisplayObjectState(null);
+			_baseMarkerAttachedTo = added.state;
+			GlobalState.baseMarkerAttachedTo = added.reference;
+			
+			// tipMarkerAttachedTo
+			added = _stateManager.addDisplayObjectState(null);
+			_tipMarkerAttachedTo = added.state;
+			GlobalState.tipMarkerAttachedTo = added.reference;
+			
+			// stimulationMarkerPoint
+			added = _stateManager.addPointState(null);
+			_stimulationMarkerPoint = added.state;
+			GlobalState.stimulationMarkerPoint = added.reference;
+			
+			// baseMarkerPoint
+			added = _stateManager.addPointState(null);
+			_baseMarkerPoint = added.state;
+			GlobalState.baseMarkerPoint = added.reference;
+			
+			// tipMarkerPoint
+			added = _stateManager.addPointState(null);
+			_tipMarkerPoint = added.state;
+			GlobalState.tipMarkerPoint = added.reference;
 			
 			// currentFrame
 			added = _stateManager.addNumberState(-1);

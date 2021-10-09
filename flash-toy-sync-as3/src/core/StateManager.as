@@ -1,6 +1,8 @@
 package core {
 	
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.geom.Point;
 	
 	import core.stateTypes.BooleanState;
 	import core.stateTypes.BooleanStateReference;
@@ -8,6 +10,10 @@ package core {
 	import core.stateTypes.MovieClipStateReference;
 	import core.stateTypes.NumberState;
 	import core.stateTypes.NumberStateReference;
+	import core.stateTypes.DisplayObjectState;
+	import core.stateTypes.DisplayObjectStateReference;
+	import core.stateTypes.PointState;
+	import core.stateTypes.PointStateReference;
 	
 	/**
 	 * Used to hold different states, with the ability to listen for changes to specific state changes
@@ -50,7 +56,7 @@ package core {
 		/**
 		 * Add a state that holds a Boolean
 		 * @param	_default	The default value for the state
-		 * @return	{state: NumberState, reference: BooleanStateReference} - An object with the added state and reference
+		 * @return	{state: BooleanState, reference: BooleanStateReference} - An object with the added state and reference
 		 */
 		public function addBooleanState(_default : Boolean = false) : Object {
 			var state : BooleanState = new BooleanState(_default);
@@ -61,9 +67,35 @@ package core {
 		}
 		
 		/**
+		 * Add a state that holds a Point
+		 * @param	_default	The default value for the state
+		 * @return	{state: PointState, reference: PointStateReference} - An object with the added state and reference
+		 */
+		public function addPointState(_default : Point = null) : Object {
+			var state : PointState = new PointState(_default);
+			var reference : PointStateReference = new PointStateReference(state);
+			states.push(state);
+			references.push(reference);
+			return {state: state, reference: reference};
+		}
+		
+		/**
+		 * Add a state that holds a DisplayObject
+		 * @param	_default	The default value for the state
+		 * @return	{state: DisplayObjectState, reference: DisplayObjectStateReference} - An object with the added state and reference
+		 */
+		public function addDisplayObjectState(_default : DisplayObject = null) : Object {
+			var state : DisplayObjectState = new DisplayObjectState(_default);
+			var reference : DisplayObjectStateReference = new DisplayObjectStateReference(state);
+			states.push(state);
+			references.push(reference);
+			return {state: state, reference: reference};
+		}
+		
+		/**
 		 * Add a state that holds a MovieClip
 		 * @param	_default	The default value for the state
-		 * @return	{state: NumberState, reference: MovieClipStateReference} - An object with the added state and reference
+		 * @return	{state: MovieClipState, reference: MovieClipStateReference} - An object with the added state and reference
 		 */
 		public function addMovieClipState(_default : MovieClip = null) : Object {
 			var state : MovieClipState = new MovieClipState(_default);

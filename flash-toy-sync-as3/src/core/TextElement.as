@@ -50,6 +50,14 @@ package core {
 			element.y = _value;
 		}
 		
+		public function setWidth(_value : Number) : void {
+			element.width = _value;
+		}
+		
+		public function setHeight(_value : Number) : void {
+			element.height = _value;
+		}
+		
 		public function setText(_value : String) : void {
 			if (element.text == _value) {
 				return; // Important for performance when updating many texts frequently
@@ -62,29 +70,41 @@ package core {
 			element.autoSize = _value;
 		}
 		
-		public function setFont(_value : String) : void {
+		public function setFont(_value : String, isEmbedded : Boolean) : void {
+			if (isEmbedded == true) {
+				element.embedFonts = true;
+			}
 			textFormat.font = _value;
-			setText(element.text);
+			element.setTextFormat(textFormat);
 		}
 		
 		public function setFontSize(_value : Number) : void {
 			textFormat.size = _value;
-			setText(element.text);
+			element.setTextFormat(textFormat);
 		}
 		
 		public function setBold(_value : Boolean) : void {
 			textFormat.bold = _value;
-			setText(element.text);
+			element.setTextFormat(textFormat);
 		}
 		
 		public function setItalic(_value : Boolean) : void {
 			textFormat.italic = _value;
-			setText(element.text);
+			element.setTextFormat(textFormat);
 		}
 		
 		public function setAlign(_value : String) : void {
 			textFormat.align = _value;
-			setText(element.text);
+			element.setTextFormat(textFormat);
+		}
+		
+		public function setUnderline(_value : Boolean) : void {
+			textFormat.underline = _value;
+			element.setTextFormat(textFormat);
+		}
+		
+		public function setFilters(_filters : Array) : void {
+			element.filters = _filters;
 		}
 	}
 }

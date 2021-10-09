@@ -1,12 +1,16 @@
 package components {
 	
-	import core.Fonts;
 	import flash.display.MovieClip;
 	
+	import core.DisplayObjectUtil;
+	import core.Fonts;
 	import core.TextElement;
 	import core.GraphicsUtil;
 	import core.MovieClipUtil;
-	import core.UIDragableWindow;
+	import core.DraggableObject;
+	
+	import config.TextStyles;
+
 	/**
 	 * ...
 	 * @author notSafeForDev
@@ -28,13 +32,13 @@ package components {
 			background = MovieClipUtil.create(container, "background");
 			content = MovieClipUtil.create(background, "content");
 			
-			MovieClipUtil.setY(background, titleBarHeight);
+			DisplayObjectUtil.setY(background, titleBarHeight);
 			
 			var titleText : TextElement = new TextElement(titleBar, _name);
 			titleText.element.selectable = false;
-			titleText.setFont(Fonts.COURIER_NEW);
-			titleText.setBold(true);
-			titleText.setFontSize(14);
+			titleText.setX(3);
+			titleText.setY(1);
+			TextStyles.applyPanelTitleStyle(titleText);
 			
 			GraphicsUtil.beginFill(titleBar, 0xFFFFFF, 0.5);
 			GraphicsUtil.drawRect(titleBar, 0, 0, _contentWidth, titleBarHeight);
@@ -42,7 +46,8 @@ package components {
 			GraphicsUtil.beginFill(background, 0x000000, 0.5);
 			GraphicsUtil.drawRect(background, 0, 0, _contentWidth, _contentHeight);
 			
-			var draggableWindow : UIDragableWindow = new UIDragableWindow(container, titleBar);
+			var draggable : DraggableObject = new DraggableObject(container, titleBar);
+			draggable.bringToFrontOnDrag = true;
 		}
 		
 		public function clearContent() : void {
@@ -51,8 +56,8 @@ package components {
 		}
 		
 		public function setPosition(_x : Number, _y : Number) : void {
-			MovieClipUtil.setX(container, _x);
-			MovieClipUtil.setY(container, _y);
+			DisplayObjectUtil.setX(container, _x);
+			DisplayObjectUtil.setY(container, _y);
 		}
 	}
 }

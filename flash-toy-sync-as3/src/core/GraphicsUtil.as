@@ -48,6 +48,10 @@ package core {
 			_movieClip.graphics.lineTo(_x, _y);
 		}
 		
+		public static function drawCircle(_movieClip : MovieClip, _x : Number, _y : Number, _radius : Number) : void {
+			_movieClip.graphics.drawCircle(_x, _y, _radius);
+		}
+		
 		public static function moveTo(_movieClip : MovieClip, _x : Number, _y : Number) : void {
 			_movieClip.graphics.moveTo(_x, _y);
 		}

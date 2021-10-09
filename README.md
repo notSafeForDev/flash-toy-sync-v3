@@ -48,7 +48,7 @@ For VSCode there is the [Actionscript & MXML](https://github.com/BowlerHatLLC/vs
 </details>
 
 <details>
-  <summary>When attempting to test the project, it gives you an error that the process is already in use by a different application:</summary>
+  <summary>When attempting to test the project, it gives you an error: Exception: The process cannot access the file ... because it is being used by another process:</summary>
   End the flash player process through the task manager (windows).
 </details>
 

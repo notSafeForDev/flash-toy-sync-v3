@@ -249,54 +249,6 @@
 			return _movieClip.totalFrames;
 		}
 		
-		public static function isVisible(_movieClip : MovieClip) : Boolean {
-			return _movieClip.visible;
-		}
-		
-		public static function setVisible(_movieClip : MovieClip, _state : Boolean) : void {
-			_movieClip.visible = _state;
-		}
-		
-		public static function getAlpha(_movieClip : MovieClip) : Number {
-			return _movieClip.alpha;
-		}
-		
-		public static function setAlpha(_movieClip : MovieClip, _value : Number) : void {
-			_movieClip.alpha = _value;
-		}
-		
-		public static function getX(_movieClip : MovieClip) : Number {
-			return _movieClip.x;
-		}
-		
-		public static function setX(_movieClip : MovieClip, _value : Number) : void {
-			_movieClip.x = _value;
-		}
-		
-		public static function getY(_movieClip : MovieClip) : Number {
-			return _movieClip.y;
-		}
-		
-		public static function setY(_movieClip : MovieClip, _value : Number) : void {
-			_movieClip.y = _value;
-		}
-		
-		public static function getScaleX(_movieClip : MovieClip) : Number {
-			return _movieClip.scaleX;
-		}
-		
-		public static function setScaleX(_movieClip : MovieClip, _value : Number) : void {
-			_movieClip.scaleX = _value;
-		}
-		
-		public static function getScaleY(_movieClip : MovieClip) : Number {
-			return _movieClip.scaleY;
-		}
-		
-		public static function setScaleY(_movieClip : MovieClip, _value : Number) : void {
-			_movieClip.scaleY = _value;
-		}
-		
 		public static function getBounds(_movieClip : MovieClip, _targetCoordinateSpace : MovieClip = null) : Rectangle {
 			return _movieClip.getBounds(_targetCoordinateSpace);
 		}

@@ -105,20 +105,10 @@ package core {
 			return parents;
 		}
 		
-		public static function getWidth(_object : DisplayObject) : Number {
-			return _object.width;
-		}
-		
-		public static function setWidth(_object : DisplayObject, _value : Number) : void {
-			_object.width = _value;
-		}
-		
-		public static function getHeight(_object : DisplayObject) : Number {
-			return _object.height;
-		}
-		
-		public static function setHeight(_object : DisplayObject, _value : Number) : void {
-			_object.height = _value;
+		public static function bringToFront(_object : DisplayObject) : void {
+			if (_object.parent != null) {
+				_object.parent.setChildIndex(_object, _object.parent.numChildren - 1);
+			}
 		}
 		
 		public static function isDisplayObjectContainer(_object : * ) : Boolean {
@@ -139,6 +129,70 @@ package core {
 		
 		public static function globalToLocal(_object : DisplayObject, _x : Number, _y : Number) : Point {
 			return _object.globalToLocal(new Point(_x, _y));
+		}
+		
+		public static function isVisible(_movieClip : DisplayObject) : Boolean {
+			return _movieClip.visible;
+		}
+		
+		public static function setVisible(_movieClip : DisplayObject, _state : Boolean) : void {
+			_movieClip.visible = _state;
+		}
+		
+		public static function getAlpha(_movieClip : DisplayObject) : Number {
+			return _movieClip.alpha;
+		}
+		
+		public static function setAlpha(_movieClip : DisplayObject, _value : Number) : void {
+			_movieClip.alpha = _value;
+		}
+		
+		public static function getX(_movieClip : DisplayObject) : Number {
+			return _movieClip.x;
+		}
+		
+		public static function setX(_movieClip : DisplayObject, _value : Number) : void {
+			_movieClip.x = _value;
+		}
+		
+		public static function getY(_movieClip : DisplayObject) : Number {
+			return _movieClip.y;
+		}
+		
+		public static function setY(_movieClip : DisplayObject, _value : Number) : void {
+			_movieClip.y = _value;
+		}
+		
+		public static function getScaleX(_movieClip : DisplayObject) : Number {
+			return _movieClip.scaleX;
+		}
+		
+		public static function setScaleX(_movieClip : DisplayObject, _value : Number) : void {
+			_movieClip.scaleX = _value;
+		}
+		
+		public static function getScaleY(_movieClip : DisplayObject) : Number {
+			return _movieClip.scaleY;
+		}
+		
+		public static function setScaleY(_movieClip : DisplayObject, _value : Number) : void {
+			_movieClip.scaleY = _value;
+		}
+
+		public static function getWidth(_object : DisplayObject) : Number {
+			return _object.width;
+		}
+		
+		public static function setWidth(_object : DisplayObject, _value : Number) : void {
+			_object.width = _value;
+		}
+		
+		public static function getHeight(_object : DisplayObject) : Number {
+			return _object.height;
+		}
+		
+		public static function setHeight(_object : DisplayObject, _value : Number) : void {
+			_object.height = _value;
 		}
 	}
 }

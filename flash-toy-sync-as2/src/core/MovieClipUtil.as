@@ -195,54 +195,6 @@ class core.MovieClipUtil {
 		return _movieClip._totalframes;
 	}
 	
-	static function isVisible(_movieClip : MovieClip) : Boolean {
-		return _movieClip._visible;
-	}
-	
-	static function setVisible(_movieClip : MovieClip, _state : Boolean) {
-		_movieClip._visible = _state;
-	}
-
-	static function getAlpha(_movieClip : MovieClip) : Number {
-		return _movieClip._alpha * 0.01;
-	}
-	
-	static function setAlpha(_movieClip : MovieClip, _value : Number) {
-		_movieClip._alpha = _value * 100;
-	}
-	
-	static function getX(_movieClip : MovieClip) : Number {
-		return _movieClip._x;
-	}
-	
-	static function setX(_movieClip : MovieClip, _value : Number) {
-		_movieClip._x = _value;
-	}
-	
-	static function getY(_movieClip : MovieClip) : Number {
-		return _movieClip._y;
-	}
-	
-	static function setY(_movieClip : MovieClip, _value : Number) {
-		_movieClip._y = _value;
-	}
-
-	static function getScaleX(_movieClip : MovieClip) : Number {
-		return _movieClip._xscale * 0.01;
-	}
-	
-	static function setScaleX(_movieClip : MovieClip, _value : Number) {
-		_movieClip._xscale = _value * 100;
-	}
-	
-	static function getScaleY(_movieClip : MovieClip) : Number {
-		return _movieClip._yscale * 0.01;
-	}
-	
-	static function setScaleY(_movieClip : MovieClip, _value : Number) {
-		_movieClip._yscale = _value * 100;
-	}
-	
 	static function getBounds(_movieClip : MovieClip, _targetCoordinateSpace : MovieClip) : Rectangle {
 		var bounds : Object = _movieClip.getBounds(_targetCoordinateSpace || _movieClip._parent);
 		return new Rectangle(bounds.xMin, bounds.yMin, bounds.xMax - bounds.xMin, bounds.yMax - bounds.yMin);

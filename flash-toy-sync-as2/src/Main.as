@@ -8,7 +8,7 @@ class Main {
 	public static function main(swfRoot:MovieClip) : Void {
 		// entry point
 		StageUtil.initialize();
-		var index : Index = new Index(_root, "animations/midna-3x-pleasure.swf");
+		var index : Index = new Index(_root, "animations/Test Flash.swf");
 		
 		// List of flash animations and how well the current automation tools will work on them
 		/*
@@ -17,6 +17,7 @@ class Main {
 		fandeltales-scene-viewer.swf 		- Poorly, no element is selectable as it's done frame by frame
 		hentaikey-girl-1.swf				- Good, while the penis isn't selectable, her head is, which is good enough
 		hentaikey-girl-2.swf				- Good, especially if a way to amplify movement is implemented
+		hentairella-1.swf					- Good, considering that her eyes, knee and thigh can be used in creative ways
 		midna-3x-pleasure.swf				- Decent, while many elements can't be selected in the wolf, scene, there are enough suitable elements to cover for it (Missing music)
 		no-vacancy-v22.swf					- Decent, only marked as decent as I haven't checked all animations, but it seems good
 		peach-request-two.swf				- Good (Missing music)

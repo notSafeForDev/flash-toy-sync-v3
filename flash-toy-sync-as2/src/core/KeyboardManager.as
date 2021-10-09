@@ -9,12 +9,31 @@ class core.KeyboardManager {
 	var onKeyPressed : Function;
 	var onKeyReleased : Function;
 	
+	private var lastKeyDownEventTime : Number;
+	private var lastKeyUpEventTime : Number;
+	
+	// To fix the double input issue, it seems like it requires some kind of object that is defined outside of the constructor
+	private var blockPressInput : Array = [];
+	private var blockReleaseInput : Array = [];
+	
 	function KeyboardManager(_child : MovieClip) {
 		var self = this;
 		var inputListener : Object = {};
 		Key.addListener(inputListener);
 		
 		inputListener.onKeyDown = function() {
+			// This is very important as there's a bug that causes input events to trigger twice
+			// So by checking if the key is already pressed, we prevent that
+			// Could be related to: https://stackoverflow.com/questions/22012948/keydown-event-fires-twice
+			if (self.blockPressInput.length > 0) {
+				return;
+			}
+			
+			self.blockPressInput.push(true);
+			setTimeout(function() {
+				self.blockPressInput = [];
+			}, 0);
+			
 			if (self.isKeyPressed(Key.getCode()) == false) {
 				self.pressedKeys.push(Key.getCode());
 			}
@@ -35,7 +54,17 @@ class core.KeyboardManager {
 		}
 		
 		inputListener.onKeyUp = function() {
+			if (self.blockReleaseInput.length > 0) {
+				return;
+			}
+			
+			self.blockReleaseInput.push(true);
+			setTimeout(function() {
+				self.blockReleaseInput = [];
+			}, 0);
+			
 			var pressedKeyIndex : Number = self.getPressedKeyIndex(Key.getCode());
+			
 			if (pressedKeyIndex >= 0) {
 				self.pressedKeys.splice(pressedKeyIndex, 1);
 			}

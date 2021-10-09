@@ -2,10 +2,15 @@ import core.ArrayUtil;
 import core.FunctionUtil;
 import core.stateTypes.BooleanState;
 import core.stateTypes.BooleanStateReference;
+import core.stateTypes.DisplayObjectState;
+import core.stateTypes.DisplayObjectStateReference;
 import core.stateTypes.MovieClipState;
 import core.stateTypes.MovieClipStateReference;
 import core.stateTypes.NumberState;
 import core.stateTypes.NumberStateReference;
+import core.stateTypes.PointState;
+import core.stateTypes.PointStateReference;
+import flash.geom.Point;
 /**
  * ...
  * @author notSafeForDev
@@ -39,6 +44,22 @@ class core.StateManager {
 	public function addBooleanState(_default : Boolean) : Object {
 		var state : BooleanState = new BooleanState(_default);
 		var reference : BooleanStateReference = new BooleanStateReference(state);
+		states.push(state);
+		references.push(reference);
+		return {state: state, reference: reference};
+	}
+	
+	public function addPointState(_default : Point) : Object {
+		var state : PointState = new PointState(_default);
+		var reference : PointStateReference = new PointStateReference(state);
+		states.push(state);
+		references.push(reference);
+		return {state: state, reference: reference};
+	}
+	
+	public function addDisplayObjectState(_default : MovieClip) : Object {
+		var state : DisplayObjectState = new DisplayObjectState(_default);
+		var reference : DisplayObjectStateReference = new DisplayObjectStateReference(state);
 		states.push(state);
 		references.push(reference);
 		return {state: state, reference: reference};

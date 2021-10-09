@@ -26,14 +26,14 @@ package {
 			container.name = "root";
 			stage.addChild(container);
 			
-			new Index(container, "animations/karas-nightlife.swf");
+			var index : Index = new Index(container, "animations/karas-nightlife.swf");
 			
 			// List of flash animations and how well the current automation tools will work on them
 			/*
 			AS3
 			bioshock-intimate.swf				- Decent, Though the camera movements might make it a bit annoying to work with
 			blazblue-makoto-sex-session.swf		- Decent
-			brandy-2.swf						- Decent
+			brandy-2.swf						- Mixed, it keeps switching between different variations of animations
 			gaper-mario.swf						- Bad, Doesn't load due to stage being null
 			hentaikey-girl-5.swf 				- Decent, (Breaks when using debug flash player version 32, works in flash player version 11)
 			karas-nightlife.swf					- Good

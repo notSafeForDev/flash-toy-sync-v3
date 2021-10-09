@@ -44,7 +44,7 @@ package core
 		 * Calls a callback when the user clicks on an element, this blocks mouse input for any children behind or nested to the target
 		 * @param	_scope		The owner of the handler, required for AS2 compatibility
 		 * @param	_target		The movieClip to capture mouse events on
-		 * @param	_handler	The callback, expects: (clickedChildren : []), each child of the target that is under the cursor gets passed to this function
+		 * @param	_handler	The callback
 		 */
 		public static function addOnMouseDown(_scope : * , _target : MovieClip, _handler : Function, _arg : * = undefined) : void {
 			add(_scope, _target, MouseEvent.MOUSE_DOWN, _handler, _arg);

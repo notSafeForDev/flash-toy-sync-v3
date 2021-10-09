@@ -1,14 +1,16 @@
 package components {
 	
+	import flash.display.MovieClip;
+	
+	import core.DisplayObjectUtil;
 	import core.MovieClipUtil;
 	import core.StageUtil;
-	import flash.display.MovieClip;
-	import global.GlobalEvents;
-	import global.GlobalState;
-	
 	import core.CustomEvent;
 	import core.FunctionUtil;
 	import core.SWFLoader;
+	
+	import global.GlobalEvents;
+	import global.GlobalState;
 	
 	public class ExternalSWF {
 	
@@ -37,8 +39,8 @@ package components {
 			GlobalState.listen(this, onAnimationSizeStateUpdate, [GlobalState.animationWidth, GlobalState.animationHeight]);
 			GlobalState.listen(this, onIsForceStoppedStateUpdate, [GlobalState.isForceStopped]);
 			
-			GlobalEvents.stepFrameBackwards.listen(this, onStepFrameBackwards);
-			GlobalEvents.stepFrameForwards.listen(this, onStepFrameForwards);
+			GlobalEvents.stepFrames.listen(this, onStepFrames);
+			GlobalEvents.gotoFrame.listen(this, onGotoFrame);
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
@@ -65,20 +67,24 @@ package components {
 			}
 		}
 		
-		private function onStepFrameBackwards() : void {
-			stepFrame(-1);
+		private function onStepFrames(_frames : Number) : void {
+			stepFrames(_frames);
 		}
 		
-		private function onStepFrameForwards() : void {
-			stepFrame(1);
+		private function onGotoFrame(_frame : Number) : void {
+			var selectedChild : MovieClip = GlobalState.selectedChild.state;
+			if (selectedChild != null) {
+				forceStoppedChild = selectedChild;
+				selectedChild.gotoAndStop(_frame);
+			}
 		}
 		
-		private function stepFrame(_direction : Number) : void {
+		private function stepFrames(_frames : Number) : void {
 			var selectedChild : MovieClip = GlobalState.selectedChild.state;
 			if (selectedChild != null) {
 				forceStoppedChild = selectedChild;
 				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-				selectedChild.gotoAndStop(currentFrame + _direction);
+				selectedChild.gotoAndStop(currentFrame + _frames);
 			}
 		}
 		
@@ -105,8 +111,8 @@ package components {
 				forceStoppedChild.stop();
 			}
 			
-			var scaleX : Number = MovieClipUtil.getScaleX(loadedSWF);
-			var scaleY : Number = MovieClipUtil.getScaleY(loadedSWF);
+			var scaleX : Number = DisplayObjectUtil.getScaleX(loadedSWF);
+			var scaleY : Number = DisplayObjectUtil.getScaleY(loadedSWF);
 			
 			var maxScale : Number = Math.max(scaleX, scaleY);
 			var minScale : Number = Math.min(scaleX, scaleY);
@@ -120,15 +126,15 @@ package components {
 				var correctedScaledUpWidth : Number = contentWidth * minScale;
 				var correctedScaledUpHeight : Number = contentHeight * minScale;
 				
-				var x : Number = MovieClipUtil.getX(loadedSWF);
-				var y : Number = MovieClipUtil.getY(loadedSWF);
+				var x : Number = DisplayObjectUtil.getX(loadedSWF);
+				var y : Number = DisplayObjectUtil.getY(loadedSWF);
 				
-				MovieClipUtil.setScaleX(loadedSWF, minScale);
-				MovieClipUtil.setScaleY(loadedSWF, minScale);
+				DisplayObjectUtil.setScaleX(loadedSWF, minScale);
+				DisplayObjectUtil.setScaleY(loadedSWF, minScale);
 				
 				// Offset the x and y position so that the center of the screen ends up in the same place as it were before correcting it's scale
-				MovieClipUtil.setX(loadedSWF, x - (correctedScaledUpWidth - scaledUpWidth) * 0.5);
-				MovieClipUtil.setY(loadedSWF, y - (correctedScaledUpHeight - scaledUpHeight) * 0.5);
+				DisplayObjectUtil.setX(loadedSWF, x - (correctedScaledUpWidth - scaledUpWidth) * 0.5);
+				DisplayObjectUtil.setY(loadedSWF, y - (correctedScaledUpHeight - scaledUpHeight) * 0.5);
 			}
 			
 			// Handle when the loadedSWF have been scaled down on it's own
@@ -144,10 +150,10 @@ package components {
 		}
 		
 		private function updatePositionAndSize() : void {			
-			MovieClipUtil.setX(loadedSWF, currentTargetX);
-			MovieClipUtil.setY(loadedSWF, currentTargetY);
-			MovieClipUtil.setScaleX(loadedSWF, currentTargetScale);
-			MovieClipUtil.setScaleY(loadedSWF, currentTargetScale);
+			DisplayObjectUtil.setX(loadedSWF, currentTargetX);
+			DisplayObjectUtil.setY(loadedSWF, currentTargetY);
+			DisplayObjectUtil.setScaleX(loadedSWF, currentTargetScale);
+			DisplayObjectUtil.setScaleY(loadedSWF, currentTargetScale);
 		}
 		
 		private function getTargetX(_scale : Number) : Number {

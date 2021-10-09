@@ -1,5 +1,6 @@
 package components {
 	
+	import config.TextStyles;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 
@@ -45,22 +46,20 @@ package components {
 			background.buttonMode = true;
 			
 			nameText = new TextElement(background, "PLACEHOLDER");
-			nameText.element.textColor = 0xFFFFFF;
-			nameText.setFont(Fonts.COURIER_NEW);
 			nameText.setBold(true);
 			nameText.setMouseEnabled(false);
+			TextStyles.applyListItemStyle(nameText);
 			
 			framesText = new TextElement(background);
-			framesText.element.textColor = 0xFFFFFF;
-			framesText.setFont(Fonts.COURIER_NEW);
 			framesText.setX(_width - 5);
 			framesText.setAlign(TextElement.ALIGN_RIGHT);
 			framesText.setAutoSize(TextElement.AUTO_SIZE_RIGHT);
 			framesText.setMouseEnabled(false);
+			TextStyles.applyListItemStyle(framesText);
 			
 			updateBackground(false);
 			
-			MovieClipUtil.setY(background, _index * height);
+			DisplayObjectUtil.setY(background, _index * height);
 			
 			MouseEvents.addOnMouseDown(this, background, onBackgroundMouseDown);
 		}
@@ -72,13 +71,13 @@ package components {
 		}
 		
 		public function setVisible(_value : Boolean) : void {
-			MovieClipUtil.setVisible(background, _value);
+			DisplayObjectUtil.setVisible(background, _value);
 			// We also move it up if it's not supposed to be visible, as it otherwise would count towards the scrollable height
 			if (_value == false) {
 				setHighlighted(false);
-				MovieClipUtil.setY(background, 0);
+				DisplayObjectUtil.setY(background, 0);
 			} else {
-				MovieClipUtil.setY(background, index * height);
+				DisplayObjectUtil.setY(background, index * height);
 			}
 		}
 		

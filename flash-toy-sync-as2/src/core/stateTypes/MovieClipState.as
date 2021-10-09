@@ -14,7 +14,7 @@ class core.stateTypes.MovieClipState {
 	}
 	
 	public function listen(_scope, _handler : Function) : Object {
-		var listener : Object = {handler: _handler, scope : _scope}
+		var listener : Object = {handler: _handler, scope: _scope}
 		listeners.push(listener);
 		return listener;
 	}

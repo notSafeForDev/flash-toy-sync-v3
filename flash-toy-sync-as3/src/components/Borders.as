@@ -1,13 +1,15 @@
 package components {
 	
 	import flash.display.MovieClip;
-	import global.GlobalEvents;
-	import global.GlobalState;
 	
 	import core.Timeout;
+	import core.DisplayObjectUtil;
 	import core.MovieClipUtil;
 	import core.GraphicsUtil;
 	import core.StageUtil;
+
+	import global.GlobalEvents;
+	import global.GlobalState;
 	
 	/**
 	 * ...
@@ -64,7 +66,7 @@ package components {
 		}
 		
 		private function makeTransparentForADuration(_seconds : Number) : void {
-			MovieClipUtil.setAlpha(element, 0.25);
+			DisplayObjectUtil.setAlpha(element, 0.25);
 			currentColor = 0xFF0000;
 			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
 			
@@ -73,7 +75,7 @@ package components {
 		}
 		
 		private function doneMakingItTransparent() : void {
-			MovieClipUtil.setAlpha(element, 1);
+			DisplayObjectUtil.setAlpha(element, 1);
 			currentColor = color;
 			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
 		}
