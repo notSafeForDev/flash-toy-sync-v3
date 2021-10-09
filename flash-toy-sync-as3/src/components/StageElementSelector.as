@@ -1,6 +1,5 @@
 package components {
 	
-	import core.CustomEvent;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
@@ -14,6 +13,8 @@ package components {
 	import core.GraphicsUtil;
 	import core.MouseEvents;
 	import core.DisplayObjectUtil;
+	import core.CustomEvent;
+	import core.MovieClipUtil;
 
 	import global.GlobalEvents;
 	import global.GlobalState;
@@ -38,9 +39,10 @@ package components {
 		
 		private var tempRef : DisplayObjectReference;
 		
-		public function StageElementSelector(_container : MovieClip, _overlay : MovieClip) {
+		public function StageElementSelector(_container : MovieClip, _overlayContainer : MovieClip) {
 			container = _container;
-			overlay = _overlay;
+			
+			overlay = MovieClipUtil.create(_overlayContainer, "stageElementSelectorOverlay");
 			
 			onSelectChild = new CustomEvent();
 			

@@ -8,7 +8,7 @@ class Main {
 	public static function main(swfRoot:MovieClip) : Void {
 		// entry point
 		StageUtil.initialize();
-		var index : Index = new Index(_root, "animations/Test Flash.swf");
+		var index : Index = new Index(_root, "animations/midna-3x-pleasure.swf");
 		
 		// List of flash animations and how well the current automation tools will work on them
 		/*
