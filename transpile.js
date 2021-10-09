@@ -305,9 +305,6 @@ function validateActionscript3ForTranspilation(actionscript) {
     // Check for new Instance declarations above the constructor
     const newInstanceDeclarationIndexes = findActionScriptLineIndexes(lines, ["var ", " = new "]);
 
-    // TODO: Add more warnings, such as the use of int, 
-    // and any place where a scope and a function has to be passed, that the function has to be declared in the same file,
-    // and that multiple class properties can't have the same name, even if the accessor is different
     for (let i = 0; i < newInstanceDeclarationIndexes.length; i++) {
         if (newInstanceDeclarationIndexes[i] < constructorLineIndex) {
             warnings.push("Warning: new Instance declaration above the constructor, in " + className);
@@ -321,6 +318,12 @@ function validateActionscript3ForTranspilation(actionscript) {
             warnings.push("Warning: " + unsupportedDataType + " data type used, which is not supported in AS2, line: " + (line.lineIndex + 1));
         }
     }
+
+    // AS2 doesn't support calculations like: 10 * +0.05
+    // AS2 doesn't support multiple class properties with the same name, even if the accessor is different¨
+    // There should be a warning for any of the custom event listeners, where you have to pass "this", if you also pass an annonymous function, or a function that isn't declared in the same file
+    // Annonymous functions tend to cause issues, invalidate if found
+    // For loops, in AS2, the iterator variable can't be defined in one loop, and then reused again in later loop, if it's the same name, it has to be defined before both loops
 
     if (warnings.length > 0) {
         console.log(warnings.join("\n"));
@@ -408,8 +411,6 @@ function transpileActionScript3To2(actionscript) {
 
     const classLineIndex = findActionScriptLineIndex(lines, ["public class"]);
 
-    // TODO: Add a way to include potential warnings in the logs, such as when accessing .parent, so that it's easier to find out if something might be broken
-
     // Transpile class line
     const classLineParts = lines[classLineIndex].split("public class ");
     if (packageName !== "") {
@@ -427,6 +428,11 @@ function transpileActionScript3To2(actionscript) {
 
     // Repace : DisplayObject with : MovieClip
     replaceInActionScriptLines(lines, [":", "DisplayObject"], ": MovieClip", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
+
+    // Repace : Sprite with : MovieClip
+    replaceInActionScriptLines(lines, [":", "Sprite"], ": MovieClip", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
+
+    // TODO: Fix (var child : DisplayObject) // Without semi-colon
 
     // Remove : * (any type declaration)
     replaceInActionScriptLines(lines, [":", "*"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);

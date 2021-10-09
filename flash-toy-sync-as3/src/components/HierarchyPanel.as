@@ -1,5 +1,6 @@
 package components {
 	
+	import config.Icons;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 
@@ -20,9 +21,10 @@ package components {
 	 */
 	public class HierarchyPanel extends Panel {
 		
-		private var contentWidth : Number = 200;
+		private var contentWidth : Number = 250;
 		private var contentHeight : Number = 300;
 		private var scrollBarWidth : Number = 10;
+		private var toggleBarHeight : Number = 20;
 		
 		private var animationContainer : MovieClip;
 		
@@ -33,34 +35,54 @@ package components {
 		
 		private var displayedChildren : Array = [];
 		private var displayedChildrenDepths : Array = [];
+		private var parentsChildCounts : Array = [];
 		
 		private var uiScrollArea : UIScrollArea;
 		
-		private var scrollContainer : MovieClip;
+		private var scrollContent : MovieClip;
 		
 		private var listItems : Array = [];
 		
 		public var excludeChildrenWithoutNestedAnimations : Boolean = true;
 		
 		public var onSelectChild : CustomEvent;
+		public var onToggleMouseSelect : CustomEvent;
 		
 		public function HierarchyPanel(_parent : MovieClip, _animationContainer : MovieClip) {
 			super(_parent, "Hierarchy", contentWidth, contentHeight);
+		
+			// TODO: Add a text field showing the name of the last clicked child
+			// And a way to add it to a text area where you can filter out names
+
+			animationContainer = _animationContainer;
 			
-			scrollContainer = MovieClipUtil.create(content, "scrollContainer");
+			onSelectChild = new CustomEvent();
+			onToggleMouseSelect = new CustomEvent();
 			
-			var scrollBar : MovieClip = MovieClipUtil.create(content, "scrollBar");
+			var mouseSelectIcon : MovieClip = MovieClipUtil.create(content, "cursorLockIcon");
+			DisplayObjectUtil.setX(mouseSelectIcon, toggleBarHeight / 2);
+			DisplayObjectUtil.setY(mouseSelectIcon, toggleBarHeight / 2);
+			GraphicsUtil.beginFill(mouseSelectIcon, 0xFFFFFF, 0.75);
+			Icons.drawCursor(mouseSelectIcon, 14);
+			Icons.drawStrikeThrough(mouseSelectIcon, 14);
+			
+			var scrollContainerHeight : Number = contentHeight - toggleBarHeight;
+			
+			var scrollContainer : MovieClip = MovieClipUtil.create(content, "scrollContainer");
+			DisplayObjectUtil.setY(scrollContainer, toggleBarHeight);
+			
+			scrollContent = MovieClipUtil.create(scrollContainer, "scrollContent");
+			
+			var scrollBar : MovieClip = MovieClipUtil.create(scrollContainer, "scrollBar");
 			GraphicsUtil.beginFill(scrollBar, 0xFFFFFF);
 			GraphicsUtil.drawRect(scrollBar, contentWidth - scrollBarWidth, 0, scrollBarWidth, scrollBarWidth);
 			
-			var mask : MovieClip = MovieClipUtil.create(content, "mask");
+			var mask : MovieClip = MovieClipUtil.create(scrollContainer, "mask");
 			GraphicsUtil.beginFill(mask, 0xFF0000, 0.5);
-			GraphicsUtil.drawRect(mask, 0, 0, contentWidth - 10, contentHeight);
+			GraphicsUtil.drawRect(mask, 0, 0, contentWidth - scrollBarWidth, scrollContainerHeight);
 			
-			uiScrollArea = new UIScrollArea(scrollContainer, mask, scrollBar);
-			
-			animationContainer = _animationContainer;
-			onSelectChild = new CustomEvent();
+			uiScrollArea = new UIScrollArea(scrollContent, mask, scrollBar);
+			uiScrollArea.handleAlphaWhenNotScrollable = 0.25;
 			
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
@@ -108,6 +130,9 @@ package components {
 			displayedChildrenDepths.length = 0;
 			displayedChildrenDepths.push(0);
 			
+			parentsChildCounts.length = 0;
+			parentsChildCounts = [0];
+			
 			var startTime : Number = Debug.getTime();
 			var latestTime : Number = Debug.getTime();
 			
@@ -118,12 +143,11 @@ package components {
 			latestTime = Debug.getTime();
 			
 			var i : Number = 0;
-			var child : MovieClip;
+			var child : DisplayObject;
 			var parent : MovieClip;
 			
 			// Each index of this array corresponds to each nested child, with each value corresponding to the number of children it has
 			// We use this to determine if a list item should be expandable
-			var parentsChildCounts : Array = [0];
 			
 			var elapsedTimeExcludedChildren : Number = Debug.getTime() - latestTime;
 			latestTime = Debug.getTime();
@@ -146,6 +170,26 @@ package components {
 			var elapsedTimeDisplayedChildren : Number = Debug.getTime() - latestTime;
 			latestTime = Debug.getTime();
 			
+			// Add the clickedChild and it's parents to the list of displayed children
+			if (GlobalState.clickedChild.state != null) {
+				addChildToDisplay(GlobalState.clickedChild.state);
+			}
+			
+			// Add the selectedChild and it's parents to the list of displayed children
+			if (GlobalState.selectedChild.state != null) {
+				addChildToDisplay(GlobalState.selectedChild.state);
+			}
+			
+			var disabledMouseSelectForChildren : Array = GlobalState.disabledMouseSelectForChildren.state;
+			
+			// Add the elements with disabled mouse select, so that the user always can enable them again, just incase
+			for (i = 0; i < disabledMouseSelectForChildren.length; i++) {
+				// Checking this to reduce the number of ArrayUtil.indexOf calls
+				if (disabledMouseSelectForChildren[i] != GlobalState.clickedChild.state) {
+					addChildToDisplay(disabledMouseSelectForChildren[i]);
+				}
+			}
+			
 			// Update list items
 			for (i = 0; i < displayedChildren.length; i++) {
 				child = displayedChildren[i];
@@ -153,9 +197,10 @@ package components {
 				var listItem : HierarchyPanelListItem;
 				
 				if (i >= listItems.length) {
-					listItem = new HierarchyPanelListItem(scrollContainer, i, contentWidth - scrollBarWidth);
+					listItem = new HierarchyPanelListItem(scrollContent, i, contentWidth - scrollBarWidth);
 					listItem.onSelect.listen(this, onListItemSelect);
 					listItem.onExpand.listen(this, onListItemExpand);
+					listItem.onToggleMouseSelect.listen(this, onListItemToggleMouseSelect);
 					listItems.push(listItem);
 				} else {
 					listItem = listItems[i];
@@ -170,9 +215,12 @@ package components {
 					var childCount : Number = parentsChildCounts[nestedChildIndex];
 					var isExpandable : Boolean = childCount > 0;
 					var isExpanded : Boolean = ArrayUtil.indexOf(expandedChildren, child) >= 0;
+					var isMouseSelectEnabled : Boolean = ArrayUtil.indexOf(disabledMouseSelectForChildren, child) < 0;
 					
 					listItem.setVisible(true);
 					listItem.setHighlighted(GlobalState.selectedChild.state == child);
+					listItem.setIsClickedChild(GlobalState.clickedChild.state == child);
+					listItem.setMouseSelectEnabled(isMouseSelectEnabled);
 					listItem.update(child, depth, isExpandable, isExpanded);
 				}
 			}
@@ -192,6 +240,42 @@ package components {
 				", Displayed: " + (elapsedTimeDisplayedChildren).toString() +
 				", List: " + (elapsedTimeUpdateList).toString()
 			); */
+		}
+		
+		private function addChildToDisplay(_child : DisplayObject) : void {
+			if (_child == null || ArrayUtil.indexOf(displayedChildren, _child) >= 0) {
+				return;
+			}
+			
+			var insertIndex : Number = -1; // At what index of the displayed children we should start inserting the child's parent
+			var parents : Array = DisplayObjectUtil.getParents(_child);
+			var rootIndex : Number = ArrayUtil.indexOf(parents, animationContainer);
+			var childDepth : Number = rootIndex + 1; // The number of parents up to and including the animationContainer
+			var i : Number;
+			
+			for (i = 0; i < parents.length; i++) {
+				insertIndex = ArrayUtil.indexOf(displayedChildren, parents[i]);
+				if (insertIndex >= 0) {
+					parents = parents.slice(0, i);
+					break;
+				}
+			}
+			
+			if (insertIndex >= 0) {
+				// The parents are originally ordered from direct parent, ending with the animationContainer
+				// So we reverse it so that it starts with the first parent to add
+				parents.reverse();
+				
+				var startDepth : Number = childDepth - parents.length; // How deep nested the first parent is
+				var childrenToAdd : Array = parents.slice(); // All parents including the child itself
+				childrenToAdd.push(_child);
+				
+				for (i = 0; i < childrenToAdd.length; i++) {
+					var index : Number = insertIndex + 1 + i;
+					displayedChildren.splice(index, 0, childrenToAdd[i]);
+					displayedChildrenDepths.splice(index, 0, startDepth + i);
+				}
+			}
 		}
 		
 		private function onListItemSelect(_index : Number) : void {
@@ -216,6 +300,11 @@ package components {
 					i--;
 				}
 			}
+		}
+		
+		private function onListItemToggleMouseSelect(_index : Number) : void {
+			var child : MovieClip = displayedChildren[_index];
+			onToggleMouseSelect.emit(child);
 		}
 	}
 }

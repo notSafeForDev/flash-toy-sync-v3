@@ -16,7 +16,9 @@ package core {
 		
 		public var content : DisplayObject;
 		public var mask : DisplayObject;
-		public var handle : DisplayObject;
+		public var handle : MovieClip;
+		
+		public var handleAlphaWhenNotScrollable : Number = 1;
 		
 		public var progress : Number = 0;
 		
@@ -24,10 +26,12 @@ package core {
 		private var mouseDragOffset : Point;
 		private var isMouseDown : Boolean = false;
 		
-		function UIScrollArea(_content : DisplayObject, _mask : DisplayObject, _handle : DisplayObject) : void {
+		function UIScrollArea(_content : DisplayObject, _mask : DisplayObject, _handle : MovieClip) : void {
 			content = _content;
 			mask = _mask;
 			handle = _handle;
+			
+			handle.buttonMode = true;
 			
 			content.mask = mask;
 			
@@ -75,6 +79,7 @@ package core {
 			handle.height = mask.height * (mask.height / content.height);
 			handle.height = Math.min(handle.height, mask.height);
 			handle.y = getHandleYAtProgress();
+			handle.alpha = handle.height >= mask.height ? handleAlphaWhenNotScrollable : 1;
 			
 			if (isMouseDown == false) {
 				return;

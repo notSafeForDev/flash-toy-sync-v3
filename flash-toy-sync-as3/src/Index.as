@@ -1,5 +1,6 @@
 package {
 	
+	import controllers.HierarchyPanelController;
 	import flash.display.MovieClip;
 	
 	import core.DisplayObjectUtil;
@@ -46,6 +47,7 @@ package {
 		private var debugPanel : DebugPanel;
 		
 		private var animationController : AnimationController;
+		private var hierarchyPanelController : HierarchyPanelController;
 		private var scriptingController : ScriptingController;
 		
 		public function Index(_container : MovieClip, _animationPath : String) {
@@ -75,6 +77,7 @@ package {
 			animation = _swf;
 			
 			animationController = new AnimationController(globalState, panelContainer, animation, _width, _height);
+			hierarchyPanelController = new HierarchyPanelController(globalState, panelContainer, animation);
 			scriptingController = new ScriptingController(globalState, panelContainer, animation, overlayContainer);
 			
 			debugPanel = new DebugPanel(container);

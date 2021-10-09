@@ -1,5 +1,7 @@
 package core {
 	
+	import core.stateTypes.ArrayState;
+	import core.stateTypes.ArrayStateReference;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
@@ -100,6 +102,19 @@ package core {
 		public function addMovieClipState(_default : MovieClip = null) : Object {
 			var state : MovieClipState = new MovieClipState(_default);
 			var reference : MovieClipStateReference = new MovieClipStateReference(state);
+			states.push(state);
+			references.push(reference);
+			return {state: state, reference: reference};
+		}
+		
+		/**
+		 * Add a state that holds an Array
+		 * @param	_default	The default value for the state
+		 * @return	{state: ArrayState, reference: ArrayStateReference} - An object with the added state and reference
+		 */
+		public function addArrayState(_default : Array = null) : Object {
+			var state : ArrayState = new ArrayState(_default);
+			var reference : ArrayStateReference = new ArrayStateReference(state);
 			states.push(state);
 			references.push(reference);
 			return {state: state, reference: reference};

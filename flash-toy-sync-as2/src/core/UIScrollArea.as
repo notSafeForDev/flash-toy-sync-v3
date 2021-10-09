@@ -13,6 +13,8 @@ class core.UIScrollArea {
 	public var mask : MovieClip;
 	public var handle : MovieClip;
 	
+	public var handleAlphaWhenNotScrollable : Number = 1;
+	
 	public var progress : Number = 0;
 	
 	private var stage : Stage;
@@ -54,8 +56,8 @@ class core.UIScrollArea {
 	}
 	
 	public function isElementBoundsVisible(_child : MovieClip) : Boolean {
-		var maskBounds : Rectangle = DisplayObjectUtil.getBounds(mask, content.parent);
-		var childBounds : Rectangle = DisplayObjectUtil.getBounds(_child, content.parent);
+		var maskBounds : Rectangle = DisplayObjectUtil.getBounds(mask, content._parent);
+		var childBounds : Rectangle = DisplayObjectUtil.getBounds(_child, content._parent);
 		return maskBounds.intersects(childBounds);
 	}
 	
@@ -76,6 +78,7 @@ class core.UIScrollArea {
 		handle._height = mask._height * (mask._height / content._height);
 		handle._height = Math.min(handle._height, mask._height);
 		handle._y = getHandleYAtProgress();
+		handle._alpha = handle._height >= mask._height ? (handleAlphaWhenNotScrollable * 100) : 100;
 		
 		if (isMouseDown == false) {
 			return;

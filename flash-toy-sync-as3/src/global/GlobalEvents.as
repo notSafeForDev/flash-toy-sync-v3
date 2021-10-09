@@ -14,6 +14,7 @@ package global {
 		public static var resumePlayingSelectedChild : CustomEvent;
 		public static var stepFrames : CustomEvent;
 		public static var gotoFrame : CustomEvent;
+		public static var childSelected : CustomEvent;
 		
 		public static function init() : void {
 			enterFrame = new CustomEvent();
@@ -22,6 +23,7 @@ package global {
 			resumePlayingSelectedChild = new CustomEvent();
 			stepFrames = new CustomEvent();
 			gotoFrame = new CustomEvent();
+			childSelected = new CustomEvent();
 		}
 	}
 }

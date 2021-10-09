@@ -41,6 +41,16 @@ package core
 		}
 		
 		/**
+		 * Calls a callback when the user moves their mouse over an element, this blocks mouse input for any children behind or nested to the target
+		 * @param	_scope		The owner of the handler, required for AS2 compatibility
+		 * @param	_target		The movieClip to capture mouse events on
+		 * @param	_handler	The callback
+		 */
+		public static function addOnMouseOver(_scope : * , _target : MovieClip, _handler : Function, _arg : * = undefined) : void {
+			add(_scope, _target, MouseEvent.MOUSE_OVER, _handler, _arg);
+		}
+		
+		/**
 		 * Calls a callback when the user clicks on an element, this blocks mouse input for any children behind or nested to the target
 		 * @param	_scope		The owner of the handler, required for AS2 compatibility
 		 * @param	_target		The movieClip to capture mouse events on
@@ -48,6 +58,16 @@ package core
 		 */
 		public static function addOnMouseDown(_scope : * , _target : MovieClip, _handler : Function, _arg : * = undefined) : void {
 			add(_scope, _target, MouseEvent.MOUSE_DOWN, _handler, _arg);
+		}
+		
+		/**
+		 * Calls a callback when the user moves their mouse off of an element, this blocks mouse input for any children behind or nested to the target
+		 * @param	_scope		The owner of the handler, required for AS2 compatibility
+		 * @param	_target		The movieClip to capture mouse events on
+		 * @param	_handler	The callback
+		 */
+		public static function addOnMouseOut(_scope : * , _target : MovieClip, _handler : Function, _arg : * = undefined) : void {
+			add(_scope, _target, MouseEvent.MOUSE_OUT, _handler, _arg);
 		}
 		
 		private static function add(_scope : * , _target : MovieClip, _type : String, _handler : Function, _arg : * = undefined) : void {

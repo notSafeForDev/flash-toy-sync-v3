@@ -1,6 +1,5 @@
 package controllers {
 	
-	import components.HierarchyPanel;
 	import core.DisplayObjectUtil;
 	import core.KeyboardManager;
 	import core.MovieClipUtil;
@@ -19,7 +18,7 @@ package controllers {
 		
 		private var globalState : GlobalState;
 		
-		private var container : MovieClip;
+		private var panelContainer : MovieClip;
 		private var animation : MovieClip;
 		
 		private var keyboardManager : KeyboardManager;
@@ -28,9 +27,9 @@ package controllers {
 		private var selectedChildExpectedNextFrame : Number = -1;
 		private var wasResumedAfterForceStop : Boolean = false;
 		
-		public function AnimationController(_globalState : GlobalState, _container : MovieClip, _animation : MovieClip, _width : Number, _height : Number) {
+		public function AnimationController(_globalState : GlobalState, _panelContainer : MovieClip, _animation : MovieClip, _width : Number, _height : Number) {
 			globalState = _globalState;
-			container = _container;
+			panelContainer = _panelContainer;
 			animation = _animation;
 			
 			keyboardManager = new KeyboardManager(_animation);
@@ -41,10 +40,6 @@ package controllers {
 			keyboardManager.addShortcut(this, [Keyboard.SHIFT, Keyboard.RIGHT], onGotoEndShortcut);
 			keyboardManager.addShortcut(this, [Keyboard.LEFT], onStepBackwardsShortcut);
 			keyboardManager.addShortcut(this, [Keyboard.RIGHT], onStepForwardsShortcut);
-			
-			var hierarchyPanel : HierarchyPanel = new HierarchyPanel(container, animation);
-			hierarchyPanel.excludeChildrenWithoutNestedAnimations = true;
-			hierarchyPanel.onSelectChild.listen(this, onHierarchyPanelSelectChild);
 			
 			var isValidSize : Boolean = _width > 0 && _height > 0;
 			var targetWidth : Number = isValidSize ? _width : StageUtil.getWidth();
@@ -59,6 +54,8 @@ package controllers {
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.DOWN], onDecreaseSWFHeightShortcut);
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.UP], onIncreaseSWFHeightShortcut);
 			}
+			
+			GlobalEvents.childSelected.listen(this, onChildSelected);
 		}
 		
 		public function onEnterFrame() : void {
@@ -113,21 +110,7 @@ package controllers {
 			wasResumedAfterForceStop = false;
 		}
 		
-		private function onHierarchyPanelSelectChild(_child : MovieClip) : void {
-			if (GlobalState.selectedChild.state == _child) {
-				return;
-			}
-			
-			var currentFrame : Number = MovieClipUtil.getCurrentFrame(_child);
-			
-			globalState._selectedChild.setState(_child);
-			globalState._currentFrame.setState(currentFrame);
-			globalState._isPlaying.setState(false);
-			globalState._isForceStopped.setState(false);
-			globalState._skippedFromFrame.setState(-1);
-			globalState._skippedToFrame.setState(-1);
-			globalState._stoppedAtFrame.setState(-1);
-			
+		private function onChildSelected(_child : DisplayObject) : void {
 			selectedChildExpectedNextFrame = -1; // Expect nothing, since we don't know if it's stopped or not
 		}
 		

@@ -1,5 +1,7 @@
 import core.ArrayUtil;
 import core.FunctionUtil;
+import core.stateTypes.ArrayState;
+import core.stateTypes.ArrayStateReference;
 import core.stateTypes.BooleanState;
 import core.stateTypes.BooleanStateReference;
 import core.stateTypes.DisplayObjectState;
@@ -68,6 +70,14 @@ class core.StateManager {
 	public function addMovieClipState(_default : MovieClip) : Object {
 		var state : MovieClipState = new MovieClipState(_default);
 		var reference : MovieClipStateReference = new MovieClipStateReference(state);
+		states.push(state);
+		references.push(reference);
+		return {state: state, reference: reference};
+	}
+	
+	public function addArrayState(_default : Array) : Object {
+		var state : ArrayState = new ArrayState(_default);
+		var reference : ArrayStateReference = new ArrayStateReference(state);
 		states.push(state);
 		references.push(reference);
 		return {state: state, reference: reference};

@@ -10,6 +10,110 @@ package core {
 	 */
 	public class DisplayObjectUtil {
 		
+		/**
+		 * Get the name used for the child in a child path
+		 * @param	_child	The child
+		 * @param	_depth	How deeply nested a child is, 1 means it's a direct child to the parent
+		 * @return	The name
+		 */
+		public static function getChildPathPart(_child : DisplayObject, _depth : int) : String {
+			// If the name starts with "instance", then it's most likely auto generated, which changes each time
+			// So only return the actual name if that isn't the case
+			if (_child.name.indexOf("instance") != 0) {
+				return _child.name;
+			}
+				
+			var name : String = "";
+			
+			// Otherwise we use hashes followed by the child index, in order to generate a unique name that won't change each time
+			// The number of hashes to add are based on how deeply nested the child is, 1 if it's a direct child of the parent
+			while (name.length <= _depth) {
+				name += "#";
+			}
+			
+			name += _child.parent.getChildIndex(_child);
+			return name;
+		}
+		
+		/**
+		 * Get a path to a nested child, used in conjunction with getChildFromPath
+		 * @param	_topParent	The DisplayObjectContainer to start generating the path from
+		 * @param	_child		The target DisplayObject
+		 * @return 	An array of strings representing the path to a nested child
+		 */
+		public static function getChildPath(_topParent : DisplayObjectContainer, _child : DisplayObject) : Array {
+			if (_child == _topParent) {
+				return [];
+			}
+			if (_child.parent == null) {
+				return null;
+			}
+			
+			var path : Array = [];
+			var children : Vector.<DisplayObject> = new Vector.<DisplayObject>();
+			var currentChild : DisplayObject = _child;
+			children.push(currentChild);
+			
+			// Start from the child, going back up the hierarchy until it reaches the parent
+			while (currentChild.parent != _topParent && currentChild.parent is DisplayObjectContainer) {
+				currentChild = DisplayObject(currentChild.parent);
+				children.push(currentChild);
+			}
+			
+			// Reverse the array so that it ends with the child
+			children.reverse();
+				
+			// Fill the path array with child names
+			for (var i : Number = 0; i < children.length; i++) {
+				path.push(getChildPathPart(children[i], i));
+			}
+			
+			return path;
+		}
+		
+		public static function getChildIndex(_child : DisplayObject) : Number {
+			return _child.parent.getChildIndex(_child);
+		}
+		
+		/**
+		 * Get a nested child from a path, used in conjunction with getChildPath
+		 * @param	_topParent	The MovieClip that is parent to the first child in the path
+		 * @param	_path		An array of strings representing the path to a nested child
+		 * @return 	The child at the end of the path, or null if a child can't be found
+		 */
+		public static function getChildFromPath(_topParent : DisplayObjectContainer, _path : Array) : DisplayObject {
+			var child : DisplayObject = _topParent;
+		
+			for (var i : int = 0; i < _path.length; i++) {
+				if (child == null) {
+					return null;
+				}
+				
+				var lastHashIndex : Number = _path[i].lastIndexOf("#");
+				
+				if (lastHashIndex < 0) {
+					child = child[_path[i]];
+					continue;
+				}
+				
+				var childIndex : Number = parseInt(_path[i].substr(lastHashIndex + 1));
+				var foundValidChild : Boolean = false;
+				if (child is DisplayObjectContainer == true) {
+					var childAsParent : DisplayObjectContainer = child as DisplayObjectContainer;
+					if (childIndex < childAsParent.numChildren && childAsParent.getChildAt(childIndex) is DisplayObject) {
+						child = childAsParent.getChildAt(childIndex);
+						foundValidChild = true;
+					}
+				}
+				
+				if (foundValidChild == false) {
+					child = null;
+				}
+			}
+			
+			return child;
+		}
+		
 		public static function getName(_object : DisplayObject) : String {
 			return _object.name;
 		}

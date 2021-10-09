@@ -1,5 +1,7 @@
 package core {
-	import flash.display.MovieClip;
+	
+	import flash.display.Sprite;
+	
 	/**
 	 * ...
 	 * @author notSafeForDev
@@ -10,18 +12,18 @@ package core {
 			
 		}
 		
-		public static function clear(_movieClip : MovieClip) : void {
-			_movieClip.graphics.clear();
+		public static function clear(_sprite : Sprite) : void {
+			_sprite.graphics.clear();
 		}
 		
 		/**
 		 * Sets the style for lines, this is cleared when graphics are cleared
-		 * @param	_movieClip 		The movieClip to draw the graphics to
+		 * @param	_sprite 		The sprite to draw the graphics to
 		 * @param	_thickness  	The thickness of the line in pixels
 		 * @param	_color			The color in the following format: 0xRRGGBB
 		 * @param	_alpha			The alpha, from 0 to 1
 		 * @param	_pixelHinting	Affects where the pixels are drawn, if set to true, the line width will be rounded to nearest whole amount
-		 * @param	_scaleMode		How the line should scale when the movieClip is scaled ("normal", "horizontal", "vertical", "none")
+		 * @param	_scaleMode		How the line should scale when the sprite is scaled ("normal", "horizontal", "vertical", "none")
 		 * "normal" 	: the thickness of the line always scales when the object is scaled (the default)
 		 * "horizontal"	: the thickness of the line only scales based on the y scale of the object
 		 * "vertical" 	: the thickness of the line only scales based on the x scale of the object
@@ -36,32 +38,32 @@ package core {
 		 * "miter"		: adds a sharp edge to corners
 		 * @param	_miterLimit		Angle threshold for drawing corners
 		 */
-		public static function setLineStyle(_movieClip : MovieClip, _thickness : Number = NaN, _color : uint = 0, _alpha : Number = 1, _pixelHinting : Boolean = false, _scaleMode : String = "normal", _caps : String = null, _joints : String = null, _miterLimit : Number = 3) : void {
-			_movieClip.graphics.lineStyle(_thickness, _color, _alpha, _pixelHinting, _scaleMode, _caps, _joints, _miterLimit);
+		public static function setLineStyle(_sprite : Sprite, _thickness : Number = NaN, _color : uint = 0, _alpha : Number = 1, _pixelHinting : Boolean = false, _scaleMode : String = "normal", _caps : String = null, _joints : String = null, _miterLimit : Number = 3) : void {
+			_sprite.graphics.lineStyle(_thickness, _color, _alpha, _pixelHinting, _scaleMode, _caps, _joints, _miterLimit);
 		}
 		
-		public static function drawRect(_movieClip : MovieClip, _x : Number, _y : Number, _width : Number, _height : Number) : void {
-			_movieClip.graphics.moveTo(_x, _y);
-			_movieClip.graphics.lineTo(_x + _width, _y);
-			_movieClip.graphics.lineTo(_x + _width, _y + _height);
-			_movieClip.graphics.lineTo(_x, _y + _height);
-			_movieClip.graphics.lineTo(_x, _y);
+		public static function drawRect(_sprite : Sprite, _x : Number, _y : Number, _width : Number, _height : Number) : void {
+			_sprite.graphics.moveTo(_x, _y);
+			_sprite.graphics.lineTo(_x + _width, _y);
+			_sprite.graphics.lineTo(_x + _width, _y + _height);
+			_sprite.graphics.lineTo(_x, _y + _height);
+			_sprite.graphics.lineTo(_x, _y);
 		}
 		
-		public static function drawCircle(_movieClip : MovieClip, _x : Number, _y : Number, _radius : Number) : void {
-			_movieClip.graphics.drawCircle(_x, _y, _radius);
+		public static function drawCircle(_sprite : Sprite, _x : Number, _y : Number, _radius : Number) : void {
+			_sprite.graphics.drawCircle(_x, _y, _radius);
 		}
 		
-		public static function moveTo(_movieClip : MovieClip, _x : Number, _y : Number) : void {
-			_movieClip.graphics.moveTo(_x, _y);
+		public static function moveTo(_sprite : Sprite, _x : Number, _y : Number) : void {
+			_sprite.graphics.moveTo(_x, _y);
 		}
 		
-		public static function lineTo(_movieClip : MovieClip, _x : Number, _y : Number) : void {
-			_movieClip.graphics.lineTo(_x, _y);
+		public static function lineTo(_sprite : Sprite, _x : Number, _y : Number) : void {
+			_sprite.graphics.lineTo(_x, _y);
 		}
 		
-		public static function beginFill(_movieClip : MovieClip, _color : uint = 0, _alpha : Number = 1) : void {
-			_movieClip.graphics.beginFill(_color, _alpha);
+		public static function beginFill(_sprite : Sprite, _color : uint = 0, _alpha : Number = 1) : void {
+			_sprite.graphics.beginFill(_color, _alpha);
 		}
 	}
 }

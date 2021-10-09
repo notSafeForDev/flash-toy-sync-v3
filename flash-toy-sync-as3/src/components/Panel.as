@@ -32,6 +32,8 @@ package components {
 			background = MovieClipUtil.create(container, "background");
 			content = MovieClipUtil.create(background, "content");
 			
+			titleBar.buttonMode = true;
+			
 			DisplayObjectUtil.setY(background, titleBarHeight);
 			
 			var titleText : TextElement = new TextElement(titleBar, _name);

@@ -3,6 +3,8 @@ package global {
 	import core.ArrayUtil;
 	import core.StageUtil;
 	import core.StateManager;
+	import core.stateTypes.ArrayState;
+	import core.stateTypes.ArrayStateReference;
 	import core.stateTypes.DisplayObjectState;
 	import core.stateTypes.DisplayObjectStateReference;
 	import core.stateTypes.PointState;
@@ -80,6 +82,7 @@ package global {
 		/** If the selected child is playing */
 		public var _isPlaying : BooleanState;
 		public static var isPlaying : BooleanStateReference;
+		
 		/** 
 		 * The last frame the child was at which caused it to skip to another frame,
 		 * which could have been caused by a gotoAndPlay/Stop on that frame or a button event.
@@ -95,6 +98,10 @@ package global {
 		/** The frame that the child last stopped at on it's own */
 		public var _stoppedAtFrame : NumberState;
 		public static var stoppedAtFrame : NumberStateReference;
+		
+		/** Children that can't be selected with the mouse */
+		public var _disabledMouseSelectForChildren : ArrayState;
+		public static var disabledMouseSelectForChildren : ArrayStateReference;
 		
 		public function GlobalState(_stateManager : StateManager) {
 			if (GlobalState.stateManager != null) {
@@ -184,6 +191,11 @@ package global {
 			added = _stateManager.addNumberState(-1);
 			_stoppedAtFrame = added.state;
 			GlobalState.stoppedAtFrame = added.reference;
+			
+			// disabledMouseSelectForChildren
+			added = _stateManager.addArrayState([]);
+			_disabledMouseSelectForChildren = added.state;
+			GlobalState.disabledMouseSelectForChildren = added.reference;
 		}
 		
 		public static function listen(_scope : * , _handler : Function, _stateReferences : Array) : void {

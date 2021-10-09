@@ -1,71 +1,8 @@
 ﻿import core.FunctionUtil;
 import core.MovieClipUtil;
 import flash.geom.Rectangle;
+
 class core.MovieClipUtil {
-	
-	static function getChildPathPart(_child : MovieClip, _depth : Number) : String {
-		if (_child._name.indexOf("instance") != 0) {
-			return _child._name;
-		}
-		
-		var name : String = "";
-		
-		while (name.length <= _depth) {
-			name += "#";
-		}
-		
-		name += getChildIndex(_child).toString();
-		return name;
-	}
-	
-	static function getChildPath(_topParent : MovieClip, _child : MovieClip) : Array {
-		if (_child == _topParent) {
-			return [];
-		}
-		if (_child._parent == null) {
-			return null;
-		}
-		
-		var path : Array = [];
-		var children : Array = [];
-		var currentChild : MovieClip = _child;
-		children.push(currentChild);
-		
-		while (currentChild._parent != _topParent) {
-			currentChild = currentChild._parent;
-			children.push(currentChild);
-		}
-		
-		children.reverse();
-		
-		for (var i : Number = 0; i < children.length; i++) {
-			path.push(getChildPathPart(children[i], i));
-		}
-		
-		return path;
-	}
-	
-	static function getChildFromPath(_topParent : MovieClip, _path : Array) : MovieClip {
-		var child : MovieClip = _topParent;
-		
-		for (var i : Number = 0; i < _path.length; i++) {
-			if (child == null) {
-				return null;
-			}
-			
-			var lastHashIndex : Number = _path[i].lastIndexOf("#");
-			
-			if (lastHashIndex < 0) {
-				child = child[_path[i]];
-				continue;
-			}
-			
-			var childIndex : Number = parseInt(_path[i].substr(lastHashIndex + 1));
-			child = getChildAtIndex(child, childIndex);
-		}
-		
-		return child;
-	}
 	
 	static function getNestedChildren(_topParent : MovieClip, _evaluator : Function, _scope, _currentDepth : Number) : Array {
 		var children : Array = [];
@@ -101,12 +38,12 @@ class core.MovieClipUtil {
 		return maxFrames;
 	}
 	
-	static function getChildIndex(_movieClip : MovieClip) : Number {
+	static function getChildIndex(_child : MovieClip) : Number {
 		var i : Number = 0;
 		
-		for (var childName in _movieClip._parent) {
-			if (typeof _movieClip._parent[childName] == "movieclip") {
-				if (childName == _movieClip._name) {
+		for (var childName in _child._parent) {
+			if (typeof _child._parent[childName] == "movieclip") {
+				if (childName == _child._name) {
 					return i;
 				}
 				i++;
@@ -141,7 +78,7 @@ class core.MovieClipUtil {
 				break;
 			}
 			parents.push(parent);
-			parent = parent.parent;
+			parent = parent._parent;
 		}
 		return parents;
 	}
@@ -211,5 +148,13 @@ class core.MovieClipUtil {
 				i++;
 			}
 		}
+	}
+	
+	public static function isMovieClip(_object) : Boolean {
+		return typeof _object == "movieclip";
+	}
+	
+	public static function objectAsMovieClip(_object) : MovieClip {
+		return _object;
 	}
 }

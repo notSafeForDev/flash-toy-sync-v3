@@ -7,10 +7,6 @@ import core.MovieClipUtil;
  */
 class core.MouseEvents {
 	
-	public function MouseEvents() {
-		
-	}
-	
 	/**
 	 * Calls a callback when the user clicks: on, through, or anywhere around the target element, as long as the user doesn't click on an overlapping element with mouse event
 	 * Note: Doesn't function identical to the AS3 version of addOnMouseDownPassThrough
@@ -22,8 +18,16 @@ class core.MouseEvents {
 		add(_scope, _target, "onMouseDown", _handler, _arg);
 	}
 	
+	public static function addOnMouseOver(_scope, _target : MovieClip, _handler : Function, _arg) {
+		add(_scope, _target, "onRollOver", _handler, _arg);
+	}
+	
 	public static function addOnMouseDown(_scope, _target : MovieClip, _handler : Function, _arg) {
 		add(_scope, _target, "onPress", _handler, _arg);
+	}
+	
+	public static function addOnMouseOut(_scope, _target : MovieClip, _handler : Function, _arg) {
+		add(_scope, _target, "onRollOut", _handler, _arg);
 	}
 	
 	private static function add(_scope, _target : MovieClip, _type : String, _handler : Function, _arg) {

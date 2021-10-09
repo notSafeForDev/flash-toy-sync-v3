@@ -1,5 +1,6 @@
 package components {
 	
+	import core.ArrayUtil;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
@@ -106,9 +107,10 @@ package components {
 			var child : DisplayObject = _topParent;
 			var children : Array = DisplayObjectUtil.getChildren(_topParent);
 			var bounds : Rectangle = null;
-			var isFirstIteration : Boolean = true;
+			var isCheckingDirectChildren : Boolean = true;
 			var isDone : Boolean = false;
 			var stageMousePoint : Point = new Point(StageUtil.getMouseX(), StageUtil.getMouseY());
+			var childrenWithDisabledMouseSelect : Array = GlobalState.disabledMouseSelectForChildren.state;
 			
 			while (isDone == false) {
 				var closestChild : DisplayObject = null;
@@ -117,22 +119,31 @@ package components {
 				
 				// We iterate from the last child to the first, as they are ordered from highest to lowest depth
 				for (var i : Number = children.length - 1; i >= 0; i--) {
+					// If the child has disabled mouse selection, skip it
+					if (ArrayUtil.indexOf(childrenWithDisabledMouseSelect, children[i]) >= 0) {
+						continue;
+					}
+					// If the mouse position isn't within the child's bounds, skip it
 					var childBounds : Rectangle = DisplayObjectUtil.getBounds(children[i], DisplayObjectUtil.getParent(container));
 					if (childBounds.containsPoint(stageMousePoint) == false) {
 						continue;
 					}
+					// If the child's bounds are too large, such a screen overlay, skip it
 					if (childBounds.width >= StageUtil.getWidth() && childBounds.height >= StageUtil.getHeight()) {
 						continue;
 					}
-					if (isFirstIteration == true && DisplayObjectUtil.hitTest(children[i], stageMousePoint.x, stageMousePoint.y, true) == true) {
+					// If it's checking direct children to the parent and we are clicking directly on it's shape, continue with it, otherwise, skip it
+					if (isCheckingDirectChildren == true && DisplayObjectUtil.hitTest(children[i], stageMousePoint.x, stageMousePoint.y, true) == true) {
 						closestChild = children[i];
 						break;
-					} else if (isFirstIteration == true) {
+					} else if (isCheckingDirectChildren == true) {
 						continue;
 					}
+					// If it's a shape, and the bounds are very similar to the current parents bounds, skip it, that way we prioritize movieClips
 					if (DisplayObjectUtil.isShape(children[i]) == true && getBoundsDifferences(childBounds, bounds) < 10) {
 						continue;
 					}
+					// If it's a match, check how far away the center of it's bounds are and compare it to the closest found so far
 					var boundsCenterPoint : Point = new Point(childBounds.x + childBounds.width / 2, childBounds.y + childBounds.height / 2);
 					var distance : Number = Point.distance(stageMousePoint, boundsCenterPoint);
 					if (closestChild == null || distance < closestChildDistance) {
@@ -148,7 +159,7 @@ package components {
 				} else {
 					isDone = true;
 				}
-				isFirstIteration = false;
+				isCheckingDirectChildren = false;
 			}
 			
 			return child;
