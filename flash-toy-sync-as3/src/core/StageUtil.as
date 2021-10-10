@@ -7,8 +7,9 @@
 		
 		private static var stage : Stage;
 		
-		public static function initialize(_stage : Stage) : void {
+		public static function initialize(_stage : Stage, _frameRate : Number) : void {
 			stage = _stage;
+			stage.frameRate = _frameRate;
 		}
 		
 		public static function setFrameRate(_frameRate : Number) : void {
@@ -16,6 +17,10 @@
 				throw new Error("The StageUtil has to be initialized before any of it's other functions can be called");
 			}
 			stage.frameRate = _frameRate;
+		}
+		
+		public static function getFrameRate() : Number {
+			return stage.frameRate;
 		}
 		
 		public static function makeWindowed() : void {

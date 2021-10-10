@@ -78,11 +78,10 @@ package components {
 			nameText.setX(toggleIconWidth * 2);
 			TextStyles.applyListItemStyle(nameText);
 			
-			framesText = new TextElement(background);
+			framesText = new TextElement(background, "", TextElement.AUTO_SIZE_RIGHT);
 			framesText.setWidth(_width);
 			framesText.setX(_width - 5);
 			framesText.setAlign(TextElement.ALIGN_RIGHT);
-			framesText.setAutoSize(TextElement.AUTO_SIZE_RIGHT);
 			framesText.setMouseEnabled(false);
 			TextStyles.applyListItemStyle(framesText);
 			

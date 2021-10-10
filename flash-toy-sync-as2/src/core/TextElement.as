@@ -25,10 +25,12 @@ class core.TextElement {
 	
 	private var x : Number = 0;
 	
-	public function TextElement(_parent : MovieClip, _value : String) {
+	public function TextElement(_parent : MovieClip, _value : String, _autoSize : String) {
 		element = _parent.createTextField("TextField_" + _value, _parent.getNextHighestDepth(), 0, 0, 1, 20);
 		element.text = _value;
-		element.autoSize = AUTO_SIZE_LEFT;
+		if (_autoSize != undefined) {
+			element.autoSize = _autoSize;
+		}
 		element.selectable = false;
 		
 		textFormat = new TextFormat();
@@ -42,6 +44,7 @@ class core.TextElement {
 	
 	private function onChanged() {
 		onChange.emit(element.text);
+		element.setTextFormat(textFormat);
 	}
 	
 	public function setMouseEnabled(_value : Boolean) : Void {

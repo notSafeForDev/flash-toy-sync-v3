@@ -27,9 +27,13 @@ package core {
 	
 		private var textFormat : TextFormat;
 		
-		public function TextElement(_parent : MovieClip, _value : String = "") {
+		public function TextElement(_parent : MovieClip, _value : String = "", _autoSize : String = "") {
 			element = new TextField();
 			element.name = "TextField_" + _value;
+			// The autoSize property is a bit buggy when assigned after it have been initialized, so we do it in the constructor
+			if (_autoSize != "") {
+				element.autoSize = _autoSize;
+			}
 			element.height = 20;
 			element.selectable = false;
 			_parent.addChild(element);
@@ -42,6 +46,7 @@ package core {
 			
 			element.addEventListener(Event.CHANGE, function(e : Event) : void {
 				onChange.emit(element.text);
+				element.setTextFormat(textFormat);
 			});
 		}
 		

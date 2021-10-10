@@ -20,7 +20,7 @@ package {
 		private function init(e : Event = null) : void {
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
-			StageUtil.initialize(stage);
+			StageUtil.initialize(stage, stage.frameRate);
 			
 			var container : MovieClip = new MovieClip();
 			container.name = "root";

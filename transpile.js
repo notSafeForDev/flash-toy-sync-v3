@@ -408,6 +408,7 @@ function transpileActionScript3To2(actionscript) {
 
     // Remove standard imports
     removeActionScriptLines(lines, ["import flash.display"]);
+    removeActionScriptLines(lines, ["import flash.ui.Mouse"]);
 
     const classLineIndex = findActionScriptLineIndex(lines, ["public class"]);
 
@@ -433,6 +434,7 @@ function transpileActionScript3To2(actionscript) {
     replaceInActionScriptLines(lines, [":", "Sprite"], ": MovieClip", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
     // TODO: Fix (var child : DisplayObject) // Without semi-colon
+    // TODO: In trace, replace comma outside of strings with: + ", " + 
 
     // Remove : * (any type declaration)
     replaceInActionScriptLines(lines, [":", "*"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);

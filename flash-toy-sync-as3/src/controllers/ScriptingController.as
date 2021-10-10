@@ -25,6 +25,11 @@ package controllers {
 		
 		private var overlayContainer : MovieClip;
 		
+		private var clickedChildParentChainLength : Number = -1;
+		private var stimulationParentChainLength : Number = -1;
+		private var baseParentChainLength : Number = -1;
+		private var tipParentChainLength : Number = -1;
+		
 		public function ScriptingController(_globalState : GlobalState, _panelContainer : MovieClip, _animation : MovieClip, _overlayContainer : MovieClip) {
 			globalState = _globalState;
 			overlayContainer = _overlayContainer;
@@ -47,22 +52,44 @@ package controllers {
 		
 		public function onEnterFrame() : void {
 			var clickedChild : DisplayObject = GlobalState.clickedChild.state;
+			var stimulationAttachedTo : DisplayObject = GlobalState.stimulationMarkerAttachedTo.state;
+			var baseAttachedTo : DisplayObject = GlobalState.baseMarkerAttachedTo.state;
+			var tipAttachedTo : DisplayObject = GlobalState.tipMarkerAttachedTo.state;
 			
-			if (clickedChild != null && DisplayObjectUtil.getParent(clickedChild) == null) {
+			if (clickedChild != null && isNoLongerInDisplayList(clickedChild, clickedChildParentChainLength) == true) {
 				globalState._clickedChild.setState(null);
 			}
+			if (stimulationAttachedTo != null && isNoLongerInDisplayList(stimulationAttachedTo, stimulationParentChainLength) == true) {
+				globalState._stimulationMarkerAttachedTo.setState(null);
+				globalState._stimulationMarkerPoint.setState(null);
+			}
+			if (baseAttachedTo != null && isNoLongerInDisplayList(baseAttachedTo, baseParentChainLength) == true) {
+				globalState._baseMarkerAttachedTo.setState(null);
+				globalState._baseMarkerPoint.setState(null);
+			}
+			if (tipAttachedTo != null && isNoLongerInDisplayList(tipAttachedTo, tipParentChainLength) == true) {
+				globalState._tipMarkerAttachedTo.setState(null);
+				globalState._tipMarkerPoint.setState(null);
+			}
+		}
+		
+		private function isNoLongerInDisplayList(_object : DisplayObject, _originalParentChainLength : Number) : Boolean {
+			return DisplayObjectUtil.getParents(_object).length != _originalParentChainLength;
 		}
 		
 		private function onScriptingPanelAttachStimulationMarker() : void {
 			attachScriptMarker(globalState._stimulationMarkerAttachedTo, globalState._stimulationMarkerPoint);
+			stimulationParentChainLength = DisplayObjectUtil.getParents(GlobalState.stimulationMarkerAttachedTo.state).length;
 		}
 		
 		private function onScriptingPanelAttachBaseMarker() : void {
 			attachScriptMarker(globalState._baseMarkerAttachedTo, globalState._baseMarkerPoint);
+			baseParentChainLength = DisplayObjectUtil.getParents(GlobalState.baseMarkerAttachedTo.state).length;
 		}
 		
 		private function onScriptingPanelAttachTipMarker() : void {
 			attachScriptMarker(globalState._tipMarkerAttachedTo, globalState._tipMarkerPoint);
+			tipParentChainLength = DisplayObjectUtil.getParents(GlobalState.tipMarkerAttachedTo.state).length;
 		}
 		
 		private function onScriptingPanelMouseSelectFilterChange(_filter : String) : void {
@@ -98,6 +125,7 @@ package controllers {
 		
 		private function onStageElementSelectorSelectChild(_child : DisplayObject) : void {
 			globalState._clickedChild.setState(_child);
+			clickedChildParentChainLength = DisplayObjectUtil.getParents(_child).length;
 		}
 	}
 }

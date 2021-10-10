@@ -118,33 +118,42 @@
 		public static var ITERATE_CONTINUE : Number = 0;
 		/** Return this from the iterateOverChildren handler in order to skip the nested children of the current child */
 		public static var ITERATE_SKIP_NESTED : Number = 1;
+		/** Return this from the iterateOverChildren handler in order to skip the remaining children of the current parent */
+		public static var ITERATE_SKIP_SIBLINGS : Number = 2;
 		/** Return this from the iterateOverChildren handler in order to stop iterating over children */
-		public static var ITERATE_ABORT : Number = 2;
+		public static var ITERATE_ABORT : Number = 3;
 		
 		/**
 		 * Calls a callback for each nested child to the parent 
 		 * @param	_topParent	The parent
 		 * @param	_handler	A function (_child : MovieClip, _depth : Number) : Number - The callback
 		 * The handler should return one of the following codes:
-		 * ITERATE_CONTINUE 	: Keep iterating over children
-		 * ITERATE_SKIP_NESTED  : Skip the nested children of the current child
-		 * ITERATE_ABORT		: Stop iterating over children
+		 * ITERATE_CONTINUE 		: Keep iterating over children
+		 * ITERATE_SKIP_NESTED  	: Skip the nested children of the current child
+		 * ITERATE_SKIP_SIBLINGS	: Skip the remaining children of the current parent
+		 * ITERATE_ABORT			: Stop iterating over children
 		 * @param	_scope		The scope for the function, required for AS2 compatibility
 		 */
-		public static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope : *, _currentDepth : Number = 0) : void {
+		public static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope : *, _currentDepth : Number = 0) : Number {
 			for (var i : int = 0; i < _topParent.numChildren; i++) {
 				var child : * = _topParent.getChildAt(i);
 				if (child is MovieClip == false) {
 					continue;
 				}
+				
 				var code : Number = _handler(child, _currentDepth + 1);
-				if (code == ITERATE_ABORT) {
-					break;
+				if (code == ITERATE_ABORT || code == ITERATE_SKIP_SIBLINGS) {
+					return code;
 				}
 				if (code != ITERATE_SKIP_NESTED) {
-					iterateOverChildren(child, _handler, _scope, _currentDepth + 1);
+					var recursiveCode : Number = iterateOverChildren(child, _handler, _scope, _currentDepth + 1);
+					if (recursiveCode == ITERATE_ABORT) {
+						return ITERATE_ABORT;
+					}
 				}
 			}
+			
+			return ITERATE_CONTINUE;
 		}
 		
 		public static function getCurrentFrame(_movieClip : MovieClip) : Number {

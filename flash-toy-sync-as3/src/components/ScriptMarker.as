@@ -32,9 +32,8 @@ package components {
 			GraphicsUtil.beginFill(movieClip, _color, 0.5);
 			GraphicsUtil.drawCircle(movieClip, 0, 0, 10);
 			
-			var text : TextElement = new TextElement(movieClip, _text);
-			text.setAlign(TextElement.ALIGN_CENTER);
-			text.setAutoSize(TextElement.AUTO_SIZE_CENTER);
+			var text : TextElement = new TextElement(movieClip, _text, TextElement.AUTO_SIZE_LEFT);
+			text.setAutoSize(TextElement.AUTO_SIZE_CENTER); // Setting it left and then center is required to make this work, for some reason
 			text.setMouseEnabled(false);
 			text.setY(-9);
 			TextStyles.applyMarkerStyle(text);

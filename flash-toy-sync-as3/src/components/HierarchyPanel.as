@@ -31,11 +31,11 @@ package components {
 		private var nestedChildren : Array = [];
 		private var nestedChildrenDepths : Array = [];
 		
+		private var expandableChildren : Array = [];
 		private var expandedChildren : Array = [];
 		
 		private var displayedChildren : Array = [];
 		private var displayedChildrenDepths : Array = [];
-		private var parentsChildCounts : Array = [];
 		
 		private var uiScrollArea : UIScrollArea;
 		
@@ -94,6 +94,14 @@ package components {
 		// Used to updated nestedChildren, which we use to determine which elements to display in the list
 		private function nestedChildrenIterator(_child : MovieClip, _depth : Number) : Number {
 			var parent : DisplayObject = DisplayObjectUtil.getParent(_child);
+			var isParentExpanded : Boolean = ArrayUtil.indexOf(expandedChildren, parent) >= 0;
+			var isParentExpandable : Boolean = ArrayUtil.indexOf(expandableChildren, parent) >= 0;
+			
+			// If the parent isn't expanded, but we know it is already epandable, no need to check the other siblings
+			if (isParentExpanded == false && isParentExpandable == true) {
+				return MovieClipUtil.ITERATE_SKIP_SIBLINGS;
+			}
+			
 			var parentOfParent : DisplayObject = null;
 			if (DisplayObjectUtil.isDisplayObject(DisplayObjectUtil.getParent(parent)) == true) {
 				parentOfParent = DisplayObjectUtil.getParent(parent);
@@ -107,12 +115,15 @@ package components {
 				}
 			}
 			
-			var shouldInclude : Boolean = ArrayUtil.indexOf(expandedChildren, parent) >= 0 || (parentOfParent != null && ArrayUtil.indexOf(expandedChildren, parentOfParent) >= 0);
+			var shouldInclude : Boolean = isParentExpanded == true || (parentOfParent != null && ArrayUtil.indexOf(expandedChildren, parentOfParent) >= 0);
 			shouldInclude = shouldInclude || parent == animationContainer;
 			
 			if (shouldInclude == true) {
 				nestedChildren.push(_child);
 				nestedChildrenDepths.push(_depth);
+				if (isParentExpandable == false) {
+					expandableChildren.push(parent);
+				}
 				return MovieClipUtil.ITERATE_CONTINUE;
 			}
 			
@@ -125,13 +136,12 @@ package components {
 			nestedChildrenDepths.length = 0;
 			nestedChildrenDepths.push(0);
 			
+			expandableChildren.length = 0;
+			
 			displayedChildren.length = 0;
 			displayedChildren.push(animationContainer);
 			displayedChildrenDepths.length = 0;
 			displayedChildrenDepths.push(0);
-			
-			parentsChildCounts.length = 0;
-			parentsChildCounts = [0];
 			
 			var startTime : Number = Debug.getTime();
 			var latestTime : Number = Debug.getTime();
@@ -154,13 +164,7 @@ package components {
 			
 			// Set the children to display in the list and update information used to determine if a child can be expanded or not
 			for (i = 1; i < nestedChildren.length; i++) {
-				parentsChildCounts.push(0);
 				parent = MovieClipUtil.getParent(nestedChildren[i]);
-				var parentIndex : Number = ArrayUtil.indexOf(nestedChildren, parent);
-				if (parentIndex >= 0) {
-					parentsChildCounts[parentIndex] = parentsChildCounts[parentIndex] + 1;
-				}
-				
 				if (ArrayUtil.indexOf(expandedChildren, parent) >= 0) {
 					displayedChildren.push(nestedChildren[i]);
 					displayedChildrenDepths.push(nestedChildrenDepths[i]);
@@ -211,9 +215,7 @@ package components {
 				
 				if (isVisible == true) {
 					var depth : Number = displayedChildrenDepths[i];
-					var nestedChildIndex : Number = ArrayUtil.indexOf(nestedChildren, child);
-					var childCount : Number = parentsChildCounts[nestedChildIndex];
-					var isExpandable : Boolean = childCount > 0;
+					var isExpandable : Boolean = ArrayUtil.indexOf(expandableChildren, child) >= 0;
 					var isExpanded : Boolean = ArrayUtil.indexOf(expandedChildren, child) >= 0;
 					var isMouseSelectEnabled : Boolean = ArrayUtil.indexOf(disabledMouseSelectForChildren, child) < 0;
 					
@@ -233,13 +235,15 @@ package components {
 			var elapsedTimeUpdateList : Number = Debug.getTime() - latestTime;
 			var endTime : Number = Debug.getTime();
 			
-			/* trace(
-				"Hierarchy Total: " + (endTime - startTime).toString() + 
-				", Nested: " + (elapsedTimeNestedChildren).toString() + 
-				", Excluded: " + (elapsedTimeExcludedChildren).toString() +
-				", Displayed: " + (elapsedTimeDisplayedChildren).toString() +
-				", List: " + (elapsedTimeUpdateList).toString()
-			); */
+			/* if (Math.random() < 0.2) {
+				trace(
+					"Hierarchy Total: " + (endTime - startTime).toString() + 
+					", Nested: " + (elapsedTimeNestedChildren).toString() + 
+					", Excluded: " + (elapsedTimeExcludedChildren).toString() +
+					", Displayed: " + (elapsedTimeDisplayedChildren).toString() +
+					", List: " + (elapsedTimeUpdateList).toString()
+				);
+			} */
 		}
 		
 		private function addChildToDisplay(_child : DisplayObject) : void {

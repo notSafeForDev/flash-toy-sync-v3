@@ -2,9 +2,11 @@
 	
 	// Only used to create parity with the AS3 version
 	private static var initialized : Boolean = false;
+	private static var frameRate : Number = -1;
 	
-	public static function initialize() : Void {
+	public static function initialize(_stage, _frameRate : Number) : Void {
 		initialized = true;
+		frameRate = _frameRate;
 	}
 	
 	static function setFrameRate(_frameRate : Number) : Void {
@@ -12,6 +14,13 @@
 			trace("The StageUtil has to be initialized before any of it's other functions can be called");
 		}
 		// It's not possible to set the frame rate at runtime in AS2
+	}
+	
+	static function getFrameRate() : Number {
+		if (initialized == false) {
+			trace("The StageUtil has to be initialized before any of it's other functions can be called");
+		}
+		return frameRate;
 	}
 	
 	static function makeWindowed() : Void {

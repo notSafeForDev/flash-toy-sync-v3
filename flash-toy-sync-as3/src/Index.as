@@ -1,8 +1,9 @@
 package {
 	
-	import controllers.HierarchyPanelController;
 	import flash.display.MovieClip;
+	import flash.ui.Mouse;
 	
+	import core.VersionUtil;
 	import core.DisplayObjectUtil;
 	import core.StateManager;
 	import core.Debug;
@@ -15,6 +16,8 @@ package {
 	
 	import controllers.AnimationController;
 	import controllers.ScriptingController;
+	import controllers.HierarchyPanelController;
+	import controllers.ToysController;
 	
 	import components.Borders;
 	import components.ExternalSWF;
@@ -49,6 +52,7 @@ package {
 		private var animationController : AnimationController;
 		private var hierarchyPanelController : HierarchyPanelController;
 		private var scriptingController : ScriptingController;
+		private var toysController : ToysController;
 		
 		public function Index(_container : MovieClip, _animationPath : String) {
 			if (_container == null) {
@@ -72,13 +76,16 @@ package {
 		}
 		
 		private function onSWFLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
-			StageUtil.setFrameRate(_fps);
+			if (VersionUtil.isActionscript3() == true) {
+				StageUtil.setFrameRate(_fps);
+			}
 			
 			animation = _swf;
 			
 			animationController = new AnimationController(globalState, panelContainer, animation, _width, _height);
 			hierarchyPanelController = new HierarchyPanelController(globalState, panelContainer, animation);
 			scriptingController = new ScriptingController(globalState, panelContainer, animation, overlayContainer);
+			toysController = new ToysController(globalState, panelContainer);
 			
 			debugPanel = new DebugPanel(container);
 			debugPanel.setPosition(700, 0);
@@ -102,6 +109,10 @@ package {
 			GlobalEvents.enterFrame.emit();
 			var endTime : Number = Debug.getTime();
 			// trace(endTime - startTime);
+			
+			// For animations that hides the cursor, make it always visible
+			// Later it should only work like this while in the editor
+			Mouse.show();
 		}
 		
 		private function onSWFError(_error : Error) : void {

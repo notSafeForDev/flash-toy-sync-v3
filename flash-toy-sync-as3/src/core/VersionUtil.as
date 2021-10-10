@@ -6,7 +6,7 @@ package core {
 	 */
 	public class VersionUtil {
 		
-		public static function isActionscript3() {
+		public static function isActionscript3() : Boolean {
 			return true;
 		}
 	}

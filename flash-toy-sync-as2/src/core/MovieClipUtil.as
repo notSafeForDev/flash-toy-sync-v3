@@ -99,9 +99,10 @@ class core.MovieClipUtil {
 	
 	static var ITERATE_CONTINUE : Number = 0;
 	static var ITERATE_SKIP_NESTED : Number = 1;
-	static var ITERATE_ABORT : Number = 2;
+	static var ITERATE_SKIP_SIBLINGS : Number = 2;
+	static var ITERATE_ABORT : Number = 3;
 	
-	static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope, _currentDepth : Number) : Void {
+	static function iterateOverChildren(_topParent : MovieClip, _handler : Function, _scope, _currentDepth : Number) : Number {
 		var handler : Function = _handler;
 		if (_handler != undefined && _scope != undefined) {
 			handler = FunctionUtil.bind(_scope, _handler);
@@ -111,17 +112,24 @@ class core.MovieClipUtil {
 		}
 		
 		for (var childName : String in _topParent) {
-			if (typeof _topParent[childName] == "movieclip") {
-				var child : MovieClip = _topParent[childName];
-				var code : Number = handler(child, _currentDepth + 1);
-				if (code == ITERATE_ABORT) {
-					break;
-				}
-				if (code != ITERATE_SKIP_NESTED) {
-					iterateOverChildren(child, handler, _scope, _currentDepth + 1);
+			if (typeof _topParent[childName] != "movieclip") {
+				continue;
+			}
+			var child : MovieClip = _topParent[childName];
+			
+			var code : Number = handler(child, _currentDepth + 1);
+			if (code == ITERATE_ABORT || code == ITERATE_SKIP_SIBLINGS) {
+				return code;
+			}
+			if (code != ITERATE_SKIP_NESTED) {
+				var recursiveCode : Number = iterateOverChildren(child, handler, _scope, _currentDepth + 1);
+				if (recursiveCode == ITERATE_ABORT) {
+					return ITERATE_ABORT;
 				}
 			}
 		}
+		
+		return ITERATE_CONTINUE;
 	}
 	
 	static function getCurrentFrame(_movieClip : MovieClip) : Number {

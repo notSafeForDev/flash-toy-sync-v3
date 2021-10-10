@@ -1,5 +1,6 @@
 package components {
 	
+	import core.ArrayUtil;
 	import flash.display.MovieClip;
 	
 	import core.DisplayObjectUtil;
@@ -28,12 +29,13 @@ package components {
 		private var attachStimulationMarkerButton : MovieClip;
 		private var attachBaseMarkerButton : MovieClip;
 		private var attachTipMarkerButton : MovieClip;
+		private var recordButton : MovieClip;
 		
 		private var filterInputText : TextElement;
 		private var lastClickedChildText : TextElement;
 		
 		public function ScriptingPanel(_parent : MovieClip) {
-			super(_parent, "Scripting", 200, 230);
+			super(_parent, "Scripting", 200, 280);
 			
 			onAttachStimulationMarker = new CustomEvent();
 			onAttachBaseMarker = new CustomEvent();
@@ -43,6 +45,7 @@ package components {
 			attachStimulationMarkerButton = addButton("Attach stim marker", 10);
 			attachBaseMarkerButton = addButton("Attach base marker", 50);
 			attachTipMarkerButton = addButton("Attach tip marker", 90);
+			recordButton = addButton("Record script", 240);
 			
 			var filterHeaderText : TextElement = new TextElement(content, "Filters:");
 			TextStyles.applyListItemStyle(filterHeaderText);
@@ -51,17 +54,13 @@ package components {
 			filterHeaderText.setWidth(180);
 			
 			filterInputText = new TextElement(content, "---"); // Uses a non empty string, as in AS2 it doesn't work otherwise
+			TextStyles.applyInputStyle(filterInputText);
 			filterInputText.setX(10);
 			filterInputText.setY(150);
 			filterInputText.setWidth(180);
 			filterInputText.element.type = "input";
-			TextStyles.applyListItemStyle(filterInputText);
-			filterInputText.element.backgroundColor = 0xFFFFFF;
-			filterInputText.element.background = true;
 			filterInputText.element.selectable = true;
-			filterInputText.element.border = true;
 			filterInputText.setAutoSize(TextElement.AUTO_SIZE_NONE);
-			filterInputText.element.textColor = 0x000000;
 			filterInputText.onChange.listen(this, onFilterInputTextChange);
 			
 			var filterDescriptionText : TextElement = new TextElement(content, "Names of elements you don't want to select");
@@ -82,9 +81,11 @@ package components {
 			MouseEvents.addOnMouseDown(this, attachBaseMarkerButton, onAttachBaseMarkerButtonClick);
 			MouseEvents.addOnMouseDown(this, attachTipMarkerButton, onAttachTipMarkerButtonClick);
 			
-			GlobalState.listen(this, onStatesChange, [GlobalState.clickedChild, GlobalState.selectedChild]);
+			GlobalState.listen(this, onStatesChange, [
+				GlobalState.clickedChild, GlobalState.selectedChild, GlobalState.baseMarkerAttachedTo, GlobalState.stimulationMarkerAttachedTo, GlobalState.tipMarkerAttachedTo
+			]);
 			
-			updateAttachButtons();
+			updateButtons();
 		}
 		
 		private function onFilterInputTextChange(_text : String) : void {
@@ -92,13 +93,13 @@ package components {
 		}
 		
 		private function onStatesChange() : void {
-			updateAttachButtons();
+			updateButtons();
 			if (GlobalState.clickedChild.state != null) {
 				lastClickedChildText.setText("Clicked: " + DisplayObjectUtil.getName(GlobalState.clickedChild.state));
 			}
 		}
 		
-		private function updateAttachButtons() : void {
+		private function updateButtons() : void {
 			var canAttachMarkers : Boolean = GlobalState.clickedChild.state != null || GlobalState.selectedChild.state != null;
 			
 			var alpha : Number = canAttachMarkers ? 1 : 0.5;
@@ -110,6 +111,12 @@ package components {
 			DisplayObjectUtil.setAlpha(attachStimulationMarkerButton, alpha);
 			DisplayObjectUtil.setAlpha(attachBaseMarkerButton, alpha);
 			DisplayObjectUtil.setAlpha(attachTipMarkerButton, alpha);
+			
+			alpha = canRecord() ? 1 : 0.5;
+			
+			recordButton.mouseEnabled = canRecord();
+			
+			DisplayObjectUtil.setAlpha(recordButton, alpha);
 		}
 		
 		private function onAttachStimulationMarkerButtonClick() : void {
@@ -145,6 +152,14 @@ package components {
 			DisplayObjectUtil.setY(button, _y);
 			
 			return button;
+		}
+		
+		private function canRecord() : Boolean {
+			return ArrayUtil.indexOf([
+				GlobalState.stimulationMarkerAttachedTo.state, 
+				GlobalState.baseMarkerAttachedTo.state, 
+				GlobalState.tipMarkerAttachedTo.state
+			], null) < 0;
 		}
 	}
 }
