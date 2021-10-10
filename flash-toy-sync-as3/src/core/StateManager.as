@@ -2,6 +2,8 @@ package core {
 	
 	import core.stateTypes.ArrayState;
 	import core.stateTypes.ArrayStateReference;
+	import core.stateTypes.StringState;
+	import core.stateTypes.StringStateReference;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
@@ -115,6 +117,19 @@ package core {
 		public function addArrayState(_default : Array = null) : Object {
 			var state : ArrayState = new ArrayState(_default);
 			var reference : ArrayStateReference = new ArrayStateReference(state);
+			states.push(state);
+			references.push(reference);
+			return {state: state, reference: reference};
+		}
+		
+		/**
+		 * Add a state that holds a String
+		 * @param	_default	The default value for the state
+		 * @return	{state: StringState, reference: StringStateReference} - An object with the added state and reference
+		 */
+		public function addStringState(_default : String = "") : Object {
+			var state : StringState = new StringState(_default);
+			var reference : StringStateReference = new StringStateReference(state);
 			states.push(state);
 			references.push(reference);
 			return {state: state, reference: reference};

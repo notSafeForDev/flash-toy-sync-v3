@@ -23,21 +23,60 @@ package components {
 		public var onAttachStimulationMarker : CustomEvent;
 		public var onAttachBaseMarker : CustomEvent;
 		public var onAttachTipMarker : CustomEvent;
+		public var onMouseSelectFilterChange : CustomEvent;
 		
 		private var attachStimulationMarkerButton : MovieClip;
 		private var attachBaseMarkerButton : MovieClip;
 		private var attachTipMarkerButton : MovieClip;
 		
+		private var filterInputText : TextElement;
+		private var lastClickedChildText : TextElement;
+		
 		public function ScriptingPanel(_parent : MovieClip) {
-			super(_parent, "Scripting", 200, 150);
+			super(_parent, "Scripting", 200, 230);
 			
 			onAttachStimulationMarker = new CustomEvent();
 			onAttachBaseMarker = new CustomEvent();
 			onAttachTipMarker = new CustomEvent();
+			onMouseSelectFilterChange = new CustomEvent();
 			
 			attachStimulationMarkerButton = addButton("Attach stim marker", 10);
 			attachBaseMarkerButton = addButton("Attach base marker", 50);
 			attachTipMarkerButton = addButton("Attach tip marker", 90);
+			
+			var filterHeaderText : TextElement = new TextElement(content, "Filters:");
+			TextStyles.applyListItemStyle(filterHeaderText);
+			filterHeaderText.setX(10);
+			filterHeaderText.setY(130);
+			filterHeaderText.setWidth(180);
+			
+			filterInputText = new TextElement(content, "---"); // Uses a non empty string, as in AS2 it doesn't work otherwise
+			filterInputText.setX(10);
+			filterInputText.setY(150);
+			filterInputText.setWidth(180);
+			filterInputText.element.type = "input";
+			TextStyles.applyListItemStyle(filterInputText);
+			filterInputText.element.backgroundColor = 0xFFFFFF;
+			filterInputText.element.background = true;
+			filterInputText.element.selectable = true;
+			filterInputText.element.border = true;
+			filterInputText.setAutoSize(TextElement.AUTO_SIZE_NONE);
+			filterInputText.element.textColor = 0x000000;
+			filterInputText.onChange.listen(this, onFilterInputTextChange);
+			
+			var filterDescriptionText : TextElement = new TextElement(content, "Names of elements you don't want to select");
+			TextStyles.applyListItemStyle(filterDescriptionText);
+			filterDescriptionText.setX(10);
+			filterDescriptionText.setY(170);
+			filterDescriptionText.setWidth(180);
+			filterDescriptionText.setHeight(40);
+			filterDescriptionText.element.wordWrap = true;
+			
+			lastClickedChildText = new TextElement(content, "Clicked: -");
+			TextStyles.applyListItemStyle(lastClickedChildText);
+			lastClickedChildText.setX(10);
+			lastClickedChildText.setY(210);
+			lastClickedChildText.setWidth(180);
 			
 			MouseEvents.addOnMouseDown(this, attachStimulationMarkerButton, onAttachStimulationMarkerButtonClick);
 			MouseEvents.addOnMouseDown(this, attachBaseMarkerButton, onAttachBaseMarkerButtonClick);
@@ -48,8 +87,15 @@ package components {
 			updateAttachButtons();
 		}
 		
+		private function onFilterInputTextChange(_text : String) : void {
+			onMouseSelectFilterChange.emit(_text);
+		}
+		
 		private function onStatesChange() : void {
 			updateAttachButtons();
+			if (GlobalState.clickedChild.state != null) {
+				lastClickedChildText.setText("Clicked: " + DisplayObjectUtil.getName(GlobalState.clickedChild.state));
+			}
 		}
 		
 		private function updateAttachButtons() : void {

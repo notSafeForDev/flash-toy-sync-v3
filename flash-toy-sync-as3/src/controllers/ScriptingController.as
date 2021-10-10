@@ -42,6 +42,7 @@ package controllers {
 			scriptingPanel.onAttachStimulationMarker.listen(this, onScriptingPanelAttachStimulationMarker);
 			scriptingPanel.onAttachBaseMarker.listen(this, onScriptingPanelAttachBaseMarker);
 			scriptingPanel.onAttachTipMarker.listen(this, onScriptingPanelAttachTipMarker);
+			scriptingPanel.onMouseSelectFilterChange.listen(this, onScriptingPanelMouseSelectFilterChange);
 		}
 		
 		public function onEnterFrame() : void {
@@ -62,6 +63,10 @@ package controllers {
 		
 		private function onScriptingPanelAttachTipMarker() : void {
 			attachScriptMarker(globalState._tipMarkerAttachedTo, globalState._tipMarkerPoint);
+		}
+		
+		private function onScriptingPanelMouseSelectFilterChange(_filter : String) : void {
+			globalState._mouseSelectFilter.setState(_filter);
 		}
 		
 		private function attachScriptMarker(_attachedToState : DisplayObjectState, _pointState : PointState) : void {

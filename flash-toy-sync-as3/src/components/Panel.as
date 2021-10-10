@@ -37,7 +37,7 @@ package components {
 			DisplayObjectUtil.setY(background, titleBarHeight);
 			
 			var titleText : TextElement = new TextElement(titleBar, _name);
-			titleText.element.selectable = false;
+			titleText.setWidth(_contentWidth - 3);
 			titleText.setX(3);
 			titleText.setY(1);
 			TextStyles.applyPanelTitleStyle(titleText);

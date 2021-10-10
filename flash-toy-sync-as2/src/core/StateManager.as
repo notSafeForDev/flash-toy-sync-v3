@@ -12,6 +12,8 @@ import core.stateTypes.NumberState;
 import core.stateTypes.NumberStateReference;
 import core.stateTypes.PointState;
 import core.stateTypes.PointStateReference;
+import core.stateTypes.StringState;
+import core.stateTypes.StringStateReference;
 import flash.geom.Point;
 /**
  * ...
@@ -78,6 +80,14 @@ class core.StateManager {
 	public function addArrayState(_default : Array) : Object {
 		var state : ArrayState = new ArrayState(_default);
 		var reference : ArrayStateReference = new ArrayStateReference(state);
+		states.push(state);
+		references.push(reference);
+		return {state: state, reference: reference};
+	}
+	
+	public function addStringState(_default : String) : Object {
+		var state : StringState = new StringState(_default);
+		var reference : StringStateReference = new StringStateReference(state);
 		states.push(state);
 		references.push(reference);
 		return {state: state, reference: reference};

@@ -9,6 +9,8 @@ package global {
 	import core.stateTypes.DisplayObjectStateReference;
 	import core.stateTypes.PointState;
 	import core.stateTypes.PointStateReference;
+	import core.stateTypes.StringState;
+	import core.stateTypes.StringStateReference;
 	
 	import core.stateTypes.BooleanState;
 	import core.stateTypes.BooleanStateReference;
@@ -103,6 +105,10 @@ package global {
 		public var _disabledMouseSelectForChildren : ArrayState;
 		public static var disabledMouseSelectForChildren : ArrayStateReference;
 		
+		/** parts of words to use to filter out elements that can be clicked */
+		public var _mouseSelectFilter : StringState;
+		public static var mouseSelectFilter : StringStateReference;
+		
 		public function GlobalState(_stateManager : StateManager) {
 			if (GlobalState.stateManager != null) {
 				throw "Unable to create a new instance of GlobalState, there can only be one instance of it";
@@ -196,6 +202,11 @@ package global {
 			added = _stateManager.addArrayState([]);
 			_disabledMouseSelectForChildren = added.state;
 			GlobalState.disabledMouseSelectForChildren = added.reference;
+			
+			// mouseSelectFilter
+			added = _stateManager.addStringState("");
+			_mouseSelectFilter = added.state;
+			GlobalState.mouseSelectFilter = added.reference;
 		}
 		
 		public static function listen(_scope : * , _handler : Function, _stateReferences : Array) : void {

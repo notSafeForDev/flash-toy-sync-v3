@@ -123,6 +123,10 @@ package components {
 					if (ArrayUtil.indexOf(childrenWithDisabledMouseSelect, children[i]) >= 0) {
 						continue;
 					}
+					// If the mouse selection filter matches the child's name, skip it
+					if (canSelectChildBasedOnFilters(children[i]) == false) {
+						continue;
+					}
 					// If the mouse position isn't within the child's bounds, skip it
 					var childBounds : Rectangle = DisplayObjectUtil.getBounds(children[i], DisplayObjectUtil.getParent(container));
 					if (childBounds.containsPoint(stageMousePoint) == false) {
@@ -183,6 +187,21 @@ package components {
 			}
 			
 			GraphicsUtil.drawRect(overlay, _bounds.x, _bounds.y, _bounds.width, _bounds.height);
+		}
+		
+		private function canSelectChildBasedOnFilters(_child : DisplayObject) : Boolean {
+			var filter : String = GlobalState.mouseSelectFilter.state;
+			if (filter == "") {
+				return true;
+			}
+			var parts : Array = filter.split(",");
+			var name : String = DisplayObjectUtil.getName(_child);
+			for (var i : Number = 0; i < parts.length; i++) {
+				if (name.indexOf(parts[i]) >= 0) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 }

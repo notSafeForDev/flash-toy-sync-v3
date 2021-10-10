@@ -1,3 +1,6 @@
+import core.CustomEvent;
+import core.FunctionUtil;
+
 /**
  * ...
  * @author notSafeForDev
@@ -16,19 +19,29 @@ class core.TextElement {
 	
 	public var element : TextField;
 	
+	public var onChange : CustomEvent;
+	
 	private var textFormat : TextFormat;
 	
 	private var x : Number = 0;
 	
 	public function TextElement(_parent : MovieClip, _value : String) {
-		element = _parent.createTextField("TextField_" + _value, _parent.getNextHighestDepth(), 0, 0, 0, 0);
+		element = _parent.createTextField("TextField_" + _value, _parent.getNextHighestDepth(), 0, 0, 1, 20);
 		element.text = _value;
 		element.autoSize = AUTO_SIZE_LEFT;
 		element.selectable = false;
 		
 		textFormat = new TextFormat();
 		
+		onChange = new CustomEvent();
+		
 		setText(_value);
+		
+		element.onChanged = FunctionUtil.bind(this, onChanged);
+	}
+	
+	private function onChanged() {
+		onChange.emit(element.text);
 	}
 	
 	public function setMouseEnabled(_value : Boolean) : Void {

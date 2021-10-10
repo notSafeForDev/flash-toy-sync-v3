@@ -86,6 +86,7 @@ package components {
 			var textElement : TextElement = new TextElement(content);
 			textElement.element.textColor = 0xFFFFFF;
 			textElement.setY(totalAddedTexts * 20);
+			textElement.setWidth(200);
 			TextStyles.applyListItemStyle(textElement);
 			totalAddedTexts++;
 			

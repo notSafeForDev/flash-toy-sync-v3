@@ -1,6 +1,7 @@
 package core {
 	
 	import flash.display.MovieClip;
+	import flash.events.Event;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
@@ -20,6 +21,8 @@ package core {
 		public static var ALIGN_CENTER : String = "center";
 		public static var ALIGN_JUSTIFY : String = "justify";
 		
+		public var onChange : CustomEvent;
+		
 		public var element : TextField;
 	
 		private var textFormat : TextFormat;
@@ -27,15 +30,19 @@ package core {
 		public function TextElement(_parent : MovieClip, _value : String = "") {
 			element = new TextField();
 			element.name = "TextField_" + _value;
-			element.width = 0;
-			element.height = 0;
-			element.autoSize = AUTO_SIZE_LEFT;
+			element.height = 20;
 			element.selectable = false;
 			_parent.addChild(element);
+			
+			onChange = new CustomEvent();
 			
 			textFormat = new TextFormat();
 			
 			setText(_value);
+			
+			element.addEventListener(Event.CHANGE, function(e : Event) : void {
+				onChange.emit(element.text);
+			});
 		}
 		
 		public function setMouseEnabled(_value : Boolean) : void {
