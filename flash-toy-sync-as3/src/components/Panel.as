@@ -42,6 +42,7 @@ package components {
 			titleText.setX(3);
 			titleText.setY(1);
 			TextStyles.applyPanelTitleStyle(titleText);
+			titleText.setMouseEnabled(false);
 			
 			GraphicsUtil.beginFill(titleBar, 0x222222, 0.75);
 			GraphicsUtil.drawRect(titleBar, 0, 0, _contentWidth, titleBarHeight);

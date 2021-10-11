@@ -1,25 +1,33 @@
 package controllers {
 	
+	import data.MarkerSceneScriptData;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	
+
+	import core.MovieClipUtil;
+	import core.MathUtil;
 	import core.DisplayObjectUtil;
 	import core.stateTypes.DisplayObjectState;
 	import core.stateTypes.PointState;
 	
 	import global.GlobalState;
+	import global.GlobalEvents;
 	
 	import components.ScriptMarkers;
 	import components.ScriptingPanel;
 	import components.StageElementSelector;
 	
+	import data.SceneScriptData;
+
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
 	public class ScriptingController {
+		
+		private var animation : MovieClip;
 		
 		private var globalState : GlobalState;
 		
@@ -30,7 +38,15 @@ package controllers {
 		private var baseParentChainLength : Number = -1;
 		private var tipParentChainLength : Number = -1;
 		
+		private var isRecording : Boolean = false;
+		private var firstRecordingFrame : Number = -1;
+		private var nextFrameToRecord : Number = -1;
+		
+		// TEMP, this should be stored somewhere else, along with all other available scenes
+		private var sceneScriptData : MarkerSceneScriptData = null;
+		
 		public function ScriptingController(_globalState : GlobalState, _panelContainer : MovieClip, _animation : MovieClip, _overlayContainer : MovieClip) {
+			animation = _animation;
 			globalState = _globalState;
 			overlayContainer = _overlayContainer;
 			
@@ -48,6 +64,7 @@ package controllers {
 			scriptingPanel.onAttachBaseMarker.listen(this, onScriptingPanelAttachBaseMarker);
 			scriptingPanel.onAttachTipMarker.listen(this, onScriptingPanelAttachTipMarker);
 			scriptingPanel.onMouseSelectFilterChange.listen(this, onScriptingPanelMouseSelectFilterChange);
+			scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
 		}
 		
 		public function onEnterFrame() : void {
@@ -71,6 +88,39 @@ package controllers {
 				globalState._tipMarkerAttachedTo.setState(null);
 				globalState._tipMarkerPoint.setState(null);
 			}
+			
+			if (isRecording == true) {
+				updateRecording();
+			} else if (sceneScriptData != null) { // TEMP
+				var isAtScene : Boolean = sceneScriptData.isAtScene(animation);
+				var depths : Array = sceneScriptData.getDepths();
+				var startFrame : Number = sceneScriptData.getStartRootFrame();
+				var currentFrame : Number = MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state);
+				if (isAtScene == true) {
+					var depth : Number = depths[currentFrame - startFrame];
+					trace(isAtScene + ", " + depth.toString().substring(0, 4));
+				}
+			}
+		}
+		
+		private function updateRecording() : void {
+			if (MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state) != nextFrameToRecord) {
+				finishRecording();
+				return;
+			}
+			
+			sceneScriptData.updateRecording(animation, -1);
+			nextFrameToRecord++;
+		}
+		
+		private function finishRecording() : void {
+			isRecording = false;
+			nextFrameToRecord = -1;
+			
+			globalState._isForceStopped.setState(true);
+			globalState._isPlaying.setState(false);
+			
+			GlobalEvents.gotoFrame.emit(firstRecordingFrame);
 		}
 		
 		private function isNoLongerInDisplayList(_object : DisplayObject, _originalParentChainLength : Number) : Boolean {
@@ -94,6 +144,21 @@ package controllers {
 		
 		private function onScriptingPanelMouseSelectFilterChange(_filter : String) : void {
 			globalState._mouseSelectFilter.setState(_filter);
+		}
+		
+		private function onScriptingPanelStartRecording() : void {
+			isRecording = true;
+			firstRecordingFrame = GlobalState.skippedToFrame.state;
+			nextFrameToRecord = firstRecordingFrame;
+			
+			if (sceneScriptData == null) {
+				sceneScriptData = MarkerSceneScriptData.fromGlobalState(animation);
+			}
+			
+			globalState._isForceStopped.setState(false);
+			globalState._isPlaying.setState(true);
+			GlobalEvents.gotoFrame.emit(firstRecordingFrame);
+			updateRecording();
 		}
 		
 		private function attachScriptMarker(_attachedToState : DisplayObjectState, _pointState : PointState) : void {

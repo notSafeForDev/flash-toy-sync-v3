@@ -26,6 +26,8 @@ package controllers {
 		// Additional states used for updating the global states
 		private var selectedChildExpectedNextFrame : Number = -1;
 		private var wasResumedAfterForceStop : Boolean = false;
+		private var selectedChildParentChainLength : Number = -1;
+		private var selectedChildPath : Array = null;
 		
 		public function AnimationController(_globalState : GlobalState, _panelContainer : MovieClip, _animation : MovieClip, _width : Number, _height : Number) {
 			globalState = _globalState;
@@ -66,13 +68,15 @@ package controllers {
 				return;
 			}
 			
-			if (selectedChild != null && DisplayObjectUtil.getParent(selectedChild) == null) {
-				globalState._selectedChild.setState(null);
-				globalState._currentFrame.setState(-1);
-				globalState._skippedFromFrame.setState(-1);
-				globalState._skippedToFrame.setState(-1);
-				globalState._stoppedAtFrame.setState(-1);
-				return;
+			// Handle when the selectedChild is no longer in the display list
+			if (selectedChild != null && DisplayObjectUtil.getParents(selectedChild).length != selectedChildParentChainLength) {
+				var childFromPath : DisplayObject = DisplayObjectUtil.getChildFromPath(animation, selectedChildPath);
+				if (MovieClipUtil.isMovieClip(childFromPath) == true) {
+					setSelectedChild(MovieClipUtil.objectAsMovieClip(childFromPath));
+				} else {
+					clearSelectedChild();
+					return;
+				}
 			}
 			
 			var currentFrame : Number = selectedChild != null ? MovieClipUtil.getCurrentFrame(selectedChild) : -1;
@@ -110,8 +114,8 @@ package controllers {
 			wasResumedAfterForceStop = false;
 		}
 		
-		private function onChildSelected(_child : DisplayObject) : void {
-			selectedChildExpectedNextFrame = -1; // Expect nothing, since we don't know if it's stopped or not
+		private function onChildSelected(_child : MovieClip) : void {
+			setSelectedChild(_child);
 		}
 		
 		private function onForceStopShortcut() : void {
@@ -213,6 +217,31 @@ package controllers {
 		private function onIncreaseSWFHeightShortcut() : void {
 			globalState._animationHeight.setState(GlobalState.animationHeight.state + 5);
 			GlobalEvents.animationManualResize.emit();
+		}
+		
+		private function clearSelectedChild() : void {
+			globalState._selectedChild.setState(null);
+			globalState._currentFrame.setState(-1);
+			globalState._isPlaying.setState(false);
+			globalState._isForceStopped.setState(false);
+			globalState._skippedFromFrame.setState(-1);
+			globalState._skippedToFrame.setState(-1);
+			globalState._stoppedAtFrame.setState(-1);
+			
+			selectedChildExpectedNextFrame = -1;
+			wasResumedAfterForceStop = false;
+			selectedChildParentChainLength = -1;
+			selectedChildPath = null;
+		}
+		
+		private function setSelectedChild(_child : MovieClip) : void {
+			clearSelectedChild();
+			
+			globalState._selectedChild.setState(_child);
+			globalState._currentFrame.setState(MovieClipUtil.getCurrentFrame(_child));
+			
+			selectedChildParentChainLength = DisplayObjectUtil.getParents(_child).length;
+			selectedChildPath = DisplayObjectUtil.getChildPath(animation, _child);
 		}
 		
 		private function getNextFrame(_movieClip : MovieClip) : Number {

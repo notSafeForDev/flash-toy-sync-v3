@@ -23,7 +23,7 @@ class core.KeyboardManager {
 		
 		inputListener.onKeyDown = function() {
 			// This is very important as there's a bug that causes input events to trigger twice
-			// So by checking if the key is already pressed, we prevent that
+			// So by checking if we have already added a value to the blockPressInput array, we prevent that
 			// Could be related to: https://stackoverflow.com/questions/22012948/keydown-event-fires-twice
 			if (self.blockPressInput.length > 0) {
 				return;

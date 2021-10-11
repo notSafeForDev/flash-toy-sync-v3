@@ -8,7 +8,7 @@ class Main {
 	public static function main(swfRoot:MovieClip) : Void {
 		// entry point
 		StageUtil.initialize(_root, 30); // 30 is the frame rate of this project, which also will be used when loading the swf
-		var index : Index = new Index(_root, "animations/creambee-btsv4.swf");
+		var index : Index = new Index(_root, "animations/midna-3x-pleasure.swf");
 		
 		// List of flash animations and how well the current automation tools will work on them
 		/*

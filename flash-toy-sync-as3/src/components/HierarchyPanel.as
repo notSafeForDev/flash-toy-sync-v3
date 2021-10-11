@@ -283,8 +283,9 @@ package components {
 		}
 		
 		private function onListItemSelect(_index : Number) : void {
-			var child : MovieClip = displayedChildren[_index];
-			onSelectChild.emit(child);
+			if (MovieClipUtil.isMovieClip(displayedChildren[_index]) == true) {
+				onSelectChild.emit(displayedChildren[_index]);
+			}
 		}
 		
 		private function onListItemExpand(_index : Number) : void {
@@ -307,8 +308,10 @@ package components {
 		}
 		
 		private function onListItemToggleMouseSelect(_index : Number) : void {
-			var child : MovieClip = displayedChildren[_index];
-			onToggleMouseSelect.emit(child);
+			if (MovieClipUtil.isMovieClip(displayedChildren[_index]) == true) {
+				var child : MovieClip = displayedChildren[_index];
+				onToggleMouseSelect.emit(child);
+			}
 		}
 	}
 }

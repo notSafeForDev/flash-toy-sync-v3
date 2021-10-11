@@ -55,16 +55,6 @@ package controllers {
 				return;
 			}
 			
-			var currentFrame : Number = MovieClipUtil.getCurrentFrame(_child);
-			
-			globalState._selectedChild.setState(_child);
-			globalState._currentFrame.setState(currentFrame);
-			globalState._isPlaying.setState(false);
-			globalState._isForceStopped.setState(false);
-			globalState._skippedFromFrame.setState(-1);
-			globalState._skippedToFrame.setState(-1);
-			globalState._stoppedAtFrame.setState(-1);
-			
 			GlobalEvents.childSelected.emit(_child);
 		}
 		

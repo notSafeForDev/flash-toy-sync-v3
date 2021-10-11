@@ -421,6 +421,9 @@ function transpileActionScript3To2(actionscript) {
     }
     lines[classLineIndex] = classLineParts.join("");
 
+    // Replace override function with function
+    replaceInActionScriptLines(lines, ["override function"], "function");
+
     // Repace : void with : Void
     replaceInActionScriptLines(lines, [":", "void"], ": Void", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 

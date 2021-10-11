@@ -1,11 +1,11 @@
 package {
 	
-	import core.StageUtil;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
 	
-	import components.ExternalSWF;
+	import core.StageUtil;
 	
 	public class Main extends Sprite {
 		
@@ -27,6 +27,11 @@ package {
 			stage.addChild(container);
 			
 			var index : Index = new Index(container, "animations/karas-nightlife.swf");
+			
+			// Fixes an issue where keyboard input stops registering after having clicked on the external swf
+			stage.addEventListener(FocusEvent.FOCUS_OUT, function(e : FocusEvent) : void {
+				stage.focus = stage;
+			});
 			
 			// List of flash animations and how well the current automation tools will work on them
 			/*

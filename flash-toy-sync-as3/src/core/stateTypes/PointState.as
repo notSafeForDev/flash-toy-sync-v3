@@ -40,7 +40,7 @@ package core.stateTypes {
 		}
 		
 		public function getState() : Point {
-			return value;
+			return value != null ? new Point(value.x, value.y) : null;
 		}
 		
 		public function getPreviousState() : Point {

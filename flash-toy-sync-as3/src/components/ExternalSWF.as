@@ -74,8 +74,14 @@ package components {
 		private function onGotoFrame(_frame : Number) : void {
 			var selectedChild : MovieClip = GlobalState.selectedChild.state;
 			if (selectedChild != null) {
-				forceStoppedChild = selectedChild;
-				selectedChild.gotoAndStop(_frame);
+				if (GlobalState.isForceStopped.state == true) {
+					forceStoppedChild = selectedChild;
+				}
+				if (GlobalState.isPlaying.state == true) {
+					selectedChild.gotoAndPlay(_frame);
+				} else {
+					selectedChild.gotoAndStop(_frame);
+				}
 			}
 		}
 		

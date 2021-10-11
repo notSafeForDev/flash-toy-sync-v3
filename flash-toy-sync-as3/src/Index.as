@@ -93,6 +93,8 @@ package {
 			// We add the onEnterFrame listener on the container, instead of the animation, for better compatibility with AS2
 			// As the contents of _swf can be replaced by the loaded swf file
 			MovieClipEvents.addOnEnterFrame(this, container, onEnterFrame);
+			
+			// animation.gotoAndStop(256); // midna-3x-pleasure
 		}
 		
 		public function onEnterFrame() : void {

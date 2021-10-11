@@ -25,6 +25,7 @@ package components {
 		public var onAttachBaseMarker : CustomEvent;
 		public var onAttachTipMarker : CustomEvent;
 		public var onMouseSelectFilterChange : CustomEvent;
+		public var onStartRecording : CustomEvent;
 		
 		private var attachStimulationMarkerButton : MovieClip;
 		private var attachBaseMarkerButton : MovieClip;
@@ -41,6 +42,7 @@ package components {
 			onAttachBaseMarker = new CustomEvent();
 			onAttachTipMarker = new CustomEvent();
 			onMouseSelectFilterChange = new CustomEvent();
+			onStartRecording = new CustomEvent();
 			
 			attachStimulationMarkerButton = addButton("Attach stim marker", 10);
 			attachBaseMarkerButton = addButton("Attach base marker", 50);
@@ -80,6 +82,7 @@ package components {
 			MouseEvents.addOnMouseDown(this, attachStimulationMarkerButton, onAttachStimulationMarkerButtonClick);
 			MouseEvents.addOnMouseDown(this, attachBaseMarkerButton, onAttachBaseMarkerButtonClick);
 			MouseEvents.addOnMouseDown(this, attachTipMarkerButton, onAttachTipMarkerButtonClick);
+			MouseEvents.addOnMouseDown(this, recordButton, onStartRecordingButtonClick);
 			
 			GlobalState.listen(this, onStatesChange, [
 				GlobalState.clickedChild, GlobalState.selectedChild, GlobalState.baseMarkerAttachedTo, GlobalState.stimulationMarkerAttachedTo, GlobalState.tipMarkerAttachedTo
@@ -100,7 +103,7 @@ package components {
 		}
 		
 		private function updateButtons() : void {
-			var canAttachMarkers : Boolean = GlobalState.clickedChild.state != null || GlobalState.selectedChild.state != null;
+			var canAttachMarkers : Boolean = GlobalState.clickedChild.state != null && GlobalState.selectedChild.state != null;
 			
 			var alpha : Number = canAttachMarkers ? 1 : 0.5;
 			
@@ -131,6 +134,10 @@ package components {
 			onAttachTipMarker.emit();
 		}
 		
+		private function onStartRecordingButtonClick() : void {
+			onStartRecording.emit();
+		}
+		
 		private function addButton(_text : String, _y : Number) : MovieClip {
 			var button : MovieClip = MovieClipUtil.create(content, _text.split(" ").join(""));
 			button.buttonMode = true;
@@ -156,6 +163,7 @@ package components {
 		
 		private function canRecord() : Boolean {
 			return ArrayUtil.indexOf([
+				GlobalState.selectedChild.state,
 				GlobalState.stimulationMarkerAttachedTo.state, 
 				GlobalState.baseMarkerAttachedTo.state, 
 				GlobalState.tipMarkerAttachedTo.state

@@ -38,7 +38,7 @@ package core.stateTypes {
 		}
 		
 		public function getState() : Array {
-			return value.slice();
+			return value != null ? value.slice() : null;
 		}
 		
 		public function getPreviousState() : Array {

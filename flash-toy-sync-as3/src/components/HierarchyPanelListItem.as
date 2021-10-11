@@ -54,7 +54,6 @@ package components {
 			onToggleMouseSelect = new CustomEvent();
 			
 			background = MovieClipUtil.create(_parent, "background" + _index);
-			background.useHandCursor = true;
 			background.buttonMode = true;
 			
 			clickedChildIcon = MovieClipUtil.create(background, "disableClickIcon");
@@ -129,6 +128,8 @@ package components {
 		}
 		
 		public function update(_child : DisplayObject, _depth : Number, _isExpandable : Boolean, _isExpanded : Boolean) : void {
+			background.buttonMode = MovieClipUtil.isMovieClip(_child);
+			
 			depth = _depth;
 			if (_child != child || _isExpandable != isExpandable || _isExpanded != isExpanded) {
 				child = _child;
@@ -171,7 +172,7 @@ package components {
 		
 		private function onBackgroundMouseOver() : void {
 			isMouseOver = true;
-			if (isMouseSelectEnabled == true) {
+			if (isMouseSelectEnabled == true && MovieClipUtil.isMovieClip(child) == true) {
 				DisplayObjectUtil.setAlpha(mouseSelectableIcon, 0.5);
 			}
 		}

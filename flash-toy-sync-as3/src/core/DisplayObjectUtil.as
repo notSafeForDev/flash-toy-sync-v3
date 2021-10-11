@@ -182,7 +182,7 @@ package core {
 		 * @param	_object		The object to get the parent from
 		 * @return	The parent
 		 */
-		public static function getParent(_object : DisplayObject) : DisplayObject {
+		public static function getParent(_object : DisplayObject) : DisplayObjectContainer {
 			return _object.parent;
 		}
 		
