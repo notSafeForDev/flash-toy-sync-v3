@@ -6,9 +6,10 @@ class core.stateTypes.MovieClipState {
 	
 	private var value : MovieClip;
 	private var PreviousValue : MovieClip;
-	private var listeners : Array = [];
+	private var listeners : Array;
 	
 	public function MovieClipState(_default : MovieClip) {
+		listeners = [];
 		PreviousValue = _default != undefined ? _default : null;
 		value = _default != undefined ? _default : null;
 	}

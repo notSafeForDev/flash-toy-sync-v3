@@ -8,9 +8,10 @@ package core.stateTypes {
 		
 		private var value : Boolean;
 		private var previousValue : Boolean;
-		private var listeners : Array = [];
+		private var listeners : Array;
 		
 		public function BooleanState(_default : Boolean = false) {
+			listeners = [];
 			previousValue = _default;
 			value = _default;
 		}

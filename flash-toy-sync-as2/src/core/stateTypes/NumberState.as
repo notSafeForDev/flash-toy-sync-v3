@@ -6,9 +6,10 @@ class core.stateTypes.NumberState {
 	
 	private var value : Number;
 	private var PreviousValue : Number;
-	private var listeners : Array = [];
+	private var listeners : Array;
 	
 	public function NumberState(_default : Number) {
+		listeners = [];
 		PreviousValue = _default != undefined ? _default : 0;
 		value = _default != undefined ? _default : 0;
 	}

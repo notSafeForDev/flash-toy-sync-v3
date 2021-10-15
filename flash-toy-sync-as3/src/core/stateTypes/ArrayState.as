@@ -8,11 +8,12 @@ package core.stateTypes {
 		
 		private var value : Array;
 		private var previousValue : Array;
-		private var listeners : Array = [];
+		private var listeners : Array;
 		
 		public function ArrayState(_default : Array = null) {
 			previousValue = _default;
 			value = _default;
+			listeners = [];
 		}
 		
 		public function listen(_scope : *, _handler : Function) : Object {
@@ -35,6 +36,21 @@ package core.stateTypes {
 			}
 			previousValue = value;
 			value = _value;
+		}
+		
+		public function push(_value : *) : void {
+			var state : Array = getState();
+			state.push(_value);
+			setState(state);
+		}
+		
+		public function remove(_value : * ) : void {
+			var state : Array = getState();
+			var index : Number = state.indexOf(_value);
+			if (index >= 0) {
+				state.splice(index, 1);
+				setState(state);
+			}
 		}
 		
 		public function getState() : Array {

@@ -6,9 +6,10 @@ class core.stateTypes.StringState {
 	
 	private var value : String;
 	private var PreviousValue : String;
-	private var listeners : Array = [];
+	private var listeners : Array;
 	
 	public function StringState(_default : String) {
+		listeners = [];
 		PreviousValue = _default != undefined ? _default : null;
 		value = _default != undefined ? _default : null;
 	}

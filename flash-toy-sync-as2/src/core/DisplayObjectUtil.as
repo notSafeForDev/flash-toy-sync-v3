@@ -17,7 +17,7 @@ class core.DisplayObjectUtil {
 			name += "#";
 		}
 		
-		name += getChildIndex(_child).toString();
+		name += _child._parent != null ? getChildIndex(_child).toString() : "-1";
 		return name;
 	}
 	
@@ -126,6 +126,19 @@ class core.DisplayObjectUtil {
 		}
 		
 		return children;
+	}
+	
+	public static function isNested(_topParent : MovieClip, _child : MovieClip) : Boolean {
+		if (_child == null) {
+			return false;
+		}
+		var parents : Array = getParents(_child);
+		for (var i : Number = 0; i < parents.length; i++) {
+			if (parents[i] == _topParent) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public static function hitTest(_object : MovieClip, _stageX : Number, _stageY : Number, _shapeFlag : Boolean) : Boolean {

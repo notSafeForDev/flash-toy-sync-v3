@@ -1,76 +1,91 @@
 package components {
 	
+	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
-	
-	import core.CustomEvent;
+	import flash.geom.Rectangle;
+
 	import core.DisplayObjectUtil;
-	import core.DraggableObject;
-	import core.Fonts;
-	import core.GraphicsUtil;
-	import core.MovieClipUtil;
-	import core.TextElement;
-	
-	import config.TextStyles;
+	import core.stateTypes.DisplayObjectState;
+	import core.stateTypes.PointState;
 	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
 	public class ScriptMarker {
-		public var onStopDrag : CustomEvent;
 		
-		public var isDragging : Boolean;
+		private var animation : MovieClip;
 		
-		public var movieClip : MovieClip;
+		private var element : ScriptMarkerElement;
+		private var attachedToState : DisplayObjectState;
+		private var pointState : PointState;
 		
-		public function ScriptMarker(_parent : MovieClip, _color : Number, _text : String) {
-			onStopDrag = new CustomEvent();
+		private var attachedToReference : DisplayObjectReference;
+		
+		public function ScriptMarker(_animation : MovieClip, _element : ScriptMarkerElement, _attachedToState : DisplayObjectState, _pointState : PointState) {
+			animation = _animation;
+			element = _element;
+			attachedToState = _attachedToState;
+			pointState = _pointState;
 			
-			movieClip = MovieClipUtil.create(_parent, _text.toLowerCase() + "Marker");
-			movieClip.buttonMode = true;
-			GraphicsUtil.beginFill(movieClip, _color, 0.5);
-			GraphicsUtil.drawCircle(movieClip, 0, 0, 10);
+			element.onStopDrag.listen(this, onElementStopDrag);
+		}
+		
+		public function attachTo(_child : DisplayObject) : void {
+			var parent : DisplayObjectContainer = DisplayObjectUtil.getParent(element.element);
+			var bounds : Rectangle = DisplayObjectUtil.getBounds(_child, parent);
+			var centerX : Number = bounds.x + bounds.width / 2;
+			var centerY : Number = bounds.y + bounds.height / 2;
+			var point : Point = DisplayObjectUtil.globalToLocal(_child, centerX, centerY);
 			
-			var text : TextElement = new TextElement(movieClip, _text, TextElement.AUTO_SIZE_LEFT);
-			text.setAutoSize(TextElement.AUTO_SIZE_CENTER); // Setting it left and then center is required to make this work, for some reason
-			text.setMouseEnabled(false);
-			text.setY(-9);
-			TextStyles.applyMarkerStyle(text);
+			attachedToState.setState(_child);
+			pointState.setState(point);
+			attachedToReference = new DisplayObjectReference(animation, _child);
+		}
+		
+		public function update() : void {
+			if (attachedToState.getState() == null) {
+				element.setVisible(false);
+				return;
+			}
 			
-			var draggable : DraggableObject = new DraggableObject(movieClip, movieClip);
-			draggable.onStartDrag.listen(this, _onStartDrag);
-			draggable.onStopDrag.listen(this, _onStopDrag);
-			draggable.bringToFrontOnDrag = true;
+			attachedToReference.update();
+			
+			if (DisplayObjectUtil.isNested(animation, attachedToState.getState()) == false) {
+				var replacement : DisplayObject = attachedToReference.getObject();
+				if (replacement != null) {
+					attachedToState.setState(replacement);
+				} else {
+					attachedToState.setState(null);
+					pointState.setState(null);
+					attachedToReference = null;
+					return;
+				}
+			}
+			
+			element.setVisible(true);
+			
+			if (element.isDragging == true) {
+				return;
+			}
+			
+			var globalPoint : Point = DisplayObjectUtil.localToGlobal(attachedToState.getState(), pointState.getState().x, pointState.getState().y);
+			
+			element.setX(globalPoint.x);
+			element.setY(globalPoint.y);
 		}
 		
-		private function _onStartDrag() : void {
-			isDragging = true;
+		public function detatch() : void {
+			attachedToState.setState(null);
+			pointState.setState(null);
+			attachedToReference = null;
 		}
 		
-		private function _onStopDrag() : void {
-			isDragging = false;
-			onStopDrag.emit();
-		}
-		
-		public function setVisible(_state : Boolean) : void {
-			DisplayObjectUtil.setVisible(movieClip, _state);
-		}
-		
-		public function setX(_x : Number) : void {
-			DisplayObjectUtil.setX(movieClip, _x);
-		}
-		
-		public function setY(_y : Number) : void {
-			DisplayObjectUtil.setY(movieClip, _y);
-		}
-		
-		public function getX() : Number {
-			return DisplayObjectUtil.getX(movieClip);
-		}
-		
-		public function getY() : Number {
-			return DisplayObjectUtil.getY(movieClip);
+		private function onElementStopDrag() : void {
+			var point : Point = DisplayObjectUtil.globalToLocal(attachedToState.getState(), element.getX(), element.getY());
+			pointState.setState(point);
 		}
 	}
 }

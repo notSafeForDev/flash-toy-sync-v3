@@ -8,9 +8,10 @@ package core.stateTypes {
 		
 		private var value : String;
 		private var previousValue : String;
-		private var listeners : Array = [];
+		private var listeners : Array;
 		
 		public function StringState(_default : String = "") {
+			listeners = [];
 			previousValue = _default;
 			value = _default;
 		}

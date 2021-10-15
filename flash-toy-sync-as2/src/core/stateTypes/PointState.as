@@ -8,9 +8,10 @@ class core.stateTypes.PointState {
 	
 	private var value : Point;
 	private var PreviousValue : Point;
-	private var listeners : Array = [];
+	private var listeners : Array;
 	
 	public function PointState(_default : Point) {
+		listeners = [];
 		PreviousValue = _default != undefined ? _default : null;
 		value = _default != undefined ? _default : null;
 	}
@@ -35,7 +36,7 @@ class core.stateTypes.PointState {
 	}
 	
 	public function getState() : Point {
-		return value;
+		return value != null ? new Point(value.x, value.y) : null;
 	}
 	
 	public function getPreviousValue() : Point {

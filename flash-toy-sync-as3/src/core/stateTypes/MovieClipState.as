@@ -10,9 +10,10 @@ package core.stateTypes {
 		
 		private var value : MovieClip;
 		private var previousValue : MovieClip;
-		private var listeners : Array = [];
+		private var listeners : Array;
 		
 		public function MovieClipState(_default : MovieClip = null) {
+			listeners = [];
 			previousValue = _default;
 			value = _default;
 		}

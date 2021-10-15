@@ -1,13 +1,13 @@
 package core {
 	
-	import core.stateTypes.ArrayState;
-	import core.stateTypes.ArrayStateReference;
-	import core.stateTypes.StringState;
-	import core.stateTypes.StringStateReference;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	
+	import core.stateTypes.ArrayState;
+	import core.stateTypes.ArrayStateReference;
+	import core.stateTypes.StringState;
+	import core.stateTypes.StringStateReference;
 	import core.stateTypes.BooleanState;
 	import core.stateTypes.BooleanStateReference;
 	import core.stateTypes.MovieClipState;
@@ -26,15 +26,16 @@ package core {
 	 */
 	public class StateManager {
 		
-		private var listeners : Array = [];
-		private var states : Array;
-		private var references : Array;
-		private var lastNotificationStateValues : Array;
+		protected var listeners : Array;
+		protected var states : Array;
+		protected var references : Array;
+		protected var lastNotificationStateValues : Array;
 		
 		/**
 		 * Used to hold different states, with the ability to listen for changes to specific state changes
 		 */
 		public function StateManager() {
+			listeners = [];
 			states = [];
 			references = [];
 			lastNotificationStateValues = [];

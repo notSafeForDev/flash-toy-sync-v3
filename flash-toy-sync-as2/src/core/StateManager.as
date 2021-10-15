@@ -21,12 +21,13 @@ import flash.geom.Point;
  */
 class core.StateManager {
 	
-	private var listeners : Array = [];
-	private var states : Array;
-	private var references : Array;
-	private var lastNotificationStateValues : Array;
+	public var listeners : Array;
+	public var states : Array;
+	public var references : Array;
+	public var lastNotificationStateValues : Array;
 	
 	public function StateManager() {
+		listeners = [];
 		states = [];
 		references = [];
 		lastNotificationStateValues = [];

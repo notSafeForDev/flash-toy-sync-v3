@@ -10,20 +10,16 @@ package global {
 		
 		public static var enterFrame : CustomEvent;
 		public static var animationManualResize : CustomEvent;
-		public static var forceStopSelectedChild : CustomEvent;
-		public static var resumePlayingSelectedChild : CustomEvent;
-		public static var stepFrames : CustomEvent;
-		public static var gotoFrame : CustomEvent;
 		public static var childSelected : CustomEvent;
+		public static var stopAtSceneStart : CustomEvent;
+		public static var playFromSceneStart : CustomEvent;
 		
 		public static function init() : void {
 			enterFrame = new CustomEvent();
 			animationManualResize = new CustomEvent();
-			forceStopSelectedChild = new CustomEvent();
-			resumePlayingSelectedChild = new CustomEvent();
-			stepFrames = new CustomEvent();
-			gotoFrame = new CustomEvent();
 			childSelected = new CustomEvent();
+			stopAtSceneStart = new CustomEvent();
+			playFromSceneStart = new CustomEvent();
 		}
 	}
 }

@@ -1,8 +1,6 @@
 package global {
 	
-	import core.ArrayUtil;
 	import core.StageUtil;
-	import core.StateManager;
 	import core.stateTypes.ArrayState;
 	import core.stateTypes.ArrayStateReference;
 	import core.stateTypes.DisplayObjectState;
@@ -11,7 +9,6 @@ package global {
 	import core.stateTypes.PointStateReference;
 	import core.stateTypes.StringState;
 	import core.stateTypes.StringStateReference;
-	
 	import core.stateTypes.BooleanState;
 	import core.stateTypes.BooleanStateReference;
 	import core.stateTypes.MovieClipState;
@@ -19,13 +16,17 @@ package global {
 	import core.stateTypes.NumberState;
 	import core.stateTypes.NumberStateReference;
 	
+	import components.CustomStateManager;
+	import components.stateTypes.SceneState;
+	import components.stateTypes.SceneStateReference;
+	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
 	public class GlobalState {
 		
-		private static var stateManager : StateManager;
+		private static var stateManager : CustomStateManager;
 		
 		// The actual states are only accessible on a single instance of GlobalState
 		// They start with an underscore, as AS2 can't have more than one property with the same same, even if the accessor is different
@@ -105,11 +106,21 @@ package global {
 		public var _disabledMouseSelectForChildren : ArrayState;
 		public static var disabledMouseSelectForChildren : ArrayStateReference;
 		
-		/** parts of words to use to filter out elements that can be clicked */
+		/** Parts of words to use to filter out elements that can be clicked */
 		public var _mouseSelectFilter : StringState;
 		public static var mouseSelectFilter : StringStateReference;
 		
-		public function GlobalState(_stateManager : StateManager) {
+		public var _scenes : ArrayState;
+		public static var scenes : ArrayStateReference;
+		
+		public var _currentScene : SceneState;
+		public static var currentScene : SceneStateReference;
+		
+		/** All the scripted scenes */
+		public var _sceneScripts : ArrayState;
+		public static var sceneScripts : ArrayStateReference;
+		
+		public function GlobalState(_stateManager : CustomStateManager) {
 			if (GlobalState.stateManager != null) {
 				throw "Unable to create a new instance of GlobalState, there can only be one instance of it";
 			}
@@ -207,6 +218,21 @@ package global {
 			added = _stateManager.addStringState("");
 			_mouseSelectFilter = added.state;
 			GlobalState.mouseSelectFilter = added.reference;
+			
+			// scenes
+			added = _stateManager.addArrayState([]);
+			_scenes = added.state;
+			GlobalState.scenes = added.reference;
+			
+			// currentScene
+			added = _stateManager.addSceneState(null);
+			_currentScene = added.state;
+			GlobalState.currentScene = added.reference;
+			
+			// dataForScriptedScenes
+			added = _stateManager.addArrayState([]);
+			_sceneScripts = added.state;
+			GlobalState.sceneScripts = added.reference;
 		}
 		
 		public static function listen(_scope : * , _handler : Function, _stateReferences : Array) : void {

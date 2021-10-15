@@ -31,7 +31,7 @@ package core {
 				name += "#";
 			}
 			
-			name += _child.parent.getChildIndex(_child);
+			name += _child.parent != null ? _child.parent.getChildIndex(_child) : "-1";
 			return name;
 		}
 		
@@ -153,6 +153,20 @@ package core {
 			}
 			
 			return children;
+		}
+		
+		/**
+		 * Checks if a child is nested under a parent
+		 * @param	_topParent	
+		 * @param	_child
+		 * @return 	Whether the child is nested
+		 */
+		public static function isNested(_topParent : DisplayObjectContainer, _child : DisplayObject) : Boolean {
+			if (_child == null) {
+				return false;
+			}
+			var parents : Array = getParents(_child);
+			return parents.indexOf(_topParent) >= 0;
 		}
 		
 		/**

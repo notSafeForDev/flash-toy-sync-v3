@@ -6,9 +6,10 @@ class core.stateTypes.BooleanState {
 	
 	private var value : Boolean;
 	private var PreviousValue : Boolean;
-	private var listeners : Array = [];
+	private var listeners : Array;
 	
 	public function BooleanState(_default : Boolean) {
+		listeners = [];
 		PreviousValue = _default != undefined ? _default : false;
 		value = _default != undefined ? _default : false;
 	}

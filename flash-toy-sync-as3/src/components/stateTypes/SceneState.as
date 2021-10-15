@@ -1,18 +1,18 @@
-package core.stateTypes {
+package components.stateTypes {
 	
-	import flash.display.DisplayObject;
+	import components.Scene;
 	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class DisplayObjectState {
+	public class SceneState {
 		
-		private var value : DisplayObject;
-		private var previousValue : DisplayObject;
+		private var value : Scene;
+		private var previousValue : Scene;
 		private var listeners : Array;
 		
-		public function DisplayObjectState(_default : DisplayObject = null) {
+		public function SceneState(_default : Scene) {
 			listeners = [];
 			previousValue = _default;
 			value = _default;
@@ -24,7 +24,7 @@ package core.stateTypes {
 			return listener;
 		}
 		
-		public function setState(_value : DisplayObject) : void {
+		public function setState(_value : Scene) : void {
 			if (_value == value) {
 				return;
 			}
@@ -40,11 +40,11 @@ package core.stateTypes {
 			value = _value;
 		}
 		
-		public function getState() : DisplayObject {
+		public function getState() : Scene {
 			return value;
 		}
 		
-		public function getPreviousState() : DisplayObject {
+		public function getPreviousState() : Scene {
 			return previousValue;
 		}
 	}

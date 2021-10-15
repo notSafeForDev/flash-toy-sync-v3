@@ -14,11 +14,13 @@ package {
 	import global.GlobalEvents;
 	import global.GlobalState;
 	
-	import controllers.AnimationController;
+	import controllers.AnimationScalingController;
 	import controllers.ScriptingController;
 	import controllers.HierarchyPanelController;
 	import controllers.ToysController;
+	import controllers.ScenesController;
 	
+	import components.CustomStateManager;
 	import components.Borders;
 	import components.ExternalSWF;
 	import components.DebugPanel;
@@ -28,14 +30,7 @@ package {
 	 * @author notSafeForDev
 	 */
 	public class Index {
-		// Remove extra s later
-		/* [Embed(source = "../assets/Monoid-Regular.ttf", fontName = "MonoidRegular", embedAsCFF = "false", mimeType="application/x-font")]
-		private var monoidRegular : Classs;
-		
-		[Embed(source = "../assets/Monoid-Bold.ttf", fontName = "MonoidBold", embedAsCFF = "false", mimeType="application/x-font")]
-		private var monoidBold : Classs; */
-		
-		private var globalStateManager : StateManager;
+		private var globalStateManager : CustomStateManager;
 		private var globalState : GlobalState;
 		
 		private var container : MovieClip;
@@ -49,7 +44,8 @@ package {
 		private var borders : Borders;
 		private var debugPanel : DebugPanel;
 		
-		private var animationController : AnimationController;
+		private var scenesController : ScenesController;
+		private var animationScalingController : AnimationScalingController;
 		private var hierarchyPanelController : HierarchyPanelController;
 		private var scriptingController : ScriptingController;
 		private var toysController : ToysController;
@@ -61,7 +57,7 @@ package {
 			
 			GlobalEvents.init();
 			
-			globalStateManager = new StateManager();
+			globalStateManager = new CustomStateManager();
 			globalState = new GlobalState(globalStateManager);
 			
 			container = _container;
@@ -82,7 +78,8 @@ package {
 			
 			animation = _swf;
 			
-			animationController = new AnimationController(globalState, panelContainer, animation, _width, _height);
+			scenesController = new ScenesController(globalState, animation);
+			animationScalingController = new AnimationScalingController(globalState, animation, _width, _height);
 			hierarchyPanelController = new HierarchyPanelController(globalState, panelContainer, animation);
 			scriptingController = new ScriptingController(globalState, panelContainer, animation, overlayContainer);
 			toysController = new ToysController(globalState, panelContainer);
@@ -104,7 +101,7 @@ package {
 			
 			var startTime : Number = Debug.getTime();
 			
-			animationController.onEnterFrame();
+			scenesController.onEnterFrame();
 			scriptingController.onEnterFrame();
 			
 			globalStateManager.notifyListeners();
@@ -113,7 +110,7 @@ package {
 			// trace(endTime - startTime);
 			
 			// For animations that hides the cursor, make it always visible
-			// Later it should only work like this while in the editor
+			// TODO: Only make it work like this while in the editor
 			Mouse.show();
 		}
 		

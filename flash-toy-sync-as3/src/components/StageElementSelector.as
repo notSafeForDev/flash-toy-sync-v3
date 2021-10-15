@@ -1,6 +1,5 @@
 package components {
 	
-	import core.ArrayUtil;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
@@ -8,6 +7,7 @@ package components {
 	import flash.geom.Rectangle;
 	import flash.ui.Keyboard;
 	
+	import core.ArrayUtil;
 	import core.Timeout;
 	import core.KeyboardManager;
 	import core.StageUtil;
@@ -72,7 +72,7 @@ package components {
 				drawBoundsForObject(GlobalState.selectedChild.state);
 			}
 			
-			if (tempRef != null) {
+			if (tempRef != null && GlobalState.clickedChild.state != null) {
 				drawBounds(tempRef.getBounds(overlay), DisplayObjectUtil.isShape(tempRef.getObject()));
 			}
 		}
@@ -99,7 +99,7 @@ package components {
 			
 			if (childAtCursor != null) {
 				onSelectChild.emit(childAtCursor);
-				tempRef = new DisplayObjectReference(childAtCursor);
+				tempRef = new DisplayObjectReference(container, childAtCursor);
 			}
 		}
 		

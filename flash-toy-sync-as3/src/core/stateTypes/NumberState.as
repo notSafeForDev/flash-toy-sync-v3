@@ -7,9 +7,10 @@ package core.stateTypes {
 		
 		private var value : Number;
 		private var previousValue : Number;
-		private var listeners : Array = [];
+		private var listeners : Array;
 		
 		public function NumberState(_default : Number = 0) {
+			listeners = [];
 			previousValue = _default;
 			value = _default;
 		}

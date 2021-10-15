@@ -103,7 +103,7 @@ package components {
 		}
 		
 		private function updateButtons() : void {
-			var canAttachMarkers : Boolean = GlobalState.clickedChild.state != null && GlobalState.selectedChild.state != null;
+			var canAttachMarkers : Boolean = GlobalState.selectedChild.state != null;
 			
 			var alpha : Number = canAttachMarkers ? 1 : 0.5;
 			
@@ -162,12 +162,15 @@ package components {
 		}
 		
 		private function canRecord() : Boolean {
-			return ArrayUtil.indexOf([
+			var dependencies : Array = [
+				GlobalState.currentScene.state,
 				GlobalState.selectedChild.state,
-				GlobalState.stimulationMarkerAttachedTo.state, 
-				GlobalState.baseMarkerAttachedTo.state, 
+				GlobalState.stimulationMarkerAttachedTo.state,
+				GlobalState.baseMarkerAttachedTo.state,
 				GlobalState.tipMarkerAttachedTo.state
-			], null) < 0;
+			];
+			
+			return ArrayUtil.indexOf(dependencies, null) < 0;
 		}
 	}
 }

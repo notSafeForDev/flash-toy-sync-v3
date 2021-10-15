@@ -16,22 +16,42 @@ package components {
 	 */
 	public class DisplayObjectReference {
 		
+		private var topParent : DisplayObjectContainer;
 		private var object : DisplayObject;
+		private var path : Array;
 		private var originalParent : DisplayObjectContainer;
 		private var depth : Number;
 		private var bounds : Rectangle;
 		private var inactiveForFrames : Number;
 		
-		public function DisplayObjectReference(_object : DisplayObject) {
+		public function DisplayObjectReference(_topParent : DisplayObjectContainer, _object : DisplayObject) {
+			topParent = _topParent;
 			object = _object;
 			
 			var parents : Array = DisplayObjectUtil.getParents(object);
 			
+			if (DisplayObjectUtil.isShape(object) == false) {
+				path = DisplayObjectUtil.getChildPath(topParent, object);
+			}
+			
 			originalParent = parents[0];
 			depth = parents.length;
 			bounds = DisplayObjectUtil.getBounds(object, originalParent);
+		}
+		
+		public function update() : void {
+			var parents : Array = DisplayObjectUtil.getParents(object);
+			if (hasValidParent() == true) {
+				bounds = DisplayObjectUtil.getBounds(object, originalParent);
+			} else {
+				handleParentLoss();
+			}
 			
-			GlobalState.listen(this, onCurrentFrameStateChange, [GlobalState.currentFrame]); // TODO: add stopListening function
+			if (hasValidParent() == true) {
+				inactiveForFrames = 0;
+			} else {
+				inactiveForFrames++;
+			}
 		}
 		
 		public function getObject() : DisplayObject {
@@ -59,25 +79,19 @@ package components {
 			return DisplayObjectUtil.getParent(object) != null && parents.length == depth;
 		}
 		
-		private function onCurrentFrameStateChange() : void {
-			var parents : Array = DisplayObjectUtil.getParents(object);
-			if (hasValidParent() == true) {
-				bounds = DisplayObjectUtil.getBounds(object, originalParent);
-			} else {
-				handleParentLoss();
-			}
-			
-			if (hasValidParent() == true) {
-				inactiveForFrames = 0;
-			} else {
-				inactiveForFrames++;
-			}
-		}
-		
 		private function handleParentLoss() : void {
 			var children : Array = DisplayObjectUtil.getChildren(originalParent);
 			var sizeThreshold : Number = 0.05;
 			var positionThreshold : Number = 20;
+			
+			if (DisplayObjectUtil.isShape(object) == false) {
+				var childFromPath : DisplayObject = DisplayObjectUtil.getChildFromPath(topParent, path);
+				if (childFromPath != null) {
+					object = childFromPath;
+					bounds = DisplayObjectUtil.getBounds(childFromPath, originalParent);
+					return;
+				}
+			}
 			
 			for (var i : Number = 0; i < children.length; i++) {
 				var child : DisplayObject = children[i];

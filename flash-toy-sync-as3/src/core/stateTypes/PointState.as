@@ -10,9 +10,10 @@ package core.stateTypes {
 		
 		private var value : Point;
 		private var previousValue : Point;
-		private var listeners : Array = [];
+		private var listeners : Array;
 		
 		public function PointState(_default : Point = null) {
+			listeners = [];
 			previousValue = _default;
 			value = _default;
 		}

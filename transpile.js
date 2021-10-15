@@ -290,6 +290,9 @@ function replaceInActionScriptLines(lines, words, replaceWith, mustEndWith = -1)
 }
 
 function getStringBetween(string, leftPart, rightPart) {
+    if (string === undefined) {
+        console.log(leftPart, rightPart);
+    }
     return string.substring(string.indexOf(leftPart) + leftPart.length, string.indexOf(rightPart));
 }
 
@@ -324,6 +327,7 @@ function validateActionscript3ForTranspilation(actionscript) {
     // There should be a warning for any of the custom event listeners, where you have to pass "this", if you also pass an annonymous function, or a function that isn't declared in the same file
     // Annonymous functions tend to cause issues, invalidate if found
     // For loops, in AS2, the iterator variable can't be defined in one loop, and then reused again in later loop, if it's the same name, it has to be defined before both loops
+    // TODO: Handle when a file have been removed from the as3 version, as it will attempt to transpile a file that have already been transpiled
 
     if (warnings.length > 0) {
         console.log(warnings.join("\n"));
@@ -370,9 +374,7 @@ function transpileActionScript3To2(actionscript) {
 
     // Import everything from the base package, incase something else from it is being used, as AS3 doesn't require import for that
     if (packageName !== "") {
-        const packageNameStart = packageName.split(".")[0];
-        lines.unshift("");
-        lines.unshift("import " + packageNameStart + ".*");
+        lines.unshift("import " + packageName + ".*");
     }
 
     // Add transpiler info
@@ -423,6 +425,10 @@ function transpileActionScript3To2(actionscript) {
 
     // Replace override function with function
     replaceInActionScriptLines(lines, ["override function"], "function");
+
+    // Remove protected
+    replaceInActionScriptLines(lines, ["protected function"], "public function");
+    replaceInActionScriptLines(lines, ["protected var"], "public var");
 
     // Repace : void with : Void
     replaceInActionScriptLines(lines, [":", "void"], ": Void", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);

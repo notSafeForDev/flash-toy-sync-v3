@@ -3,7 +3,6 @@ package components {
 	import flash.display.MovieClip;
 	
 	import core.DisplayObjectUtil;
-	import core.MovieClipUtil;
 	import core.StageUtil;
 	import core.CustomEvent;
 	import core.FunctionUtil;
@@ -26,8 +25,6 @@ package components {
 		private var currentTargetX : Number = 0;
 		private var currentTargetY : Number = 0;
 		
-		private var forceStoppedChild : MovieClip = null;
-		
 		public function ExternalSWF(_path : String, _container : MovieClip) {
 			onLoaded = new CustomEvent();
 			onError = new CustomEvent();
@@ -37,11 +34,6 @@ package components {
 			loader.onError =  FunctionUtil.bind(this, _onError);
 			
 			GlobalState.listen(this, onAnimationSizeStateUpdate, [GlobalState.animationWidth, GlobalState.animationHeight]);
-			GlobalState.listen(this, onIsForceStoppedStateUpdate, [GlobalState.isForceStopped]);
-			
-			GlobalEvents.stepFrames.listen(this, onStepFrames);
-			GlobalEvents.gotoFrame.listen(this, onGotoFrame);
-			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
 		private function onAnimationSizeStateUpdate() : void {
@@ -54,44 +46,6 @@ package components {
 			
 			updateTargetValues();
 			updatePositionAndSize();
-		}
-		
-		private function onIsForceStoppedStateUpdate() : void {
-			var selectedChild : MovieClip = GlobalState.selectedChild.state;
-			if (GlobalState.isForceStopped.state == true && GlobalState.selectedChild.state != null) {
-				forceStoppedChild = GlobalState.selectedChild.state;
-				forceStoppedChild.stop();
-			} else if (GlobalState.isForceStopped.state == false && forceStoppedChild != null) {
-				forceStoppedChild.play();
-				forceStoppedChild = null;
-			}
-		}
-		
-		private function onStepFrames(_frames : Number) : void {
-			stepFrames(_frames);
-		}
-		
-		private function onGotoFrame(_frame : Number) : void {
-			var selectedChild : MovieClip = GlobalState.selectedChild.state;
-			if (selectedChild != null) {
-				if (GlobalState.isForceStopped.state == true) {
-					forceStoppedChild = selectedChild;
-				}
-				if (GlobalState.isPlaying.state == true) {
-					selectedChild.gotoAndPlay(_frame);
-				} else {
-					selectedChild.gotoAndStop(_frame);
-				}
-			}
-		}
-		
-		private function stepFrames(_frames : Number) : void {
-			var selectedChild : MovieClip = GlobalState.selectedChild.state;
-			if (selectedChild != null) {
-				forceStoppedChild = selectedChild;
-				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-				selectedChild.gotoAndStop(currentFrame + _frames);
-			}
 		}
 		
 		private function _onLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
@@ -113,10 +67,6 @@ package components {
 		}
 		
 		private function onEnterFrame() : void {
-			if (forceStoppedChild != null) {
-				forceStoppedChild.stop();
-			}
-			
 			var scaleX : Number = DisplayObjectUtil.getScaleX(loadedSWF);
 			var scaleY : Number = DisplayObjectUtil.getScaleY(loadedSWF);
 			
