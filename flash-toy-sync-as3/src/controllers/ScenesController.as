@@ -305,7 +305,7 @@ package controllers {
 					scenes.splice(i, 1);
 					globalState._scenes.setState(scenes.slice());
 					i--;
-					// TODO: Update any script that depended on the previous scene, in a different controller
+					GlobalEvents.scenesMerged.emit(scene, _scene);
 					trace("Found scene to merge with");
 				}
 			}

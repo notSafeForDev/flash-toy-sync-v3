@@ -17,8 +17,6 @@ package components {
 		
 		public var onSceneSelected : CustomEvent;
 		
-		private var contentHeight : Number = 200;
-		private var contentWidth : Number = 200;
 		private var scrollBarWidth : Number = 10;
 		
 		private var scrollContent : MovieClip;
@@ -28,7 +26,7 @@ package components {
 		private var listItems : Array = [];
 		
 		public function ScenesPanel(_parent : MovieClip) {
-			super(_parent, "Scenes", contentWidth, contentHeight);
+			super(_parent, "Scenes", 200, 200);
 			
 			var scrollContainerHeight : Number = contentHeight;
 			

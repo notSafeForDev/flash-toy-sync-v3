@@ -37,18 +37,18 @@ package components {
 		public function DebugPanel(_parent : MovieClip) {
 			super(_parent, "Debug", 200, 240);
 			
-			selectedChildText = addText();
-			clickedChildText = addText();
-			stimulationMarkerAttachedToText = addText();
-			baseMarkerAttachedToText = addText();
-			baseMarkerPointText = addText();
-			tipMarkerAttachedToText = addText();
-			currentFrameText = addText();
-			isForceStoppedText = addText();
-			isPlayingText = addText();
-			skippedFromFrameText = addText();
-			skippedToFrameText = addText();
-			stoppedAtFrameText = addText();
+			selectedChildText = addText("", 20);
+			clickedChildText = addText("", 20);
+			stimulationMarkerAttachedToText = addText("", 20);
+			baseMarkerAttachedToText = addText("", 20);
+			baseMarkerPointText = addText("", 20);
+			tipMarkerAttachedToText = addText("", 20);
+			currentFrameText = addText("", 20);
+			isForceStoppedText = addText("", 20);
+			isPlayingText = addText("", 20);
+			skippedFromFrameText = addText("", 20);
+			skippedToFrameText = addText("", 20);
+			stoppedAtFrameText = addText("", 20);
 			
 			GlobalState.listen(this, onAnyStateUpdate, []);
 		}
@@ -80,17 +80,6 @@ package components {
 				return _prefix + ": null";
 			}
 			return _prefix + ": " + "x:" + Math.round(_point.x) + ", y:" + Math.round(_point.y);
-		}
-		
-		private function addText() : TextElement {
-			var textElement : TextElement = new TextElement(content);
-			textElement.element.textColor = 0xFFFFFF;
-			textElement.setY(totalAddedTexts * 20);
-			textElement.setWidth(200);
-			TextStyles.applyListItemStyle(textElement);
-			totalAddedTexts++;
-			
-			return textElement;
 		}
 	}
 }

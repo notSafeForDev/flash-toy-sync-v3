@@ -17,15 +17,15 @@ package components {
 	 * @author notSafeForDev
 	 */
 	public class ScriptMarkerElement {
-		public var onStopDrag : CustomEvent;
+		public var onStopDrag : CustomEvent = null;
 		
-		public var isDragging : Boolean;
+		public var isDragging : Boolean = false;
 		
-		public var element : MovieClip;
+		public var element : MovieClip = null;
 		
-		public var draggable : DraggableObject;
+		public var draggable : DraggableObject = null;
 		
-		protected var color : Number;
+		protected var color : Number = 0xFFFFFF;
 		
 		public function ScriptMarkerElement(_parent : MovieClip, _color : Number, _text : String) {
 			onStopDrag = new CustomEvent();

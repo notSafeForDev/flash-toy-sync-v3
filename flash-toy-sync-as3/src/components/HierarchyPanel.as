@@ -21,8 +21,6 @@ package components {
 	 */
 	public class HierarchyPanel extends Panel {
 		
-		private var contentWidth : Number = 250;
-		private var contentHeight : Number = 300;
 		private var scrollBarWidth : Number = 10;
 		private var toggleBarHeight : Number = 20;
 		
@@ -49,10 +47,7 @@ package components {
 		public var onToggleMouseSelect : CustomEvent;
 		
 		public function HierarchyPanel(_parent : MovieClip, _animationContainer : MovieClip) {
-			super(_parent, "Hierarchy", contentWidth, contentHeight);
-		
-			// TODO: Add a text field showing the name of the last clicked child
-			// And a way to add it to a text area where you can filter out names
+			super(_parent, "Hierarchy", 250, 300);
 
 			animationContainer = _animationContainer;
 			
@@ -155,9 +150,6 @@ package components {
 			var i : Number = 0;
 			var child : DisplayObject;
 			var parent : MovieClip;
-			
-			// Each index of this array corresponds to each nested child, with each value corresponding to the number of children it has
-			// We use this to determine if a list item should be expandable
 			
 			var elapsedTimeExcludedChildren : Number = Debug.getTime() - latestTime;
 			latestTime = Debug.getTime();

@@ -1,6 +1,5 @@
 package {
 	
-	import controllers.ScriptSampleMarkersController;
 	import flash.display.MovieClip;
 	import flash.ui.Mouse;
 	
@@ -15,6 +14,7 @@ package {
 	
 	import controllers.AnimationScalingController;
 	import controllers.ScriptMarkersController;
+	import controllers.ScriptSampleMarkersController;
 	import controllers.ScriptRecordingController;
 	import controllers.HierarchyPanelController;
 	import controllers.ToysController;
@@ -26,6 +26,8 @@ package {
 	import components.DebugPanel;
 	import components.ScenesPanel;
 	import components.ScriptingPanel;
+	import components.HierarchyPanel;
+	import components.ToyPanel;
 	
 	/**
 	 * ...
@@ -81,21 +83,28 @@ package {
 			
 			animation = _swf;
 			
-			var debugPanel : DebugPanel = new DebugPanel(container);
-			debugPanel.setPosition(700, 0);
-			
-			var scriptingPanel : ScriptingPanel = new ScriptingPanel(panelContainer);
-			scriptingPanel.setPosition(700, 300);
+			var hierarchyPanel : HierarchyPanel = new HierarchyPanel(panelContainer, animation);
+			hierarchyPanel.setPosition(0, 0);
 			
 			var scenesPanel : ScenesPanel = new ScenesPanel(panelContainer);
+			scenesPanel.setPosition(0, 350);
+			
+			var toyPanel : ToyPanel = new ToyPanel(panelContainer);
+			toyPanel.setPosition(1280 - 150, 500);
+			
+			var debugPanel : DebugPanel = new DebugPanel(panelContainer);
+			debugPanel.setPosition(1280 - 200, 720 - 20);
+			
+			var scriptingPanel : ScriptingPanel = new ScriptingPanel(panelContainer);
+			scriptingPanel.setPosition(1280 - 200, 0);
 			
 			scenesController = new ScenesController(globalState, animation);
 			animationScalingController = new AnimationScalingController(globalState, animation, _width, _height);
-			hierarchyPanelController = new HierarchyPanelController(globalState, panelContainer, animation);
+			hierarchyPanelController = new HierarchyPanelController(globalState, hierarchyPanel, animation);
 			scriptSampleMarkersController = new ScriptSampleMarkersController(globalState, animation, overlayContainer);
 			scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer);
 			scriptRecordingController = new ScriptRecordingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
-			toysController = new ToysController(globalState, panelContainer);
+			toysController = new ToysController(globalState, toyPanel);
 			
 			// We add the onEnterFrame listener on the container, instead of the animation, for better compatibility with AS2
 			// As the contents of _swf can be replaced by the loaded swf file

@@ -13,6 +13,7 @@ package global {
 		public static var childSelected : CustomEvent;
 		public static var stopAtSceneStart : CustomEvent;
 		public static var playFromSceneStart : CustomEvent;
+		public static var scenesMerged : CustomEvent;
 		
 		public static function init() : void {
 			enterFrame = new CustomEvent();
@@ -20,6 +21,7 @@ package global {
 			childSelected = new CustomEvent();
 			stopAtSceneStart = new CustomEvent();
 			playFromSceneStart = new CustomEvent();
+			scenesMerged = new CustomEvent();
 		}
 	}
 }

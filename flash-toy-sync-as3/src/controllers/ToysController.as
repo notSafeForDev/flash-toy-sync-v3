@@ -8,9 +8,8 @@ package controllers {
 	 */
 	public class ToysController {
 		
-		public function ToysController(_globalState : GlobalState, _panelContainer : MovieClip) {
-			var toyPanel : ToyPanel = new ToyPanel(_panelContainer);
-			toyPanel.setPosition(0, 400);
+		public function ToysController(_globalState : GlobalState, _toyPanel : ToyPanel) {
+			
 		}
 	}
 }

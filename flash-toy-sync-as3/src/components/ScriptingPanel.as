@@ -38,6 +38,8 @@ package components {
 		private var recordButton : UIButton;
 		
 		private var filterInputText : TextElement;
+		public var startFrameInputText : TextElement;
+		public var endFrameInputText : TextElement;
 		private var lastClickedChildText : TextElement;
 		
 		public function ScriptingPanel(_parent : MovieClip) {
@@ -46,54 +48,42 @@ package components {
 			onAttachStimulationMarker = new CustomEvent();
 			onAttachBaseMarker = new CustomEvent();
 			onAttachTipMarker = new CustomEvent();
-			
 			onDragStimulationMarker = new CustomEvent();
 			onDragBaseMarker = new CustomEvent();
 			onDragTipMarker = new CustomEvent();
-			
 			onMouseSelectFilterChange = new CustomEvent();
-			
 			onStartRecording = new CustomEvent();
 			
 			stimulationMarkerButton = addButton("Stimulation Marker");
 			baseMarkerButton = addButton("Base Marker");
 			tipMarkerButton = addButton("Tip Marker");
+			
+			addDivider();
+			
+			addText("Filters:", 20);
+			filterInputText = addInputText("---", this, onFilterInputTextChange); // Uses a non empty string, as in AS2 it doesn't work otherwise
+			addText("Names of elements you don't want to select", 35);
+			lastClickedChildText = addText("Clicked: -", 20);
+			
+			addDivider();
+			
+			var startFrameContainer : MovieClip = MovieClipUtil.create(content, "startFrameContainer");
+			var startFrameTitle : TextElement = createText(startFrameContainer, "Start Frame:", 20);
+			startFrameTitle.setX(layoutPadding);
+			startFrameInputText = createInputText(startFrameContainer, "-1", this, null);
+			startFrameInputText.setX(contentWidth - 80);
+			startFrameInputText.setWidth(80 - layoutPadding);
+			addElementToLayout(startFrameContainer, false);
+			
+			var endFrameContainer : MovieClip = MovieClipUtil.create(content, "startFrameContainer");
+			var endFrameTitle : TextElement = createText(endFrameContainer, "End Frame:", 20);
+			endFrameTitle.setX(layoutPadding);
+			endFrameInputText = createInputText(endFrameContainer, "-1", this, null);
+			endFrameInputText.setX(contentWidth - 80);
+			endFrameInputText.setWidth(80 - layoutPadding);
+			addElementToLayout(endFrameContainer, false);
+			
 			recordButton = addButton("Record Script");
-			
-			var filterHeaderText : TextElement = new TextElement(content, "Filters:");
-			TextStyles.applyListItemStyle(filterHeaderText);
-			filterHeaderText.setX(10);
-			filterHeaderText.setWidth(180);
-			
-			filterInputText = new TextElement(content, "---"); // Uses a non empty string, as in AS2 it doesn't work otherwise
-			TextStyles.applyInputStyle(filterInputText);
-			filterInputText.setX(10);
-			filterInputText.setWidth(180);
-			filterInputText.element.type = "input";
-			filterInputText.element.selectable = true;
-			filterInputText.setAutoSize(TextElement.AUTO_SIZE_NONE);
-			filterInputText.onChange.listen(this, onFilterInputTextChange);
-			
-			var filterDescriptionText : TextElement = new TextElement(content, "Names of elements you don't want to select");
-			TextStyles.applyListItemStyle(filterDescriptionText);
-			filterDescriptionText.setX(10);
-			filterDescriptionText.setWidth(180);
-			filterDescriptionText.setHeight(40);
-			filterDescriptionText.element.wordWrap = true;
-			
-			lastClickedChildText = new TextElement(content, "Clicked: -");
-			TextStyles.applyListItemStyle(lastClickedChildText);
-			lastClickedChildText.setX(10);
-			lastClickedChildText.setWidth(180);
-			
-			addElementToLayout(stimulationMarkerButton.element, false);
-			addElementToLayout(baseMarkerButton.element, false);
-			addElementToLayout(tipMarkerButton.element, false);
-			addElementToLayout(filterHeaderText.element, false);
-			addElementToLayout(filterInputText.element, false);
-			addElementToLayout(filterDescriptionText.element, false);
-			addElementToLayout(lastClickedChildText.element, false);
-			addElementToLayout(recordButton.element, false);
 			
 			stimulationMarkerButton.onMouseClick.listen(this, onMarkerButtonClick, onAttachStimulationMarker);
 			baseMarkerButton.onMouseClick.listen(this, onMarkerButtonClick, onAttachBaseMarker);
@@ -109,6 +99,8 @@ package components {
 				GlobalState.clickedChild, GlobalState.selectedChild, GlobalState.baseMarkerAttachedTo, GlobalState.stimulationMarkerAttachedTo, GlobalState.tipMarkerAttachedTo
 			]);
 			
+			GlobalState.listen(this, onCurrentSceneStateChange, [GlobalState.currentScene]);
+			
 			updateButtons();
 		}
 		
@@ -121,6 +113,11 @@ package components {
 			if (GlobalState.clickedChild.state != null) {
 				lastClickedChildText.setText("Clicked: " + DisplayObjectUtil.getName(GlobalState.clickedChild.state));
 			}
+		}
+		
+		private function onCurrentSceneStateChange() : void {
+			startFrameInputText.setText("-1");
+			endFrameInputText.setText("-1");
 		}
 		
 		private function updateButtons() : void {
@@ -145,31 +142,6 @@ package components {
 		
 		private function onStartRecordingButtonClick() : void {
 			onStartRecording.emit();
-		}
-		
-		private function addButton(_text : String) : UIButton {
-			var element : MovieClip = MovieClipUtil.create(content, _text.split(" ").join("") + "Button");
-			element.buttonMode = true;
-			element.mouseEnabled = true;
-			
-			var buttonWidth : Number = 180;
-			
-			GraphicsUtil.beginFill(element, 0xFFFFFF);
-			GraphicsUtil.drawRect(element, 0, 0, buttonWidth, 30);
-			
-			var text : TextElement = new TextElement(element, _text);
-			text.setWidth(buttonWidth);
-			text.setAutoSize(TextElement.AUTO_SIZE_CENTER);
-			text.setMouseEnabled(false);
-			text.setY(6);
-			TextStyles.applyButtonStyle(text);
-			
-			DisplayObjectUtil.setX(element, 10);
-			
-			var button : UIButton = new UIButton(element);
-			button.disabledAlpha = 0.5;
-			
-			return button;
 		}
 		
 		private function canRecord() : Boolean {

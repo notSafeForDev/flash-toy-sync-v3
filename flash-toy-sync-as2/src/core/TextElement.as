@@ -1,5 +1,6 @@
 import core.CustomEvent;
 import core.FunctionUtil;
+import core.TextElement;
 
 /**
  * ...
@@ -26,7 +27,7 @@ class core.TextElement {
 	private var x : Number = 0;
 	
 	public function TextElement(_parent : MovieClip, _value : String, _autoSize : String) {
-		element = _parent.createTextField("TextField_" + _value, _parent.getNextHighestDepth(), 0, 0, 1, 20);
+		element = _parent.createTextField("TextField", _parent.getNextHighestDepth(), 0, 0, 1, 20);
 		element.text = _value;
 		if (_autoSize != undefined) {
 			element.autoSize = _autoSize;
@@ -87,6 +88,10 @@ class core.TextElement {
 		updateX();
 	}
 	
+	public function getText() : String {
+		return element.text;
+	}
+	
 	public function setAutoSize(_value : String) : Void {
 		element.autoSize = _value;
 	}
@@ -126,5 +131,10 @@ class core.TextElement {
 	
 	public function setFilters(_filters : Array) : Void {
 		element.filters = _filters;
+	}
+	
+	public function convertToInputField() : Void {
+		element.type = "input";
+		setAutoSize(TextElement.AUTO_SIZE_NONE);
 	}
 }

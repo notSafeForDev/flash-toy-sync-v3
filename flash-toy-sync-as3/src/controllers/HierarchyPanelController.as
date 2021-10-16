@@ -21,13 +21,12 @@ package controllers {
 		
 		private var globalState : GlobalState;
 		
-		public function HierarchyPanelController(_globalState : GlobalState, _panelContainer : MovieClip, _animation : MovieClip) {
+		public function HierarchyPanelController(_globalState : GlobalState, _hierarchyPanel : HierarchyPanel, _animation : MovieClip) {
 			globalState = _globalState;
 			
-			var hierarchyPanel : HierarchyPanel = new HierarchyPanel(_panelContainer, _animation);
-			hierarchyPanel.excludeChildrenWithoutNestedAnimations = true;
-			hierarchyPanel.onSelectChild.listen(this, onPanelSelectChild);
-			hierarchyPanel.onToggleMouseSelect.listen(this, onPanelToggleMouseSelect);
+			_hierarchyPanel.excludeChildrenWithoutNestedAnimations = true;
+			_hierarchyPanel.onSelectChild.listen(this, onPanelSelectChild);
+			_hierarchyPanel.onToggleMouseSelect.listen(this, onPanelToggleMouseSelect);
 			
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}

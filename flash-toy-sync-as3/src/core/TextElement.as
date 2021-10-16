@@ -78,6 +78,10 @@ package core {
 			element.setTextFormat(textFormat);
 		}
 		
+		public function getText() : String {
+			return element.text;
+		}
+		
 		public function setAutoSize(_value : String) : void {
 			element.autoSize = _value;
 		}
@@ -117,6 +121,11 @@ package core {
 		
 		public function setFilters(_filters : Array) : void {
 			element.filters = _filters;
+		}
+		
+		public function convertToInputField() : void {
+			element.type = "input";
+			setAutoSize(TextElement.AUTO_SIZE_NONE);
 		}
 	}
 }

@@ -2,7 +2,9 @@ package components {
 	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.geom.Rectangle;
 	
+	import core.StageUtil;
 	import core.DisplayObjectUtil;
 	import core.Fonts;
 	import core.TextElement;
@@ -26,12 +28,13 @@ package components {
 		public var background : MovieClip;
 		public var content : MovieClip;
 		
-		private var contentWidth : Number;
-		private var contentHeight : Number;
+		protected var contentWidth : Number;
+		protected var contentHeight : Number;
+		
+		protected var layoutPadding : Number = 10;
+		protected var layoutElementsSpacing : Number = 5;
 		
 		private var layoutElements : Array;
-		private var layoutPadding : Number = 10;
-		private var layoutElementsSpacing : Number = 5;
 		
 		public function Panel(_parent : MovieClip, _name : String, _contentWidth : Number, _contentHeight : Number) {
 			contentWidth = _contentWidth;
@@ -73,6 +76,7 @@ package components {
 			
 			var draggable : DraggableObject = new DraggableObject(container, titleBar);
 			draggable.bringToFrontOnDrag = true;
+			draggable.screenBounds = new Rectangle(0, 0, StageUtil.getWidth(), StageUtil.getHeight());
 		}
 		
 		public function addElementToLayout(_element : DisplayObject, _keepYPosition : Boolean) : void {
@@ -124,6 +128,87 @@ package components {
 			GraphicsUtil.clear(background);
 			GraphicsUtil.beginFill(background, 0x000000, 0.5);
 			GraphicsUtil.drawRect(background, 0, 0, contentWidth, Math.max(layoutHeight, contentHeight));
+		}
+		
+		protected function addDivider() : MovieClip {
+			var divider : MovieClip = MovieClipUtil.create(content, "divider");
+			GraphicsUtil.beginFill(divider, 0xFF0000, 0);
+			GraphicsUtil.drawRect(divider, 0, 0, contentWidth, layoutElementsSpacing * 3);
+			GraphicsUtil.setLineStyle(divider, 1, 0xFFFFFF, 0.25);
+			GraphicsUtil.moveTo(divider, layoutPadding, layoutElementsSpacing * 1.5);
+			GraphicsUtil.lineTo(divider, contentWidth - layoutPadding, layoutElementsSpacing * 1.5);
+			
+			addElementToLayout(divider, false);
+			
+			return divider;
+		}
+		
+		protected function createText(_parent : MovieClip, _text : String, _height : Number) : TextElement {
+			var textElement : TextElement = new TextElement(_parent, _text);
+			TextStyles.applyListItemStyle(textElement);
+			textElement.element.wordWrap = true;
+			textElement.setHeight(_height);
+			textElement.setWidth(contentWidth - layoutPadding * 2);
+			
+			return textElement;
+		}
+		
+		protected function addText(_text : String, _height : Number) : TextElement {
+			var textElement : TextElement = createText(content, _text, _height);
+			textElement.setX(layoutPadding);
+			
+			addElementToLayout(textElement.element, false);
+			
+			return textElement;
+		}
+		
+		protected function createInputText(_parent : MovieClip, _defaultText : String, _scope : *, _onChangeHandler : Function) : TextElement {
+			var textElement : TextElement = new TextElement(_parent, _defaultText);
+			TextStyles.applyInputStyle(textElement);
+			textElement.convertToInputField();
+			textElement.setWidth(contentWidth - layoutPadding * 2);
+			
+			if (_onChangeHandler != null) {
+				textElement.onChange.listen(_scope, _onChangeHandler);
+			}
+			
+			return textElement;
+		}
+		
+		protected function addInputText(_defaultText : String, _scope : *, _onChangeHandler : Function) : TextElement {
+			var textElement : TextElement = createInputText(content, _defaultText, _scope, _onChangeHandler);
+			textElement.setX(layoutPadding);
+			
+			addElementToLayout(textElement.element, false);
+			
+			return textElement;
+		}
+		
+		protected function addButton(_text : String) : UIButton {
+			var element : MovieClip = MovieClipUtil.create(content, _text.split(" ").join("") + "Button");
+			element.buttonMode = true;
+			element.mouseEnabled = true;
+			
+			var buttonWidth : Number = contentWidth - layoutPadding * 2;
+			
+			GraphicsUtil.beginFill(element, 0xFFFFFF);
+			GraphicsUtil.drawRect(element, 0, 0, buttonWidth, 30);
+			
+			var text : TextElement = new TextElement(element, _text);
+			text.setWidth(buttonWidth);
+			text.setAutoSize(TextElement.AUTO_SIZE_CENTER);
+			text.setMouseEnabled(false);
+			text.setY(6);
+			TextStyles.applyButtonStyle(text);
+			
+			DisplayObjectUtil.setX(element, layoutPadding);
+			
+			var button : UIButton = new UIButton(element);
+			button.disabledAlpha = 0.5;
+			
+			addElementToLayout(element, false);
+			
+			return button;
 		}
 	}
 }

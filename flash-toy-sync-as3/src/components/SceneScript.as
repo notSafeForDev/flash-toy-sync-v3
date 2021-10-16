@@ -52,6 +52,11 @@ package components {
 			
 			var frameIndex : Number = currentRootFrame - startRootFrame;
 			
+			// -1 Since addDataForCurrentFrame will push in new data if the index is the same as the length
+			while (frameIndex >= depthsAtFrames.length - 1) {
+				addBlankDataToEnd();
+			}
+			
 			addDataForCurrentFrame(frameIndex, _depth);
 		}
 		
@@ -87,7 +92,11 @@ package components {
 			depthsAtFrames.unshift(0);
 		}
 		
-		protected function addDataForCurrentFrame(_index : Number, _depth : Number) : void {
+		protected function addBlankDataToEnd() : void {
+			depthsAtFrames.push(0);
+		}
+		
+		protected function addDataForCurrentFrame(_index : Number, _depth : Number) : void {			
 			if (_index >= depthsAtFrames.length) {
 				depthsAtFrames.push(_depth);
 			} else {

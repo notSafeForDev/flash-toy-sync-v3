@@ -34,17 +34,20 @@ package controllers {
 		
 		private var currentSceneScript : SceneScript = null;
 		
+		private var scriptingPanel : ScriptingPanel;
+		
 		public function ScriptRecordingController(_globalState : GlobalState, _scriptingPanel : ScriptingPanel, _scenesPanel : ScenesPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
 			animation = _animation;
 			globalState = _globalState;
+			scriptingPanel = _scriptingPanel;
 			
 			_scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
 			
-			_scenesPanel.setPosition(700, 700);
 			_scenesPanel.onSceneSelected.listen(this, onScenesPanelSceneSelected);
 			
 			GlobalState.listen(this, onCurrentSceneStateChange, [GlobalState.currentScene]);
-			GlobalState.listen(this, onScenesStateChange, [GlobalState.scenes]);
+			
+			GlobalEvents.scenesMerged.listen(this, onScenesMerged);
 		}
 		
 		public function onEnterFrame() : void {
@@ -67,14 +70,12 @@ package controllers {
 			currentSceneScript = getSceneScriptForCurrentScene();
 		}
 		
-		private function onScenesStateChange() : void {
+		private function onScenesMerged(_previousScene : Scene, _combinedScene : Scene) : void {
 			var sceneScripts : Array = GlobalState.sceneScripts.state;
-			var scenes : Array = GlobalState.scenes.state;
 			for (var i : Number = 0; i < sceneScripts.length; i++) {
 				var sceneScript : SceneScript = sceneScripts[i];
-				if (ArrayUtil.indexOf(scenes, sceneScript.scene) < 0) {
-					handleRemovedScene(sceneScript);
-					currentSceneScript = getSceneScriptForCurrentScene();
+				if (sceneScript.scene == _previousScene) {
+					sceneScript.scene = _combinedScene;
 				}
 			}
 		}
@@ -99,7 +100,6 @@ package controllers {
 				trace("Start recording new scene");
 				trace("First frames of current scene: " + GlobalState.currentScene.state.getFirstFrames());
 				currentSceneScript = MarkerSceneScript.fromGlobalState(animation);
-				trace("Push");
 				globalState._sceneScripts.push(currentSceneScript);
 			}
 			
@@ -107,9 +107,28 @@ package controllers {
 			isRecording = true;
 			
 			GlobalEvents.playFromSceneStart.emit(recordingScene);
-			trace("firstRecordingFrame: " + MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state))
 			
+			var startFrame : Number = parseInt(scriptingPanel.startFrameInputText.getText());
+			var endFrame : Number = parseInt(scriptingPanel.endFrameInputText.getText());
+			
+			if (startFrame > 0) {
+				var sceneStartFrame : Number = currentSceneScript.scene.getFirstFrame();
+				var sceneEndFrame : Number = currentSceneScript.scene.getLastFrame();
+				var selectedChild : MovieClip = GlobalState.selectedChild.state;
+				
+				if (startFrame >= sceneStartFrame && startFrame <= sceneEndFrame) {
+					selectedChild.gotoAndPlay(startFrame);
+				}
+			}
+			
+			trace("firstRecordingFrame: " + MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state));
 			currentSceneScript.startRecording(animation, -1);
+			
+			if (endFrame > 0 && endFrame == startFrame) {
+				finishRecording();
+				return;
+			}
+			
 			nextFrameToRecord = MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state) + 1;
 		}
 		
@@ -147,8 +166,16 @@ package controllers {
 				throw new Error("Unable to update recording, it's not possible to record");
 			}
 			
+			trace("Recording... Frame: " + currentFrame);
 			currentSceneScript.updateRecording(animation, -1);
 			
+			var endFrame : Number = parseInt(scriptingPanel.endFrameInputText.getText());
+			if (endFrame > 0 && currentFrame >= endFrame) {
+				trace("Finished recording based on the end frame in the scripting panel");
+				finishRecording();
+				return;
+			}
+
 			// It's important that this happens after updating the recording,
 			// Especially if it have looped
 			var haveLoopedOrStopped : Boolean = currentFrame != nextFrameToRecord;
@@ -157,8 +184,6 @@ package controllers {
 				finishRecording();
 				return;
 			}
-			
-			trace("Recording... Frame: " + currentFrame);
 			
 			nextFrameToRecord = currentFrame + 1;
 		}
@@ -171,17 +196,8 @@ package controllers {
 			isRecording = false;
 			recordingScene = null;
 			nextFrameToRecord = -1;
-		}
-		
-		private function handleRemovedScene(_sceneScript : SceneScript) : void {
-			var scenes : Array = GlobalState.scenes.state;
-			for (var i : Number = 0; i < scenes.length; i++) {
-				var scene : Scene = scenes[i];
-				if (scene.intersects(_sceneScript.scene) == true) {
-					_sceneScript.scene = scene;
-					break;
-				}
-			}
+			
+			trace(currentSceneScript.getStartFrame(), currentSceneScript.getDepths().length);
 		}
 		
 		private function getSceneScriptForCurrentScene() : SceneScript {

@@ -66,11 +66,60 @@ package components {
 			return ArrayUtil.indexOf(dependencies, null) < 0;
 		}
 		
+		public function getRecordedPosition(_positions : Array, _frameIndex : Number) : Point {
+			_frameIndex = MathUtil.clamp(_frameIndex, 0, _positions.length - 1);
+			if (_positions[_frameIndex] != null) {
+				return _positions[_frameIndex];
+			}
+			
+			var positionBefore : Point;
+			var positionAfter : Point;
+			var offsetBefore : Number;
+			var offsetAfter : Number;
+			var i : Number;
+			var frameIndex : Number;
+			
+			for (i = _frameIndex - 1; i >= _frameIndex - _positions.length; i--) {
+				frameIndex = i >= 0 ? i : i + _positions.length;
+				if (_positions[frameIndex] != null) {
+					positionBefore = _positions[frameIndex];
+					offsetBefore = i - _frameIndex;
+					break;
+				}
+			}
+			
+			for (i = _frameIndex + 1; i < _frameIndex + _positions.length; i++) {
+				frameIndex = i < _positions.length ? i : i - _positions.length;
+				if (_positions[frameIndex] != null) {
+					positionAfter = _positions[frameIndex];
+					offsetAfter = i - _frameIndex;
+					break;
+				}
+			}
+			
+			if (positionAfter == null) {
+				return null;
+			}
+			
+			var percentage : Number = MathUtil.getPercentage(0, offsetBefore, offsetAfter);
+			var x : Number = MathUtil.lerp(positionBefore.x, positionAfter.x, percentage);
+			var y : Number = MathUtil.lerp(positionBefore.y, positionAfter.y, percentage);
+			
+			return new Point(x, y);
+		}
+		
 		protected override function addBlankDataToBeginning() : void {
-			stimulationPositions.unshift(new Point());
-			basePositions.unshift(new Point());
-			tipPositions.unshift(new Point());
+			stimulationPositions.unshift(null);
+			basePositions.unshift(null);
+			tipPositions.unshift(null);
 			super.addBlankDataToBeginning();
+		}
+		
+		protected override function addBlankDataToEnd() : void {
+			stimulationPositions.push(null);
+			basePositions.push(null);
+			tipPositions.push(null);
+			super.addBlankDataToEnd();
 		}
 		
 		protected override function addDataForCurrentFrame(_index : Number, _depth : Number) : void {
