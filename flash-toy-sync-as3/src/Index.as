@@ -1,5 +1,6 @@
 package {
 	
+	import controllers.ScriptSampleMarkersController;
 	import flash.display.MovieClip;
 	import flash.ui.Mouse;
 	
@@ -14,7 +15,7 @@ package {
 	
 	import controllers.AnimationScalingController;
 	import controllers.ScriptMarkersController;
-	import controllers.ScriptingController;
+	import controllers.ScriptRecordingController;
 	import controllers.HierarchyPanelController;
 	import controllers.ToysController;
 	import controllers.ScenesController;
@@ -47,8 +48,9 @@ package {
 		private var scenesController : ScenesController;
 		private var animationScalingController : AnimationScalingController;
 		private var hierarchyPanelController : HierarchyPanelController;
+		private var scriptSampleMarkersController : ScriptSampleMarkersController;
 		private var scriptMarkersController : ScriptMarkersController;
-		private var scriptingController : ScriptingController;
+		private var scriptRecordingController : ScriptRecordingController;
 		private var toysController : ToysController;
 		
 		public function Index(_container : MovieClip, _animationPath : String) {
@@ -90,11 +92,10 @@ package {
 			scenesController = new ScenesController(globalState, animation);
 			animationScalingController = new AnimationScalingController(globalState, animation, _width, _height);
 			hierarchyPanelController = new HierarchyPanelController(globalState, panelContainer, animation);
-			scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer); 
-			scriptingController = new ScriptingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
+			scriptSampleMarkersController = new ScriptSampleMarkersController(globalState, animation, overlayContainer);
+			scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer);
+			scriptRecordingController = new ScriptRecordingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
 			toysController = new ToysController(globalState, panelContainer);
-			
-			
 			
 			// We add the onEnterFrame listener on the container, instead of the animation, for better compatibility with AS2
 			// As the contents of _swf can be replaced by the loaded swf file
@@ -111,8 +112,9 @@ package {
 			var startTime : Number = Debug.getTime();
 			
 			scenesController.onEnterFrame();
+			scriptSampleMarkersController.onEnterFrame();
 			scriptMarkersController.onEnterFrame();
-			scriptingController.onEnterFrame();
+			scriptRecordingController.onEnterFrame();
 			
 			globalStateManager.notifyListeners();
 			GlobalEvents.enterFrame.emit();

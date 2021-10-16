@@ -39,6 +39,10 @@ class core.stateTypes.PointState {
 		return value != null ? new Point(value.x, value.y) : null;
 	}
 	
+	public function getRawState() : Point {
+		return value;
+	}
+	
 	public function getPreviousValue() : Point {
 		return PreviousValue;
 	}

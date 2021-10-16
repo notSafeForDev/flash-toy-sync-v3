@@ -37,6 +37,10 @@ class core.stateTypes.NumberState {
 		return value;
 	}
 	
+	public function getRawState() : Number {
+		return value;
+	}
+	
 	public function getPreviousValue() : Number {
 		return PreviousValue;
 	}

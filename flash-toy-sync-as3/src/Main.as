@@ -26,7 +26,7 @@ package {
 			container.name = "root";
 			stage.addChild(container);
 			
-			var index : Index = new Index(container, "animations/spikeshi.swf");
+			var index : Index = new Index(container, "animations/karas-nightlife.swf");
 			
 			// Fixes an issue where keyboard input stops registering after having clicked on the external swf
 			stage.addEventListener(FocusEvent.FOCUS_OUT, function(e : FocusEvent) : void {
@@ -40,7 +40,7 @@ package {
 			blazblue-makoto-sex-session.swf		- Decent
 			brandy-2.swf						- Mixed, it keeps switching between different variations of animations
 			gaper-mario.swf						- Bad, Doesn't load due to stage being null
-			hentaikey-girl-5.swf 				- Decent, (Breaks when using debug flash player version 32, works in flash player version 11)
+			hentaikey-girl-5.swf 				- Decent, (Breaks when using debug mode with debug flash player version 32, works in flash player version 11)
 			karas-nightlife.swf					- Good
 			peachypop-kat-sitting.swf			- Good
 			purple-demin-girl.swf				- Good

@@ -53,6 +53,10 @@ class core.stateTypes.ArrayState {
 		return value.slice();
 	}
 	
+	public function getRawState() : Array {
+		return value;
+	}
+	
 	public function getPreviousValue() : Array {
 		return PreviousValue;
 	}

@@ -87,9 +87,7 @@ package components {
 			}
 			
 			var globalPoint : Point = DisplayObjectUtil.localToGlobal(attachedToState.getState(), pointState.getState().x, pointState.getState().y);
-			
-			element.setX(globalPoint.x);
-			element.setY(globalPoint.y);
+			element.setPosition(globalPoint);
 		}
 		
 		public function startDrag() : void {

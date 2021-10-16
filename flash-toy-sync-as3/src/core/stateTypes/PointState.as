@@ -44,6 +44,10 @@ package core.stateTypes {
 			return value != null ? new Point(value.x, value.y) : null;
 		}
 		
+		public function getRawState() : Point {
+			return value;
+		}
+		
 		public function getPreviousState() : Point {
 			return previousValue;
 		}

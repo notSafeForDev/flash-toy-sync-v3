@@ -22,7 +22,7 @@ package controllers {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class ScriptingController {
+	public class ScriptRecordingController {
 		
 		private var animation : MovieClip;
 		
@@ -34,7 +34,7 @@ package controllers {
 		
 		private var currentSceneScript : SceneScript = null;
 		
-		public function ScriptingController(_globalState : GlobalState, _scriptingPanel : ScriptingPanel, _scenesPanel : ScenesPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
+		public function ScriptRecordingController(_globalState : GlobalState, _scriptingPanel : ScriptingPanel, _scenesPanel : ScenesPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
 			animation = _animation;
 			globalState = _globalState;
 			
@@ -53,14 +53,14 @@ package controllers {
 			}
 			
 			// TEMP: Only for debugging the depth of the current scripted scene
-			if (isRecording == false && currentSceneScript != null && GlobalState.selectedChild.state != null) {
+			/* if (isRecording == false && currentSceneScript != null && GlobalState.selectedChild.state != null) {
 				var selectedChild : MovieClip = GlobalState.selectedChild.state;
 				var startFrame : Number = currentSceneScript.getStartFrame();
 				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 				var depths : Array = currentSceneScript.getDepths();
 				var depth : Number = depths[currentFrame - startFrame];
 				trace(depth.toString().substring(0, 4));
-			}
+			} */
 		}
 		
 		private function onCurrentSceneStateChange() : void {
@@ -99,6 +99,7 @@ package controllers {
 				trace("Start recording new scene");
 				trace("First frames of current scene: " + GlobalState.currentScene.state.getFirstFrames());
 				currentSceneScript = MarkerSceneScript.fromGlobalState(animation);
+				trace("Push");
 				globalState._sceneScripts.push(currentSceneScript);
 			}
 			
@@ -124,7 +125,7 @@ package controllers {
 			
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 			
-			var isOutOfRange : Boolean = currentSceneScript.isAtScene(animation) == false;
+			var isOutOfRange : Boolean = currentSceneScript.isAtScene(animation, selectedChild) == false;
 			if (isOutOfRange == true) {
 				trace("Got out of range of the scene during recording");
 				finishRecording();

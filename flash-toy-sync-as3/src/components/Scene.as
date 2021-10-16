@@ -19,7 +19,7 @@ package components {
 	public class Scene {
 		
 		protected var isInitialized : Boolean = false;
-		protected var path : Array = null; // TEMP: This should be protected
+		protected var path : Array = null;
 		protected var frameRanges : Array = null;
 		protected var firstStopFrames : Array = null;
 		protected var lastPlayedFrames : Array = null;
@@ -204,32 +204,19 @@ package components {
 			return true;
 		}
 		
-		public function isNestedChildInScene(_topParent : MovieClip, _nestedChild : MovieClip) : Boolean {
-			var nestedChildPath : Array = DisplayObjectUtil.getChildPath(_topParent, _nestedChild);
-			return nestedChildPath != null && nestedChildPath.join(",") == path.join(",");
-		}
-		
-		public function isAtSceneCurrently(_topParent : MovieClip) : Boolean {
-			return isCurrentFrameInScene(_topParent, -1);
-		}
-		
-		public function isCurrentFrameInScene(_topParent : MovieClip, _nestedChildFrame : Number) : Boolean {
-			if (isInitialized == false) {
-				throw new Error("Unable to check if it's currently inside the scene, the Scene have not been initialized");
-			}
+		public function isAtScene(_topParent : MovieClip, _nestedChild : MovieClip, _frameOffset : Number) : Boolean {
+			var childList : Array = getChildList(_topParent, _nestedChild);
 			
-			var nestedChild : DisplayObject = DisplayObjectUtil.getChildFromPath(_topParent, path);
-			if (MovieClipUtil.isMovieClip(nestedChild) == false) {
+			if (childList == null || childList.length != frameRanges.length) {
 				return false;
 			}
-			
-			var childList : Array = getChildList(_topParent, MovieClipUtil.objectAsMovieClip(nestedChild));
 			
 			for (var i : Number = 0; i < childList.length; i++) {
 				var frameRange : Object = frameRanges[i];
 				var currentFrame : Number = MovieClipUtil.getCurrentFrame(childList[i]);
-				if (_nestedChildFrame >= 0 && i == childList.length - 1) {
-					currentFrame = _nestedChildFrame;
+				
+				if (i == childList.length - 1) {
+					currentFrame += _frameOffset;
 				}
 				if (currentFrame < frameRange.min || currentFrame > frameRange.max) {
 					return false;

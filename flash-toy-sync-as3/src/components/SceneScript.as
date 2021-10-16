@@ -1,8 +1,8 @@
 package components {
 	
-	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	
+	import core.DisplayObjectUtil;
 	import core.MovieClipUtil;
 	
 	import global.GlobalState;
@@ -19,8 +19,8 @@ package components {
 		
 		public var scene : Scene;
 		
-		private var depthsAtFrames : Array = null;
-		private var startRootFrame : Number = -1;
+		protected var depthsAtFrames : Array = null;
+		protected var startRootFrame : Number = -1;
 		
 		public function SceneScript(_scene : Scene) {
 			scene = _scene;
@@ -45,22 +45,18 @@ package components {
 			
 			if (currentRootFrame < startRootFrame) {
 				for (var i : Number = 0; i < startRootFrame - currentRootFrame; i++) {
-					depthsAtFrames.unshift(0);
+					addBlankDataToBeginning();
 				}
 				startRootFrame = currentRootFrame;
 			}
 			
 			var frameIndex : Number = currentRootFrame - startRootFrame;
 			
-			if (frameIndex >= depthsAtFrames.length) {
-				depthsAtFrames.push(_depth);
-			} else {
-				depthsAtFrames[frameIndex] = _depth;
-			}
+			addDataForCurrentFrame(frameIndex, _depth);
 		}
 		
-		public function isAtScene(_topParent : MovieClip) : Boolean {
-			return scene.isAtSceneCurrently(_topParent);
+		public function isAtScene(_topParent : MovieClip, _nestedChild : MovieClip) : Boolean {
+			return scene.isAtScene(_topParent, _nestedChild, 0);
 		}
 		
 		public function canRecord() : Boolean {
@@ -85,6 +81,18 @@ package components {
 		
 		public function stopAtStart() : void {
 			scene.stopAtStart();
+		}
+		
+		protected function addBlankDataToBeginning() : void {
+			depthsAtFrames.unshift(0);
+		}
+		
+		protected function addDataForCurrentFrame(_index : Number, _depth : Number) : void {
+			if (_index >= depthsAtFrames.length) {
+				depthsAtFrames.push(_depth);
+			} else {
+				depthsAtFrames[_index] = _depth;
+			}
 		}
 	}
 }

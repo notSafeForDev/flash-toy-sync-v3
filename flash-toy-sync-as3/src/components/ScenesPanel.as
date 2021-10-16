@@ -47,12 +47,12 @@ package components {
 			uiScrollArea = new UIScrollArea(scrollContent, mask, scrollBar);
 			uiScrollArea.handleAlphaWhenNotScrollable = 0.25;
 			
-			GlobalState.listen(this, onStateChange, [GlobalState.scenes]);
+			GlobalState.listen(this, onSceneStatesChange, [GlobalState.scenes, GlobalState.currentScene]);
 			
 			onSceneSelected = new CustomEvent();
 		}
 		
-		private function onStateChange() : void {
+		private function onSceneStatesChange() : void {
 			var scenes : Array = GlobalState.scenes.state;
 			var listItem : ListItem;
 			var i : Number;

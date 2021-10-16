@@ -85,17 +85,17 @@ package controllers {
 			var isStopped : Boolean = currentScene != null && currentScene.isStopped(selectedChild);
 			var notAtExpectedFrame : Boolean = nextExpectedFrame >= 0 && currentFrame != nextExpectedFrame;
 			var didLoopNaturally : Boolean = currentFrame == 1 && previousFrame == lastFrameInChild && isStopped == false;
-			var sceneAtFrame : Scene = getSceneForChild(selectedChild);
+			var sceneAtFrame : Scene = getSceneAtFrame(selectedChild);
 			
 			if (currentScene != null) {
 				mergeWithOtherScenes(currentScene);
 			}
 			
 			if (isSelectedChildUpdated == true || notAtExpectedFrame == true || didLoopNaturally == true) {
-				var isAtCurrentScene : Boolean = currentScene != null && currentScene.isAtSceneCurrently(animation);
+				var isAtCurrentScene : Boolean = currentScene != null && currentScene.isAtScene(animation, selectedChild, 0);
 				// We check the next frame as well, as the loss could be caused by the scene being created 1 frame after it's intended to,
 				// and since a scene can not consist of a single frame, this is a reasonable solution to that problem
-				var isNextFrameInCurrentScene : Boolean = currentScene != null && currentScene.isCurrentFrameInScene(animation, currentFrame + 1);
+				var isNextFrameInCurrentScene : Boolean = currentScene != null && currentScene.isAtScene(animation, selectedChild, 1);
 				
 				if (sceneAtFrame != null && sceneAtFrame != currentScene) {
 					exitCurrentScene(selectedChild);
@@ -129,16 +129,16 @@ package controllers {
 				return;
 			}
 			
-			var sceneForChild : Scene = getSceneForChild(_child);
+			var sceneAtFrame : Scene = getSceneAtFrame(_child);
 			
-			if (sceneForChild != currentScene) {
+			if (sceneAtFrame != currentScene) {
 				exitCurrentScene(previousChild);
 			}
 			
 			setSelectedChild(_child);
 			
-			if (sceneForChild != null) {
-				currentScene = sceneForChild;
+			if (sceneAtFrame != null) {
+				currentScene = sceneAtFrame;
 				globalState._currentScene.setState(currentScene);
 			} else {
 				currentScene = addNewScene(_child);
@@ -249,15 +249,17 @@ package controllers {
 		}
 		
 		private function setSelectedChild(_child : MovieClip) : void {
-			globalState._selectedChild.setState(_child);
-			
 			nextExpectedFrame = -1;
 			selectedChildParentChainLength = DisplayObjectUtil.getParents(_child).length;
 			selectedChildPath = DisplayObjectUtil.getChildPath(animation, _child);
+			
+			globalState._selectedChild.setState(_child);
+			globalState._selectedChildPath.setState(selectedChildPath);
 		}
 		
 		private function clearSelectedChild() : void {
 			globalState._selectedChild.setState(null);
+			globalState._selectedChildPath.setState(null);
 			
 			// We don't clear the child path or parent chain length, as those are needed in order to reaquire the selected child
 			nextExpectedFrame = -1;
@@ -315,17 +317,10 @@ package controllers {
 			return currentFrame == totalFrames ? 1 : currentFrame + 1;
 		}
 		
-		private function getSceneForChild(_child : MovieClip) : Scene {
-			if (GlobalState.selectedChild.state == null) {
-				return null;
-			}
-			
+		private function getSceneAtFrame(_child : MovieClip) : Scene {			
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
-				var currentFrame : Number = MovieClipUtil.getCurrentFrame(_child);
-				var isChildInScene : Boolean = scene.isNestedChildInScene(animation, _child);
-				var isFrameInScene : Boolean = scene.isCurrentFrameInScene(animation, currentFrame);
-				if (isChildInScene == true && isFrameInScene == true) {
+				if (scene.isAtScene(animation, _child, 0) == true) {
 					return scene;
 				}
 			}

@@ -208,7 +208,7 @@ package core {
 		private function getStateValues() : Array {
 			var values : Array = [];
 			for (var i : int = 0; i < states.length; i++) {
-				values.push(states[i].getState());
+				values.push(states[i].getRawState());
 			}
 			return values;
 		}

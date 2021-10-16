@@ -37,6 +37,10 @@ class core.stateTypes.BooleanState {
 		return value;
 	}
 	
+	public function getRawState() : Boolean {
+		return value;
+	}
+	
 	public function getPreviousValue() : Boolean {
 		return PreviousValue;
 	}

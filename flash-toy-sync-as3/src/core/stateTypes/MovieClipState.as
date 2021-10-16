@@ -44,6 +44,10 @@ package core.stateTypes {
 			return value;
 		}
 		
+		public function getRawState() : MovieClip {
+			return value;
+		}
+		
 		public function getPreviousState() : MovieClip {
 			return previousValue;
 		}

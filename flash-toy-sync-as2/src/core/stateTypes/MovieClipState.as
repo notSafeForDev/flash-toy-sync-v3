@@ -37,6 +37,10 @@ class core.stateTypes.MovieClipState {
 		return value;
 	}
 	
+	public function getRawState() : MovieClip {
+		return value;
+	}
+	
 	public function getPreviousValue() : MovieClip {
 		return PreviousValue;
 	}

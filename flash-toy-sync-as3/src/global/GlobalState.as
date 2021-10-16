@@ -42,9 +42,13 @@ package global {
 		public var _animationHeight : NumberState;
 		public static var animationHeight : NumberStateReference;
 		
-		/** The child that is curently selected */
+		/** The child that is currently selected */
 		public var _selectedChild : MovieClipState;
 		public static var selectedChild : MovieClipStateReference;
+		
+		/** The path to child that is currently selected */
+		public var _selectedChildPath : ArrayState;
+		public static var selectedChildPath : ArrayStateReference;
 		
 		/** The child that the user have clicked on */
 		public var _clickedChild : DisplayObjectState;
@@ -143,6 +147,11 @@ package global {
 			added = _stateManager.addMovieClipState(null);
 			_selectedChild = added.state;
 			GlobalState.selectedChild = added.reference;
+			
+			// selectedChildPath
+			added = _stateManager.addArrayState(null);
+			_selectedChildPath = added.state;
+			GlobalState.selectedChildPath = added.reference;
 			
 			// clickedChild
 			added = _stateManager.addDisplayObjectState(null);

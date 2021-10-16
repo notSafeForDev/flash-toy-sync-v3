@@ -21,12 +21,16 @@ package components {
 		
 		public static var sceneScriptType : String = "MARKER_SCENE_SCRIPT";
 		
+		public var stimulationPositions : Array;
+		public var basePositions : Array;
+		public var tipPositions : Array;
+		
 		public function MarkerSceneScript(_scene : Scene) {
 			super(_scene);
-		}
-		
-		public override function getType() : String {
-			return sceneScriptType;
+			
+			stimulationPositions = [];
+			basePositions = [];
+			tipPositions = [];
 		}
 		
 		public static function asMarkerSceneScript(_sceneScript : SceneScript) : MarkerSceneScript {
@@ -45,11 +49,31 @@ package components {
 			return markerSceneScript;
 		}
 		
-		public override function startRecording(_topParent : MovieClip, _depth : Number) : void {
-			updateRecording(_topParent, _depth);
+		public override function getType() : String {
+			return sceneScriptType;
 		}
 		
-		public override function updateRecording(_topParent : MovieClip, _depth : Number) : void {
+		public override function canRecord() : Boolean {
+			var dependencies : Array = [
+				GlobalState.stimulationMarkerAttachedTo.state,
+				GlobalState.stimulationMarkerPoint.state,
+				GlobalState.baseMarkerAttachedTo.state,
+				GlobalState.baseMarkerPoint.state,
+				GlobalState.tipMarkerAttachedTo.state,
+				GlobalState.tipMarkerPoint.state
+			];
+			
+			return ArrayUtil.indexOf(dependencies, null) < 0;
+		}
+		
+		protected override function addBlankDataToBeginning() : void {
+			stimulationPositions.unshift(new Point());
+			basePositions.unshift(new Point());
+			tipPositions.unshift(new Point());
+			super.addBlankDataToBeginning();
+		}
+		
+		protected override function addDataForCurrentFrame(_index : Number, _depth : Number) : void {
 			var stimulation : Point = getMarkerPosition(GlobalState.stimulationMarkerAttachedTo.state, GlobalState.stimulationMarkerPoint.state);
 			var base : Point = getMarkerPosition(GlobalState.baseMarkerAttachedTo.state, GlobalState.baseMarkerPoint.state);
 			var tip : Point = getMarkerPosition(GlobalState.tipMarkerAttachedTo.state, GlobalState.tipMarkerPoint.state);
@@ -64,20 +88,17 @@ package components {
 			var depth : Number = MathUtil.getPercentage(rotatedStimulation.x, rotatedTip.x, base.x);
 			depth = MathUtil.clamp(depth, 0, 1);
 			
-			super.updateRecording(_topParent, depth);
-		}
-		
-		public override function canRecord() : Boolean {
-			var dependencies : Array = [
-				GlobalState.stimulationMarkerAttachedTo.state,
-				GlobalState.stimulationMarkerPoint.state,
-				GlobalState.baseMarkerAttachedTo.state,
-				GlobalState.baseMarkerPoint.state,
-				GlobalState.tipMarkerAttachedTo.state,
-				GlobalState.tipMarkerPoint.state
-			];
+			if (_index >= stimulationPositions.length) {
+				stimulationPositions.push(stimulation);
+				basePositions.push(base);
+				tipPositions.push(tip);
+			} else {
+				stimulationPositions[_index] = stimulation;
+				basePositions[_index] = base;
+				tipPositions[_index] = tip;
+			}
 			
-			return ArrayUtil.indexOf(dependencies, null) < 0;
+			super.addDataForCurrentFrame(_index, depth);
 		}
 		
 		private function getMarkerPosition(_attachedTo : DisplayObject, _point : Point) : Point {

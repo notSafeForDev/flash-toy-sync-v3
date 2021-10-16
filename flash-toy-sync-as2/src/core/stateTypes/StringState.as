@@ -37,6 +37,10 @@ class core.stateTypes.StringState {
 		return value;
 	}
 	
+	public function getRawState() : String {
+		return value;
+	}
+	
 	public function getPreviousValue() : String {
 		return PreviousValue;
 	}

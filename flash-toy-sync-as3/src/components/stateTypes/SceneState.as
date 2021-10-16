@@ -44,6 +44,10 @@ package components.stateTypes {
 			return value;
 		}
 		
+		public function getRawState() : Scene {
+			return value;
+		}
+		
 		public function getPreviousState() : Scene {
 			return previousValue;
 		}

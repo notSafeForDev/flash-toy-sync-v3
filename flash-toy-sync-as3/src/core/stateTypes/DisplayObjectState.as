@@ -44,6 +44,10 @@ package core.stateTypes {
 			return value;
 		}
 		
+		public function getRawState() : DisplayObject {
+			return value;
+		}
+		
 		public function getPreviousState() : DisplayObject {
 			return previousValue;
 		}

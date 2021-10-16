@@ -42,6 +42,10 @@ package core.stateTypes {
 			return value;
 		}
 		
+		public function getRawState() : Boolean {
+			return value;
+		}
+		
 		public function getPreviousState() : Boolean {
 			return previousValue;
 		}

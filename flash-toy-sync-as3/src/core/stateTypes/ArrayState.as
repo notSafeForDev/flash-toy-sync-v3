@@ -57,6 +57,10 @@ package core.stateTypes {
 			return value != null ? value.slice() : null;
 		}
 		
+		public function getRawState() : Array {
+			return value;
+		}
+		
 		public function getPreviousState() : Array {
 			return previousValue.slice();
 		}
