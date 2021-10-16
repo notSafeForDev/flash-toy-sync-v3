@@ -1,5 +1,6 @@
 package components {
 	
+	import core.CustomEvent;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
@@ -16,29 +17,41 @@ package components {
 	 */
 	public class ScriptMarker {
 		
-		private var animation : MovieClip;
+		public var onStartDrag : CustomEvent;
+		public var onStopDrag : CustomEvent;
 		
-		private var element : ScriptMarkerElement;
-		private var attachedToState : DisplayObjectState;
-		private var pointState : PointState;
+		public var element : ScriptMarkerElement;
+		public var attachedToState : DisplayObjectState;
+		public var pointState : PointState;
+		
+		private var animation : MovieClip;
 		
 		private var attachedToReference : DisplayObjectReference;
 		
 		public function ScriptMarker(_animation : MovieClip, _element : ScriptMarkerElement, _attachedToState : DisplayObjectState, _pointState : PointState) {
+			onStartDrag = new CustomEvent();
+			onStopDrag = new CustomEvent();
+			
 			animation = _animation;
 			element = _element;
 			attachedToState = _attachedToState;
 			pointState = _pointState;
 			
+			element.draggable.onStartDrag.listen(this, onElementStartDrag);
 			element.onStopDrag.listen(this, onElementStopDrag);
 		}
 		
-		public function attachTo(_child : DisplayObject) : void {
-			var parent : DisplayObjectContainer = DisplayObjectUtil.getParent(element.element);
-			var bounds : Rectangle = DisplayObjectUtil.getBounds(_child, parent);
-			var centerX : Number = bounds.x + bounds.width / 2;
-			var centerY : Number = bounds.y + bounds.height / 2;
-			var point : Point = DisplayObjectUtil.globalToLocal(_child, centerX, centerY);
+		public function attachTo(_child : DisplayObject, _keepPosition : Boolean) : void {
+			var point : Point = DisplayObjectUtil.globalToLocal(_child, element.getX(), element.getY());
+			
+			if (_keepPosition == false) {
+				var parent : DisplayObjectContainer = DisplayObjectUtil.getParent(element.element);
+				var bounds : Rectangle = DisplayObjectUtil.getBounds(_child, parent);
+				var centerX : Number = bounds.x + bounds.width / 2;
+				var centerY : Number = bounds.y + bounds.height / 2;
+				
+				point = DisplayObjectUtil.globalToLocal(_child, centerX, centerY);
+			}
 			
 			attachedToState.setState(_child);
 			pointState.setState(point);
@@ -46,22 +59,24 @@ package components {
 		}
 		
 		public function update() : void {
-			if (attachedToState.getState() == null) {
+			if (attachedToState.getState() == null && element.isDragging == false) {
 				element.setVisible(false);
 				return;
 			}
 			
-			attachedToReference.update();
+			if (attachedToState.getState() != null) {
+				attachedToReference.update();
 			
-			if (DisplayObjectUtil.isNested(animation, attachedToState.getState()) == false) {
-				var replacement : DisplayObject = attachedToReference.getObject();
-				if (replacement != null) {
-					attachedToState.setState(replacement);
-				} else {
-					attachedToState.setState(null);
-					pointState.setState(null);
-					attachedToReference = null;
-					return;
+				if (DisplayObjectUtil.isNested(animation, attachedToState.getState()) == false) {
+					var replacement : DisplayObject = attachedToReference.getObject();
+					if (replacement != null) {
+						attachedToState.setState(replacement);
+					} else {
+						attachedToState.setState(null);
+						pointState.setState(null);
+						attachedToReference = null;
+						return;
+					}
 				}
 			}
 			
@@ -77,15 +92,28 @@ package components {
 			element.setY(globalPoint.y);
 		}
 		
+		public function startDrag() : void {
+			element.draggable.moveToCursor();
+			element.draggable.startDrag();
+		}
+		
 		public function detatch() : void {
 			attachedToState.setState(null);
 			pointState.setState(null);
 			attachedToReference = null;
 		}
 		
+		private function onElementStartDrag() : void {
+			onStartDrag.emit();
+		}
+		
 		private function onElementStopDrag() : void {
-			var point : Point = DisplayObjectUtil.globalToLocal(attachedToState.getState(), element.getX(), element.getY());
-			pointState.setState(point);
+			if (attachedToState.getState() != null) {
+				var point : Point = DisplayObjectUtil.globalToLocal(attachedToState.getState(), element.getX(), element.getY());
+				pointState.setState(point);
+			}
+			
+			onStopDrag.emit();
 		}
 	}
 }

@@ -15,7 +15,7 @@ class core.DraggableObject {
 	private var container : MovieClip;
 	private var buttonMove : MovieClip;
 	
-	private var isMouseDown : Boolean = false;
+	private var isDragging : Boolean = false;
 	private var mouseDragOffset : Point;
 	
 	function DraggableObject(_container : MovieClip, _buttonMove : MovieClip) {
@@ -37,15 +37,17 @@ class core.DraggableObject {
 			}
 			self.onEnterFrame();
 		}
-		_buttonMove.onRelease = function() {
-			self.onMouseUp();
-		}
-		_buttonMove.onReleaseOutside = function() {
+		_buttonMove.onMouseUp = function() {
 			self.onMouseUp();
 		}
 	}
 	
-	function onButtonMoveMouseDown() {
+	public function moveToCursor() {
+		container._x = container._parent._xmouse;
+		container._y = container._parent._ymouse;
+	}
+	
+	function startDrag() {
 		mouseDragOffset = new Point(container._root._xmouse, container._root._ymouse);
 		container._parent.globalToLocal(mouseDragOffset);
 		mouseDragOffset.x -= container._x;
@@ -57,12 +59,29 @@ class core.DraggableObject {
 			}
 		}
 		
-		isMouseDown = true;
+		isDragging = true;
 		onStartDrag.emit();
 	}
 	
+	public function stopDrag() {
+		if (isDragging == false) {
+			return;
+		}
+		
+		isDragging = false;
+		onStopDrag.emit();
+	}
+	
+	private function onButtonMoveMouseDown() {
+		startDrag();
+	}
+	
+	private function onMouseUp() {
+		stopDrag();
+	}
+	
 	function onEnterFrame() {
-		if (isMouseDown == false) {
+		if (isDragging == false) {
 			return;
 		}
 		
@@ -78,14 +97,5 @@ class core.DraggableObject {
 			container._y = Math.max(container._y, screenBounds.y);
 			container._y = Math.min(container._y, screenBounds.y + screenBounds.height - buttonMove._height);
 		}
-	}
-	
-	function onMouseUp() {
-		if (isMouseDown == false) {
-			return;
-		}
-		
-		isMouseDown = false;
-		onStopDrag.emit();
 	}
 }

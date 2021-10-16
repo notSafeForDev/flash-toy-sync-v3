@@ -430,17 +430,17 @@ function transpileActionScript3To2(actionscript) {
     replaceInActionScriptLines(lines, ["protected function"], "public function");
     replaceInActionScriptLines(lines, ["protected var"], "public var");
 
-    // Repace : void with : Void
+    // Replace : void with : Void
     replaceInActionScriptLines(lines, [":", "void"], ": Void", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
-    // Repace : DisplayObjectContainer with : MovieClip
-    replaceInActionScriptLines(lines, [":", "DisplayObjectContainer"], ": MovieClip", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
+    // Repace : DisplayObjectContainer with "any"
+    replaceInActionScriptLines(lines, [":", "DisplayObjectContainer"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
-    // Repace : DisplayObject with : MovieClip
-    replaceInActionScriptLines(lines, [":", "DisplayObject"], ": MovieClip", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
+    // Repace : DisplayObject with "any"
+    replaceInActionScriptLines(lines, [":", "DisplayObject"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
-    // Repace : Sprite with : MovieClip
-    replaceInActionScriptLines(lines, [":", "Sprite"], ": MovieClip", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
+    // Repace : Sprite with "any"
+    replaceInActionScriptLines(lines, [":", "Sprite"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
     // TODO: Fix (var child : DisplayObject) // Without semi-colon
     // TODO: In trace, replace comma outside of strings with: + ", " + 

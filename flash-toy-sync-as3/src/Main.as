@@ -26,7 +26,7 @@ package {
 			container.name = "root";
 			stage.addChild(container);
 			
-			var index : Index = new Index(container, "animations/karas-nightlife.swf");
+			var index : Index = new Index(container, "animations/spikeshi.swf");
 			
 			// Fixes an issue where keyboard input stops registering after having clicked on the external swf
 			stage.addEventListener(FocusEvent.FOCUS_OUT, function(e : FocusEvent) : void {

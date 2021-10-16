@@ -35,6 +35,9 @@ package components {
 		
 		private var highlightSelectedChildTimeout : Number;
 		private var shouldHighlightSelectedChild : Boolean;
+		private var shouldHighlightAtCursor : Boolean;
+		
+		private var highlightedElement : DisplayObject;
 		
 		private var childAtCursor : DisplayObject;
 		
@@ -72,9 +75,34 @@ package components {
 				drawBoundsForObject(GlobalState.selectedChild.state);
 			}
 			
+			if (highlightedElement != null) {
+				drawBoundsForObject(highlightedElement);
+			}
+			
 			if (tempRef != null && GlobalState.clickedChild.state != null) {
 				drawBounds(tempRef.getBounds(overlay), DisplayObjectUtil.isShape(tempRef.getObject()));
 			}
+			
+			if (shouldHighlightAtCursor) {
+				var element : DisplayObject = getElementAtCursor();
+				drawBoundsForObject(element);
+			}
+			
+			shouldHighlightAtCursor = false;
+			highlightedElement = null;
+		}
+		
+		public function highlightElementAtCursor() : void {
+			shouldHighlightAtCursor = true;
+		}
+		
+		public function highlightElement(_element : DisplayObject) : void {
+			highlightedElement = _element;
+		}
+		
+		public function getElementAtCursor() : DisplayObject {
+			childAtCursor = getChildAtMousePosition(GlobalState.selectedChild.state || container);
+			return childAtCursor;
 		}
 		
 		private function onSelectedChildChanged() : void {
@@ -171,6 +199,14 @@ package components {
 		
 		private function getBoundsDifferences(_a : Rectangle, _b : Rectangle) : Number {
 			return Math.abs(_a.width - _b.width) + Math.abs(_a.height - _b.height) + Math.abs(_a.x - _b.x) + Math.abs(_a.y - _b.y);
+			// TODO: Test if that works better
+			/* var x : Number = Math.abs(_a.x - _b.x);
+			var y : Number = Math.abs(_a.y - _b.y);
+			var minWidth : Number = Math.min(_a.width, _b.width);
+			var minHeight : Number = Math.min(_a.height, _b.height);
+			var widthDifference : Number = Math.abs(_a.width - _b.width);
+			var heightDifference : Number = Math.abs(_a.height - _b.height);
+			return x + y + widthDifference / minWidth + heightDifference / minHeight; */
 		}
 		
 		private function drawBoundsForObject(_object : DisplayObject) : void {

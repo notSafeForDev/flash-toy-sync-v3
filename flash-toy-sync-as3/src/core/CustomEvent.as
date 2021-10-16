@@ -14,8 +14,16 @@
 		 * @param	_handler	The callback function
 		 * @return	The listener that was added
 		 */
-		public function listen(_scope : *, _handler : Function) : Object {
-			var listener : Object = {handler: _handler, scope : _scope, once: false}
+		public function listen(_scope : * , _handler : Function, ...args) : Object {
+			var handler : Function = _handler;
+			
+			if (args.length > 0) {
+				handler = function(...args2) : void {
+					_handler.apply(_scope, args.concat(args2));
+				}
+			}
+			
+			var listener : Object = {handler: handler, scope : _scope, once: false}
 			listeners.push(listener);
 			return listener;
 		}

@@ -20,7 +20,7 @@ package core {
 		private var container : MovieClip;
 		private var buttonMove : DisplayObject;
 		
-		private var isMouseDown : Boolean = false;
+		private var isDragging : Boolean = false;
 		private var mouseDragOffset : Point;
 		
 		function DraggableObject(_container : MovieClip, _buttonMove : DisplayObject) {
@@ -35,8 +35,13 @@ package core {
 			container.stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 		}
 		
-		private function onButtonMoveMouseDown(e : MouseEvent) : void {
-			mouseDragOffset = container.parent.globalToLocal(new Point(e.stageX, e.stageY));
+		public function moveToCursor() : void {
+			container.x = container.parent.mouseX;
+			container.y = container.parent.mouseY;
+		}
+		
+		public function startDrag() : void {
+			mouseDragOffset = container.parent.globalToLocal(new Point(container.stage.mouseX, container.stage.mouseY));
 			mouseDragOffset.x -= container.x;
 			mouseDragOffset.y -= container.y;
 			
@@ -46,12 +51,29 @@ package core {
 				}
 			}
 			
-			isMouseDown = true;
+			isDragging = true;
 			onStartDrag.emit();
 		}
 		
+		public function stopDrag() : void {
+			if (isDragging == false) {
+				return;
+			}
+			
+			isDragging = false;
+			onStopDrag.emit();
+		}
+		
+		private function onButtonMoveMouseDown(e : MouseEvent) : void {
+			startDrag();
+		}
+		
+		private function onMouseUp(e : MouseEvent) : void {
+			stopDrag();
+		}
+		
 		private function onEnterFrame(e : Event) : void {
-			if (isMouseDown == false) {
+			if (isDragging == false) {
 				return;
 			}
 			
@@ -66,15 +88,6 @@ package core {
 				container.y = Math.max(container.y, screenBounds.y);
 				container.y = Math.min(container.y, screenBounds.y + screenBounds.height - buttonMove.height);
 			}
-		}
-		
-		private function onMouseUp(e : MouseEvent) : void {
-			if (isMouseDown == false) {
-				return;
-			}
-			
-			isMouseDown = false;
-			onStopDrag.emit();
 		}
 	}
 }

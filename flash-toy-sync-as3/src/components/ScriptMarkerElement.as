@@ -22,6 +22,8 @@ package components {
 		
 		public var element : MovieClip;
 		
+		public var draggable : DraggableObject;
+		
 		public function ScriptMarkerElement(_parent : MovieClip, _color : Number, _text : String) {
 			onStopDrag = new CustomEvent();
 			
@@ -36,7 +38,7 @@ package components {
 			text.setY(-9);
 			TextStyles.applyMarkerStyle(text);
 			
-			var draggable : DraggableObject = new DraggableObject(element, element);
+			draggable = new DraggableObject(element, element);
 			draggable.onStartDrag.listen(this, _onStartDrag);
 			draggable.onStopDrag.listen(this, _onStopDrag);
 			draggable.bringToFrontOnDrag = true;

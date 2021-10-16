@@ -1,9 +1,9 @@
 package controllers {
 	
-	import core.ArrayUtil;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 
+	import core.ArrayUtil;
 	import core.MovieClipUtil;
 	import core.DisplayObjectUtil;
 	
@@ -11,7 +11,6 @@ package controllers {
 	import global.GlobalEvents;
 	
 	import components.ScriptingPanel;
-	import components.StageElementSelector;
 	import components.MarkerSceneScript;
 	import components.SceneScript;
 	import components.Scene;
@@ -29,61 +28,26 @@ package controllers {
 		
 		private var globalState : GlobalState;
 		
-		private var scriptMarkers : Array = null;
-		
-		private var stimulationScriptMarker : ScriptMarker;
-		private var baseScriptMarker : ScriptMarker;
-		private var tipScriptMarker : ScriptMarker;
-		
 		private var isRecording : Boolean = false;
 		private var recordingScene : Scene = null;
 		private var nextFrameToRecord : Number = -1;
 		
 		private var currentSceneScript : SceneScript = null;
 		
-		public function ScriptingController(_globalState : GlobalState, _panelContainer : MovieClip, _animation : MovieClip, _overlayContainer : MovieClip) {
+		public function ScriptingController(_globalState : GlobalState, _scriptingPanel : ScriptingPanel, _scenesPanel : ScenesPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
 			animation = _animation;
 			globalState = _globalState;
 			
-			var stageElementSelector : StageElementSelector = new StageElementSelector(_animation, _overlayContainer);
-			stageElementSelector.onSelectChild.listen(this, onStageElementSelectorSelectChild);
+			_scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
 			
-			var stimulationMarkerElement : ScriptMarkerElement = new ScriptMarkerElement(_overlayContainer, 0xD99EC6, "STIM");
-			var baseMarkerElement : ScriptMarkerElement = new ScriptMarkerElement(_overlayContainer, 0xA1D99E, "BASE");
-			var tipMarkerElement : ScriptMarkerElement = new ScriptMarkerElement(_overlayContainer, 0x9ED0D9, "TIP");
-			
-			stimulationScriptMarker = new ScriptMarker(animation, stimulationMarkerElement, globalState._stimulationMarkerAttachedTo, globalState._stimulationMarkerPoint);
-			baseScriptMarker = new ScriptMarker(animation, baseMarkerElement, globalState._baseMarkerAttachedTo, globalState._baseMarkerPoint);
-			tipScriptMarker = new ScriptMarker(animation, tipMarkerElement, globalState._tipMarkerAttachedTo, globalState._tipMarkerPoint);
-			
-			scriptMarkers = [stimulationScriptMarker, baseScriptMarker, tipScriptMarker];
-			
-			var scriptingPanel : ScriptingPanel = new ScriptingPanel(_panelContainer);
-			scriptingPanel.setPosition(700, 300);
-			scriptingPanel.onAttachStimulationMarker.listen(this, onScriptingPanelAttachStimulationMarker);
-			scriptingPanel.onAttachBaseMarker.listen(this, onScriptingPanelAttachBaseMarker);
-			scriptingPanel.onAttachTipMarker.listen(this, onScriptingPanelAttachTipMarker);
-			scriptingPanel.onMouseSelectFilterChange.listen(this, onScriptingPanelMouseSelectFilterChange);
-			scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
-			
-			var scenesPanel : ScenesPanel = new ScenesPanel(_panelContainer);
-			scenesPanel.setPosition(700, 700);
-			scenesPanel.onSceneSelected.listen(this, onScenesPanelSceneSelected);
+			_scenesPanel.setPosition(700, 700);
+			_scenesPanel.onSceneSelected.listen(this, onScenesPanelSceneSelected);
 			
 			GlobalState.listen(this, onCurrentSceneStateChange, [GlobalState.currentScene]);
 			GlobalState.listen(this, onScenesStateChange, [GlobalState.scenes]);
 		}
 		
 		public function onEnterFrame() : void {
-			if (DisplayObjectUtil.isNested(animation, GlobalState.clickedChild.state) == false) {
-				globalState._clickedChild.setState(null);
-			}
-			
-			for (var i : Number = 0; i < scriptMarkers.length; i++) {
-				var scriptMarker : ScriptMarker = scriptMarkers[i];
-				scriptMarker.update();
-			}
-			
 			if (isRecording == true) {
 				updateRecording();
 			}
@@ -101,13 +65,6 @@ package controllers {
 		
 		private function onCurrentSceneStateChange() : void {
 			currentSceneScript = getSceneScriptForCurrentScene();
-			
-			globalState._stimulationMarkerAttachedTo.setState(null);
-			globalState._baseMarkerAttachedTo.setState(null);
-			globalState._tipMarkerAttachedTo.setState(null);
-			globalState._stimulationMarkerPoint.setState(null);
-			globalState._baseMarkerPoint.setState(null);
-			globalState._tipMarkerPoint.setState(null);
 		}
 		
 		private function onScenesStateChange() : void {
@@ -122,22 +79,6 @@ package controllers {
 			}
 		}
 		
-		private function onScriptingPanelAttachStimulationMarker() : void {
-			stimulationScriptMarker.attachTo(GlobalState.clickedChild.state || GlobalState.selectedChild.state);
-		}
-		
-		private function onScriptingPanelAttachBaseMarker() : void {
-			baseScriptMarker.attachTo(GlobalState.clickedChild.state || GlobalState.selectedChild.state);
-		}
-		
-		private function onScriptingPanelAttachTipMarker() : void {
-			tipScriptMarker.attachTo(GlobalState.clickedChild.state || GlobalState.selectedChild.state);
-		}
-		
-		private function onScriptingPanelMouseSelectFilterChange(_filter : String) : void {
-			globalState._mouseSelectFilter.setState(_filter);
-		}
-		
 		private function onScriptingPanelStartRecording() : void {
 			if (GlobalState.currentScene.state != null) {
 				startRecording();
@@ -146,10 +87,6 @@ package controllers {
 		
 		private function onScenesPanelSceneSelected(_scene : Scene) : void {
 			GlobalEvents.playFromSceneStart.emit(_scene);
-		}
-		
-		private function onStageElementSelectorSelectChild(_child : DisplayObject) : void {
-			globalState._clickedChild.setState(_child);
 		}
 		
 		private function startRecording() : void {

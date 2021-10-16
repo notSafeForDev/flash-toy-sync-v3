@@ -105,6 +105,9 @@ package components {
 				if (hasSimiliarWidth == true && hasSimiliarHeight == true && hasSimilarXPosition == true && hasSimilarYPosition == true) {
 					object = child;
 					bounds = childBounds;
+					if (DisplayObjectUtil.isShape(object) == false && path == null) {
+						path = DisplayObjectUtil.getChildPath(topParent, object);
+					}
 					break;
 				}
 			}
