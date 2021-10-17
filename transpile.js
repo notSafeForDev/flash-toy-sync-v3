@@ -372,6 +372,9 @@ function transpileActionScript3To2(actionscript) {
     const packageLine = lines[packageLineIndex];
     const packageName = getStringBetween(packageLine, "package", "{").trim();
 
+    // Import JSON package
+    lines.unshift("import core.JSON");
+
     // Import everything from the base package, incase something else from it is being used, as AS3 doesn't require import for that
     if (packageName !== "") {
         lines.unshift("import " + packageName + ".*");

@@ -1,7 +1,9 @@
 package components {
 	import config.TextStyles;
+	import core.CustomEvent;
 	import core.TextElement;
 	import flash.display.MovieClip;
+	import global.GlobalState;
 	
 	/**
 	 * ...
@@ -9,14 +11,53 @@ package components {
 	 */
 	public class ToyPanel extends Panel {
 		
+		public var onConnectionKeyChange : CustomEvent;
+		public var onPrepareScript : CustomEvent;
+		
+		private var statusText : TextElement;
+		private var prepareScriptButton : UIButton;
+		
 		public function ToyPanel(_parent : MovieClip) {
 			super(_parent, "Toy", 150, -1);
 			
-			addInputText("connectionKey...", this, onConnectionKeyChange);
+			onConnectionKeyChange = new CustomEvent();
+			onPrepareScript = new CustomEvent();
+			
+			addInputText("connectionKey...", this, onConnectionKeyInputChange);
+			prepareScriptButton = addButton("Prepare Script");
+			prepareScriptButton.disable();
+			prepareScriptButton.onMouseClick.listen(this, onPrepareScriptButtonClick);
+			
+			statusText = addText("Status: ...", 35);
+			
+			GlobalState.listen(this, onToyStatesChange, [GlobalState.toyStatus, GlobalState.toyError]);
+			GlobalState.listen(this, onCurrentSceneScriptStateChange, [GlobalState.currentSceneScript]);
 		}
 		
-		private function onConnectionKeyChange(_key : String) : void {
-			trace(_key);
+		private function onToyStatesChange() : void {
+			if (GlobalState.toyError.state != "") {
+				statusText.setText("Error: " + GlobalState.toyError.state);
+			} else if (GlobalState.toyStatus.state != "") {
+				statusText.setText("Status: " + GlobalState.toyStatus.state);
+			} else {
+				statusText.setText("Status: ...");
+			}
+		}
+		
+		private function onCurrentSceneScriptStateChange() : void {
+			if (GlobalState.currentSceneScript.state == null) {
+				prepareScriptButton.disable();
+			} else {
+				prepareScriptButton.enable();
+			}
+		}
+		
+		private function onConnectionKeyInputChange(_key : String) : void {
+			onConnectionKeyChange.emit(_key);
+		}
+		
+		private function onPrepareScriptButtonClick() : void {
+			onPrepareScript.emit();
 		}
 	}
 }

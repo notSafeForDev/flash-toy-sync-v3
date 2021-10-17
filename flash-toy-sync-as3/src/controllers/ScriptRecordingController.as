@@ -45,9 +45,8 @@ package controllers {
 			
 			_scenesPanel.onSceneSelected.listen(this, onScenesPanelSceneSelected);
 			
-			GlobalState.listen(this, onCurrentSceneStateChange, [GlobalState.currentScene]);
-			
 			GlobalEvents.scenesMerged.listen(this, onScenesMerged);
+			GlobalEvents.sceneChanged.listen(this, onSceneChanged);
 		}
 		
 		public function onEnterFrame() : void {
@@ -66,8 +65,9 @@ package controllers {
 			} */
 		}
 		
-		private function onCurrentSceneStateChange() : void {
+		private function onSceneChanged() : void {
 			currentSceneScript = getSceneScriptForCurrentScene();
+			globalState._currentSceneScript.setState(currentSceneScript);
 		}
 		
 		private function onScenesMerged(_previousScene : Scene, _combinedScene : Scene) : void {
@@ -96,11 +96,13 @@ package controllers {
 			if (existingSceneScript != null) {
 				trace("Start recording existing scene");
 				currentSceneScript = existingSceneScript;
+				globalState._currentSceneScript.setState(currentSceneScript);
 			} else {
 				trace("Start recording new scene");
 				trace("First frames of current scene: " + GlobalState.currentScene.state.getFirstFrames());
 				currentSceneScript = MarkerSceneScript.fromGlobalState(animation);
 				globalState._sceneScripts.push(currentSceneScript);
+				globalState._currentSceneScript.setState(currentSceneScript);
 			}
 			
 			recordingScene = GlobalState.currentScene.state;
@@ -192,12 +194,11 @@ package controllers {
 			trace("Finish recording");
 			
 			GlobalEvents.stopAtSceneStart.emit(recordingScene);
+			GlobalEvents.finishedRecordingScript.emit();
 			
 			isRecording = false;
 			recordingScene = null;
 			nextFrameToRecord = -1;
-			
-			trace(currentSceneScript.getStartFrame(), currentSceneScript.getDepths().length);
 		}
 		
 		private function getSceneScriptForCurrentScene() : SceneScript {

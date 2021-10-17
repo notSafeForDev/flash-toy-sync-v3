@@ -1,5 +1,7 @@
 package global {
 	
+	import components.stateTypes.SceneScriptState;
+	import components.stateTypes.SceneScriptStateReference;
 	import core.StageUtil;
 	import core.stateTypes.ArrayState;
 	import core.stateTypes.ArrayStateReference;
@@ -124,6 +126,18 @@ package global {
 		public var _sceneScripts : ArrayState;
 		public static var sceneScripts : ArrayStateReference;
 		
+		/** The current scripted scene */
+		public var _currentSceneScript : SceneScriptState;
+		public static var currentSceneScript : SceneScriptStateReference;
+		
+		/** The status of the currently connected sex toy */
+		public var _toyStatus : StringState;
+		public static var toyStatus : StringStateReference;
+		
+		/** The error for the currently connected sex toy */
+		public var _toyError : StringState;
+		public static var toyError : StringStateReference;
+		
 		public function GlobalState(_stateManager : CustomStateManager) {
 			if (GlobalState.stateManager != null) {
 				throw "Unable to create a new instance of GlobalState, there can only be one instance of it";
@@ -238,10 +252,25 @@ package global {
 			_currentScene = added.state;
 			GlobalState.currentScene = added.reference;
 			
-			// dataForScriptedScenes
+			// sceneScripts
 			added = _stateManager.addArrayState([]);
 			_sceneScripts = added.state;
 			GlobalState.sceneScripts = added.reference;
+			
+			// currentSceneScript
+			added = _stateManager.addSceneScriptState(null);
+			_currentSceneScript = added.state;
+			GlobalState.currentSceneScript = added.reference;
+			
+			// toyStatus
+			added = _stateManager.addStringState("");
+			_toyStatus = added.state;
+			GlobalState.toyStatus = added.reference;
+			
+			// toyError
+			added = _stateManager.addStringState("");
+			_toyError = added.state;
+			GlobalState.toyError = added.reference;
 		}
 		
 		public static function listen(_scope : * , _handler : Function, _stateReferences : Array) : void {

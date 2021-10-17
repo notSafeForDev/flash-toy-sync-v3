@@ -97,18 +97,20 @@ package controllers {
 				// and since a scene can not consist of a single frame, this is a reasonable solution to that problem
 				var isNextFrameInCurrentScene : Boolean = currentScene != null && currentScene.isAtScene(animation, selectedChild, 1);
 				
+				if (isAtCurrentScene == true || isNextFrameInCurrentScene == true) {
+					GlobalEvents.sceneLooped.emit();
+				}
+				
 				if (sceneAtFrame != null && sceneAtFrame != currentScene) {
 					exitCurrentScene(selectedChild);
-					currentScene = sceneAtFrame;
+					setCurrentScene(sceneAtFrame);
 					trace("Entered existing scene from start");
-					globalState._currentScene.setState(currentScene);
 				}
 				
 				if (sceneAtFrame == null && isAtCurrentScene == false && isNextFrameInCurrentScene == false) {
 					exitCurrentScene(selectedChild);
-					currentScene = addNewScene(selectedChild);
+					setCurrentScene(addNewScene(selectedChild));
 					trace("Created new scene at a natural starting point, frame: " + currentFrame + ", total scenes: " + scenes.length);
-					globalState._currentScene.setState(currentScene);
 				}
 			}
 			
@@ -138,12 +140,10 @@ package controllers {
 			setSelectedChild(_child);
 			
 			if (sceneAtFrame != null) {
-				currentScene = sceneAtFrame;
-				globalState._currentScene.setState(currentScene);
+				setCurrentScene(sceneAtFrame);
 			} else {
-				currentScene = addNewScene(_child);
 				trace("Created new scene at a potentially invalid starting point, total scenes: " + scenes.length);
-				globalState._currentScene.setState(currentScene);
+				setCurrentScene(addNewScene(_child));
 			}
 		}
 		
@@ -160,12 +160,10 @@ package controllers {
 			
 			if (currentScene != null && isSameSceneAsCurrent == false) {
 				exitCurrentScene(GlobalState.selectedChild.state);
-				currentScene = null;
 				clearSelectedChild();
 			}
 			
-			currentScene = _scene;
-			globalState._currentScene.setState(currentScene);
+			setCurrentScene(_scene);
 			
 			if (_shouldPlay == true) {
 				_scene.playFromStart();
@@ -194,14 +192,17 @@ package controllers {
 			
 			var selectedChild : MovieClip = GlobalState.selectedChild.state;
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
+			var wasForceStopped : Boolean = currentScene.isForceStopped();
 			
-			if (currentScene.isForceStopped() == true) {
+			if (wasForceStopped == true) {
 				currentScene.play(selectedChild);
 				nextExpectedFrame = currentFrame + 1;
 			} else {
 				currentScene.stop(selectedChild);
 				nextExpectedFrame = currentFrame;
 			}
+			
+			globalState._isForceStopped.setState(!wasForceStopped);
 		}
 		
 		private function onGotoStartShortcut() : void {
@@ -245,6 +246,9 @@ package controllers {
 				currentScene.exitScene(_selectedChild);
 				currentScene = null;
 				globalState._currentScene.setState(null);
+				globalState._isForceStopped.setState(false);
+				
+				GlobalEvents.sceneChanged.emit();
 			}
 		}
 		
@@ -255,6 +259,13 @@ package controllers {
 			
 			globalState._selectedChild.setState(_child);
 			globalState._selectedChildPath.setState(selectedChildPath);
+		}
+		
+		private function setCurrentScene(_scene : Scene) : void {
+			currentScene = _scene;
+			globalState._currentScene.setState(_scene);
+			
+			GlobalEvents.sceneChanged.emit();
 		}
 		
 		private function clearSelectedChild() : void {

@@ -14,6 +14,9 @@ package global {
 		public static var stopAtSceneStart : CustomEvent;
 		public static var playFromSceneStart : CustomEvent;
 		public static var scenesMerged : CustomEvent;
+		public static var sceneChanged : CustomEvent;
+		public static var sceneLooped : CustomEvent;
+		public static var finishedRecordingScript : CustomEvent;
 		
 		public static function init() : void {
 			enterFrame = new CustomEvent();
@@ -22,6 +25,9 @@ package global {
 			stopAtSceneStart = new CustomEvent();
 			playFromSceneStart = new CustomEvent();
 			scenesMerged = new CustomEvent();
+			sceneChanged = new CustomEvent();
+			sceneLooped = new CustomEvent();
+			finishedRecordingScript = new CustomEvent();
 		}
 	}
 }

@@ -17,7 +17,7 @@ package {
 	import controllers.ScriptSampleMarkersController;
 	import controllers.ScriptRecordingController;
 	import controllers.HierarchyPanelController;
-	import controllers.ToysController;
+	import controllers.TheHandyController;
 	import controllers.ScenesController;
 	
 	import components.CustomStateManager;
@@ -53,7 +53,7 @@ package {
 		private var scriptSampleMarkersController : ScriptSampleMarkersController;
 		private var scriptMarkersController : ScriptMarkersController;
 		private var scriptRecordingController : ScriptRecordingController;
-		private var toysController : ToysController;
+		private var theHandyController : TheHandyController;
 		
 		public function Index(_container : MovieClip, _animationPath : String) {
 			if (_container == null) {
@@ -104,7 +104,7 @@ package {
 			scriptSampleMarkersController = new ScriptSampleMarkersController(globalState, animation, overlayContainer);
 			scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer);
 			scriptRecordingController = new ScriptRecordingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
-			toysController = new ToysController(globalState, toyPanel);
+			theHandyController = new TheHandyController(globalState, toyPanel);
 			
 			// We add the onEnterFrame listener on the container, instead of the animation, for better compatibility with AS2
 			// As the contents of _swf can be replaced by the loaded swf file
