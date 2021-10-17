@@ -33,6 +33,49 @@ package components {
 			tipPositions = [];
 		}
 		
+		public override function toSaveData() : Object {
+			var saveData : Object = super.toSaveData();
+			
+			saveData.type = getType();
+			saveData.stimulationPositions = stimulationPositions.slice();
+			saveData.basePositions = basePositions.slice();
+			saveData.tipPositions = tipPositions.slice();
+			
+			return saveData;
+		}
+		
+		public static function fromSaveData(_saveData : Object) : MarkerSceneScript {
+			var i : Number;
+			var scenes : Array = GlobalState.scenes.state;
+			var scene : Scene;
+			for (i = 0; i < scenes.length; i++) {
+				scene = scenes[i];
+				if (scene.isFrameInScene(_saveData.scenePath, _saveData.sceneFirstFrames) == true) {
+					break;
+				}
+			}
+			
+			var sceneScript : MarkerSceneScript = new MarkerSceneScript(scene);
+			sceneScript.depthsAtFrames = _saveData.depthsAtFrames.slice();
+			sceneScript.startRootFrame = _saveData.startRootFrame;
+			
+			sceneScript.stimulationPositions = [];
+			sceneScript.basePositions = [];
+			sceneScript.tipPositions = [];
+			
+			for (i = 0; i < _saveData.stimulationPositions.length; i++) {
+				sceneScript.stimulationPositions.push(new Point(_saveData.stimulationPositions[i].x, _saveData.stimulationPositions[i].y));
+			}
+			for (i = 0; i < _saveData.basePositions.length; i++) {
+				sceneScript.basePositions.push(new Point(_saveData.basePositions[i].x, _saveData.basePositions[i].y));
+			}
+			for (i = 0; i < _saveData.tipPositions.length; i++) {
+				sceneScript.tipPositions.push(new Point(_saveData.tipPositions[i].x, _saveData.tipPositions[i].y));
+			}
+			
+			return sceneScript;
+		}
+		
 		public static function fromGlobalState(_topParent : MovieClip) : MarkerSceneScript {
 			var currentScene : Scene = GlobalState.currentScene.state;
 			var markerSceneScript : MarkerSceneScript = new MarkerSceneScript(currentScene);
@@ -68,10 +111,6 @@ package components {
 			var base : Point = getMarkerPosition(GlobalState.baseMarkerAttachedTo.state, GlobalState.baseMarkerPoint.state);
 			var tip : Point = getMarkerPosition(GlobalState.tipMarkerAttachedTo.state, GlobalState.tipMarkerPoint.state);
 			var depth : Number = calculateDepth(stimulation, base, tip);
-			
-			if (stimulation == null || base == null || tip == null) {
-				trace("Broken at: " + _index);
-			}
 			
 			if (_index >= stimulationPositions.length) {
 				stimulationPositions.push(stimulation);

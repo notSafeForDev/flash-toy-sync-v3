@@ -25,7 +25,6 @@ package controllers {
 		
 		private var animation : MovieClip;
 		
-		private var scenes : Array;
 		private var currentScene : Scene;
 		
 		private var selectedChildPath : Array;
@@ -37,7 +36,6 @@ package controllers {
 			globalState = _globalState;
 			animation = _animation;
 			
-			scenes = [];
 			selectedChildPath = null;
 			
 			var keyboardManager : KeyboardManager = new KeyboardManager(animation);
@@ -110,7 +108,7 @@ package controllers {
 				if (sceneAtFrame == null && isAtCurrentScene == false && isNextFrameInCurrentScene == false) {
 					exitCurrentScene(selectedChild);
 					setCurrentScene(addNewScene(selectedChild));
-					trace("Created new scene at a natural starting point, frame: " + currentFrame + ", total scenes: " + scenes.length);
+					trace("Created new scene at a natural starting point, frame: " + currentFrame + ", total scenes: " + GlobalState.scenes.state.length);
 				}
 			}
 			
@@ -142,7 +140,7 @@ package controllers {
 			if (sceneAtFrame != null) {
 				setCurrentScene(sceneAtFrame);
 			} else {
-				trace("Created new scene at a potentially invalid starting point, total scenes: " + scenes.length);
+				trace("Created new scene at a potentially invalid starting point, total scenes: " + GlobalState.scenes.state.length);
 				setCurrentScene(addNewScene(_child));
 			}
 		}
@@ -239,8 +237,9 @@ package controllers {
 		private function exitCurrentScene(_selectedChild : MovieClip) : void {
 			if (currentScene != null) {
 				if (currentScene.getFirstFrame() == currentScene.getLastFrame()) {
+					var scenes : Array = GlobalState.scenes.state;
 					ArrayUtil.remove(scenes, currentScene);
-					globalState._scenes.setState(scenes.slice());
+					globalState._scenes.setState(scenes);
 				}
 				
 				currentScene.exitScene(_selectedChild);
@@ -280,6 +279,8 @@ package controllers {
 			var scene : Scene = new Scene(animation);
 			scene.init(_selectedChild);
 			
+			var scenes : Array = GlobalState.scenes.state;
+			
 			scenes.push(scene);
 			scenes.sort(function(_a : Scene, _b : Scene) : Number {
 				var aFirstFrames : Array = _a.getFirstFrames();
@@ -301,11 +302,12 @@ package controllers {
 				return 0;
 			});
 			
-			globalState._scenes.setState(scenes.slice());
+			globalState._scenes.setState(scenes);
 			return scene;
 		}
 		
 		private function mergeWithOtherScenes(_scene : Scene) : void {
+			var scenes : Array = GlobalState.scenes.state;
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
 				if (scene == _scene) {
@@ -314,7 +316,7 @@ package controllers {
 				if (scene.intersects(_scene) == true) {
 					_scene.merge(scene);
 					scenes.splice(i, 1);
-					globalState._scenes.setState(scenes.slice());
+					globalState._scenes.setState(scenes);
 					i--;
 					GlobalEvents.scenesMerged.emit(scene, _scene);
 					trace("Found scene to merge with");
@@ -328,7 +330,8 @@ package controllers {
 			return currentFrame == totalFrames ? 1 : currentFrame + 1;
 		}
 		
-		private function getSceneAtFrame(_child : MovieClip) : Scene {			
+		private function getSceneAtFrame(_child : MovieClip) : Scene {
+			var scenes : Array = GlobalState.scenes.state;
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
 				if (scene.isAtScene(animation, _child, 0) == true) {

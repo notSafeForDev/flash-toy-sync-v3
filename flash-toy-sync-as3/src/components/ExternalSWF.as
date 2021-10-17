@@ -16,6 +16,10 @@ package components {
 		public var onLoaded : CustomEvent;
 		public var onError : CustomEvent;
 		
+		private var loader : SWFLoader;
+		
+		private var container : MovieClip;
+		
 		private var loadedSWF : MovieClip;
 		
 		private var contentWidth : Number;
@@ -25,15 +29,24 @@ package components {
 		private var currentTargetX : Number = 0;
 		private var currentTargetY : Number = 0;
 		
-		public function ExternalSWF(_path : String, _container : MovieClip) {
+		public function ExternalSWF(_container : MovieClip) {
+			container = _container;
+			
 			onLoaded = new CustomEvent();
 			onError = new CustomEvent();
 			
-			var loader : SWFLoader = new SWFLoader();
-			loader.load(_path, _container, FunctionUtil.bind(this, _onLoaded));
+			loader = new SWFLoader();
 			loader.onError =  FunctionUtil.bind(this, _onError);
 			
 			GlobalState.listen(this, onAnimationSizeStateUpdate, [GlobalState.animationWidth, GlobalState.animationHeight]);
+		}
+		
+		public function browse(_scope : *, _onSelectedhandler : Function) : void {
+			loader.browse(FunctionUtil.bind(_scope, _onSelectedhandler));
+		}
+		
+		public function load(_name : String) : void {
+			loader.load("animations/" + _name, container, FunctionUtil.bind(this, _onLoaded));
 		}
 		
 		private function onAnimationSizeStateUpdate() : void {
@@ -62,7 +75,7 @@ package components {
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
-		private function _onError(_error : Error) : void {
+		private function _onError(_error : String) : void {
 			onError.emit(_error);
 		}
 		

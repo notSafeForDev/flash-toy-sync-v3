@@ -1,41 +1,43 @@
-﻿import flash.net.FileReference;
-
-import Core.JSON;
+﻿import core.FunctionUtil;
+import core.JSON;
+import flash.net.FileReference;
 
 class core.JSONLoader {
 	
-	static function browse(_filePathFolder : String, _onLoaded : Function) {
+	static function browse(_filePathFolder : String, _scope, _onLoaded : Function) {
 		var fileReference : FileReference = new FileReference();
 		var jsonLoader : LoadVars = new LoadVars();
 		var listener : Object = new Object();
+		
+		var onLoaded : Function = FunctionUtil.bind(_scope, _onLoaded);
 		
 		fileReference.addListener(listener);
 		fileReference.browse([{description: "json", extension: "*.json"}]);
 		
 		listener.onSelect = function(file : FileReference) {
 			if (_filePathFolder == "") {
-				JSONLoader.load(file.name, _onLoaded);
+				JSONLoader.load(file.name, onLoaded);
 			}
 			else {
-				JSONLoader.load(_filePathFolder + "/" + file.name, _onLoaded);
+				JSONLoader.load(_filePathFolder + "/" + file.name, onLoaded);
 			}
 		}
 	}
 	
-	static function load(_path : String, _onLoaded : Function) {
+	static function load(_path : String, _scope, _onLoaded : Function) {
 		var loader : LoadVars = new LoadVars();
 		
 		loader.onData = function(_data : String) {
 			if (_data == undefined) {
-				_onLoaded({error: _path + " not found"});
+				_onLoaded.apply(_scope, [{error: _path + " not found"}]);
 				return;
 			}
 			try {
 				var json : Object = JSON.parse(_data);
-				_onLoaded(json);
+				_onLoaded.apply(_scope, [json]);
 			} 
 			catch (error) {
-				_onLoaded({error: error.message});
+				_onLoaded.apply(_scope, [{error: error.message}]);
 			}
 		};
 		

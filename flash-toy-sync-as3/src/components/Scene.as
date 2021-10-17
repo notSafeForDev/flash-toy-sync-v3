@@ -67,17 +67,32 @@ package components {
 			isInitialized = true;
 		}
 		
-		public static function fromExisting(_topParent : MovieClip, _path : Array, _frameRanges : Array, _firstStopFrames : Array) : Scene {
-			var scene : Scene = new Scene(_topParent);
-			scene.path = _path;
-			scene.frameRanges = _frameRanges;
-			scene.firstStopFrames = _firstStopFrames;
-			scene.isInitialized = true;
-			
-			scene.lastPlayedFrames = [];
-			for (var i : Number = 0; i < _frameRanges.length; i++) {
-				scene.lastPlayedFrames.push(-1);
+		public function toSaveData() : Object {
+			var saveFrameRanges : Array = [];
+			for (var i : Number = 0; i < frameRanges.length; i++) {
+				saveFrameRanges.push({min: frameRanges[i].min, max: frameRanges[i].max});
 			}
+			
+			return {
+				path: path.slice(),
+				frameRanges: saveFrameRanges,
+				firstStopFrames: firstStopFrames.slice(),
+				lastPlayedFrames: lastPlayedFrames.slice()
+			}
+		}
+		
+		public static function fromSaveData(_topParent : MovieClip, _saveData : Object) : Scene {
+			var scene : Scene = new Scene(_topParent);
+			scene.path = _saveData.path.slice();
+			scene.firstStopFrames = _saveData.firstStopFrames.slice();
+			scene.lastPlayedFrames = _saveData.lastPlayedFrames.slice();
+			scene.frameRanges = [];
+			
+			for (var i : Number = 0; i < _saveData.frameRanges.length; i++) {
+				scene.frameRanges.push({min: _saveData.frameRanges[i].min, max: _saveData.frameRanges[i].max});
+			}
+			
+			scene.isInitialized = true;
 			
 			return scene;
 		}
@@ -131,9 +146,6 @@ package components {
 				if (currentFrame == lastPlayedFrames[i] && firstStopFrames[i] < 0) {
 					firstStopFrames[i] = currentFrame;
 				}
-				// traceOutput += "min:" + frameRange.min + ", max: " + frameRange.max + ", last: " + lastPlayedFrames[i] + ", current: " + currentFrame + ", stop: " + firstStopFrames[i] + " | ";
-				// traceOutput += " last: " + lastPlayedFrames[i] + ", current: " + currentFrame + ", stop: " + firstStopFrames[i] + " | ";
-				traceOutput += "min:" + frameRange.min + ", max: " + frameRange.max + ", stop: " + firstStopFrames[i] + " | ";
 				lastPlayedFrames[i] = currentFrame;
 			}
 			

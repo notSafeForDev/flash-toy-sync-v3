@@ -27,6 +27,33 @@ package components {
 			depthsAtFrames = [];
 		}
 		
+		public function toSaveData() : Object {
+			return {
+				type: getType(),
+				depthsAtFrames: depthsAtFrames.slice(),
+				startRootFrame: startRootFrame,
+				scenePath: scene.getPath(),
+				sceneFirstFrames: scene.getFirstFrames()
+			}
+		}
+		
+		public static function fromSaveData(_saveData : Object) : SceneScript {
+			var scenes : Array = GlobalState.scenes.state;
+			var scene : Scene;
+			for (var i : Number = 0; i < scenes.length; i++) {
+				scene = scenes[i];
+				if (scene.isFrameInScene(_saveData.scenePath, _saveData.sceneFirstFrames) == true) {
+					break;
+				}
+			}
+			
+			var sceneScript : SceneScript = new SceneScript(scene);
+			sceneScript.depthsAtFrames = _saveData.depthsAtFrames.slice();
+			sceneScript.startRootFrame = _saveData.startRootFrame.slice();
+			
+			return sceneScript;
+		}
+		
 		public function getType() : String {
 			return sceneScriptType;
 		}

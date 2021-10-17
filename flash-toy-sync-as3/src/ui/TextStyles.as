@@ -12,6 +12,12 @@ package ui {
 		
 		private static var font : String = "Consolas";
 		
+		public static function applyErrorStyle(_text : TextElement) : void {
+			_text.setFontSize(16);
+			_text.setFont(font, false);
+			_text.element.textColor = 0xFFFFFF;
+		}
+		
 		public static function applyListItemStyle(_text : TextElement) : void {
 			_text.element.textColor = 0xFFFFFF;
 			_text.setFont(font, false);

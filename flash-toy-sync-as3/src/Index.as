@@ -3,6 +3,7 @@ package {
 	import flash.display.MovieClip;
 	import flash.ui.Mouse;
 	
+	import core.TextElement;
 	import core.VersionUtil;
 	import core.Debug;
 	import core.MovieClipUtil;
@@ -19,10 +20,14 @@ package {
 	import controllers.HierarchyPanelController;
 	import controllers.TheHandyController;
 	import controllers.ScenesController;
+	import controllers.SaveDataController;
 	
 	import components.CustomStateManager;
 	import components.Borders;
 	import components.ExternalSWF;
+
+	import ui.SaveDataPanel;
+	import ui.TextStyles;
 	import ui.DebugPanel;
 	import ui.ScenesPanel;
 	import ui.ScriptingPanel;
@@ -43,6 +48,7 @@ package {
 		private var panelContainer : MovieClip;
 		
 		private var externalSWF : ExternalSWF;
+		private var externalSWFName : String;
 		private var animation : MovieClip;
 		
 		private var borders : Borders;
@@ -54,6 +60,9 @@ package {
 		private var scriptMarkersController : ScriptMarkersController;
 		private var scriptRecordingController : ScriptRecordingController;
 		private var theHandyController : TheHandyController;
+		private var saveDataController : SaveDataController;
+		
+		private var errorText : TextElement;
 		
 		public function Index(_container : MovieClip, _animationPath : String) {
 			if (_container == null) {
@@ -71,9 +80,22 @@ package {
 			overlayContainer = MovieClipUtil.create(_container, "overlayContainer");
 			panelContainer = MovieClipUtil.create(_container, "panelContainer");
 			
-			externalSWF = new ExternalSWF(_animationPath, animationContainer);
+			externalSWF = new ExternalSWF(animationContainer);
 			externalSWF.onLoaded.listen(this, onSWFLoaded);
 			externalSWF.onError.listen(this, onSWFError);
+			
+			externalSWF.browse(this, onSWFSelected);
+			
+			errorText = new TextElement(_container, "", TextElement.AUTO_SIZE_LEFT);
+			errorText.setAutoSize(TextElement.AUTO_SIZE_CENTER);
+			TextStyles.applyErrorStyle(errorText);
+			errorText.setX(StageUtil.getWidth() / 2);
+			errorText.setY(StageUtil.getHeight() - 50);
+		}
+		
+		private function onSWFSelected(_name : String) : void {
+			externalSWFName = _name;
+			externalSWF.load(_name);
 		}
 		
 		private function onSWFLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
@@ -90,13 +112,16 @@ package {
 			scenesPanel.setPosition(0, 350);
 			
 			var toyPanel : ToyPanel = new ToyPanel(panelContainer);
-			toyPanel.setPosition(1280 - 150, 500);
+			toyPanel.setPosition(1280 - 150, 550);
 			
 			var debugPanel : DebugPanel = new DebugPanel(panelContainer);
 			debugPanel.setPosition(1280 - 200, 720 - 20);
 			
 			var scriptingPanel : ScriptingPanel = new ScriptingPanel(panelContainer);
 			scriptingPanel.setPosition(1280 - 200, 0);
+			
+			var saveDataPanel : SaveDataPanel = new SaveDataPanel(panelContainer);
+			saveDataPanel.setPosition(1280 - 150, 400);
 			
 			scenesController = new ScenesController(globalState, animation);
 			animationScalingController = new AnimationScalingController(globalState, animation, _width, _height);
@@ -105,10 +130,13 @@ package {
 			scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer);
 			scriptRecordingController = new ScriptRecordingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
 			theHandyController = new TheHandyController(globalState, toyPanel);
+			saveDataController = new SaveDataController(globalState, animation, saveDataPanel, externalSWFName);
 			
 			// We add the onEnterFrame listener on the container, instead of the animation, for better compatibility with AS2
 			// As the contents of _swf can be replaced by the loaded swf file
 			MovieClipEvents.addOnEnterFrame(this, container, onEnterFrame);
+			
+			GlobalEvents.swfFileLoaded.emit(externalSWFName);
 			
 			// animation.gotoAndStop(256); // midna-3x-pleasure
 		}
@@ -135,8 +163,13 @@ package {
 			Mouse.show();
 		}
 		
-		private function onSWFError(_error : Error) : void {
+		private function onSWFError(_error : String) : void {
 			trace(_error);
+			
+			// This doesn't appear in the release version, only while running it in debug mode
+			if (_error.indexOf("AVM1Movie") >= 0) {
+				errorText.setText("The file you tried to load is not compatible with the Actionscript 3.0 version of flash-toy-sync, please try the Actionscript 2.0 version");
+			}
 		}
 	}
 }

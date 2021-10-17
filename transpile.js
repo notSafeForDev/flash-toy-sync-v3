@@ -411,9 +411,12 @@ function transpileActionScript3To2(actionscript) {
     // Replace imports
     replaceInActionScriptLines(lines, ["flash.ui.Keyboard"], "core.Keyboard", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
-    // Remove standard imports
+    // Remove imports for classes that are intrinsic to AS2
     removeActionScriptLines(lines, ["import flash.display"]);
     removeActionScriptLines(lines, ["import flash.ui.Mouse"]);
+    removeActionScriptLines(lines, ["import flash.net.SharedObject"]);
+
+    removeActionScriptLines(lines, ["import flash.system.System"]);
 
     const classLineIndex = findActionScriptLineIndex(lines, ["public class"]);
 

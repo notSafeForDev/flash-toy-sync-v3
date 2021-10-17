@@ -14,31 +14,31 @@ class core.MouseEvents {
 	 * @param	_target		The element the user clicks through
 	 * @param	_handler	The callback
 	 */
-	public static function addOnMouseDownPassThrough(_scope, _target : MovieClip, _handler : Function) {
+	public static function addOnMouseDownPassThrough(_scope, _target, _handler : Function) {
 		add(_scope, _target, "onMouseDown", _handler, arguments.slice(3));
 	}
 	
-	public static function addOnMouseOver(_scope, _target : MovieClip, _handler : Function) {
+	public static function addOnMouseOver(_scope, _target, _handler : Function) {
 		add(_scope, _target, "onRollOver", _handler, arguments.slice(3));
 	}
 	
-	public static function addOnMouseDown(_scope, _target : MovieClip, _handler : Function) {
+	public static function addOnMouseDown(_scope, _target, _handler : Function) {
 		add(_scope, _target, "onPress", _handler, arguments.slice(3));
 	}
 	
-	public static function addOnMouseUp(_scope, _target : MovieClip, _handler : Function) {
+	public static function addOnMouseUp(_scope, _target, _handler : Function) {
 		add(_scope, _target, "onRelease", _handler, arguments.slice(3));
 	}
 	
-	public static function addOnMouseMove(_scope, _target : MovieClip, _handler : Function) {
+	public static function addOnMouseMove(_scope, _target, _handler : Function) {
 		add(_scope, _target, "onMouseMove", _handler, arguments.slice(3));
 	}
 	
-	public static function addOnMouseOut(_scope, _target : MovieClip, _handler : Function) {
+	public static function addOnMouseOut(_scope, _target, _handler : Function) {
 		add(_scope, _target, "onRollOut", _handler, arguments.slice(3));
 	}
 	
-	private static function add(_scope, _target : MovieClip, _type : String, _handler : Function, _args : Array) {
+	private static function add(_scope, _target, _type : String, _handler : Function, _args : Array) {
 		var handler : Function = function() {
 			_handler.apply(_scope, _args);
 		}
