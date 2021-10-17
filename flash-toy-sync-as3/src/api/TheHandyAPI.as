@@ -28,7 +28,11 @@ package api {
 				throw new Error("Unable to send syncPrepare request, no connection key have been set");
 			}
 			
-			var url : String = baseUrl + connectionKey + "/syncPrepare?url=" + _csvUrl;
+			var date : Date = new Date();
+			
+			// disableCache is not actually a parameter of the api, it's a made up parameter in order to make sure that the url is always different each time,
+			// Otherwise the urlLoader uses cached responses, which would result in no new requests being made to the server
+			var url : String = baseUrl + connectionKey + "/syncPrepare?disableCache=" + date.getTime() + "&url=" + _csvUrl;
 			HTTPRequest.send(url, this, function(_response : Object) : void {
 				_responseHandler.apply(_scope, [_response]);
 			});
@@ -69,7 +73,9 @@ package api {
 				throw new Error("Unable to send syncOffset request, no connection key have been set");
 			}
 			
-			var url : String = baseUrl + connectionKey + "/syncOffset?offset=" + _offset;
+			var date : Date = new Date();
+			
+			var url : String = baseUrl + connectionKey + "/syncOffset?disableCache=" + date.getTime() + "&offset=" + _offset;
 			
 			HTTPRequest.send(url, this, null);
 		}
@@ -81,7 +87,9 @@ package api {
 			
 			isPlaying = false;
 			
-			var url : String = baseUrl + connectionKey + "/syncPlay?play=false";
+			var date : Date = new Date();
+			
+			var url : String = baseUrl + connectionKey + "/syncPlay?disableCache=" + date.getTime() + "&play=false";
 			
 			HTTPRequest.send(url, this, function(_response : Object) : void {
 				if (_responseHandler != null) {
