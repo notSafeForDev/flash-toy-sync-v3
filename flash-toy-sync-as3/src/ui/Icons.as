@@ -1,4 +1,4 @@
-package config {
+package ui {
 	import core.GraphicsUtil;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;

@@ -1,7 +1,7 @@
 package controllers {
 	
 	import components.ScriptMarker;
-	import components.ScriptMarkerElement;
+	import ui.ScriptMarkerElement;
 	import components.StageElementSelector;
 	import core.CustomEvent;
 	import core.DisplayObjectUtil;
@@ -10,7 +10,7 @@ package controllers {
 	import flash.display.MovieClip;
 	import global.GlobalState;
 	
-	import components.ScriptingPanel;
+	import ui.ScriptingPanel;
 	
 	/**
 	 * ...

@@ -10,13 +10,13 @@ package controllers {
 	import global.GlobalState;
 	import global.GlobalEvents;
 	
-	import components.ScriptingPanel;
+	import ui.ScriptingPanel;
 	import components.MarkerSceneScript;
 	import components.SceneScript;
 	import components.Scene;
-	import components.ScenesPanel;
+	import ui.ScenesPanel;
 	import components.ScriptMarker;
-	import components.ScriptMarkerElement;
+	import ui.ScriptMarkerElement;
 
 	/**
 	 * ...

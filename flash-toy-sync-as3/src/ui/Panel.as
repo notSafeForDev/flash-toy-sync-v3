@@ -1,8 +1,9 @@
-package components {
+package ui {
 	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Rectangle;
+	import ui.UIButton;
 	
 	import core.StageUtil;
 	import core.DisplayObjectUtil;
@@ -13,7 +14,7 @@ package components {
 	import core.DraggableObject;
 	import core.MouseEvents;
 	
-	import config.TextStyles;
+	import ui.TextStyles;
 
 	/**
 	 * ...

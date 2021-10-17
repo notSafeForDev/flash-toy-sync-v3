@@ -12,7 +12,7 @@ package controllers {
 	import components.MarkerSceneScript;
 	import components.Scene;
 	import components.SceneScript;
-	import components.ScriptSampleMarkerElement;
+	import ui.ScriptSampleMarkerElement;
 	
 	/**
 	 * ...

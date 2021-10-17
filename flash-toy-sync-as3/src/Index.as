@@ -23,11 +23,11 @@ package {
 	import components.CustomStateManager;
 	import components.Borders;
 	import components.ExternalSWF;
-	import components.DebugPanel;
-	import components.ScenesPanel;
-	import components.ScriptingPanel;
-	import components.HierarchyPanel;
-	import components.ToyPanel;
+	import ui.DebugPanel;
+	import ui.ScenesPanel;
+	import ui.ScriptingPanel;
+	import ui.HierarchyPanel;
+	import ui.ToyPanel;
 	
 	/**
 	 * ...

@@ -1,7 +1,7 @@
-package components {
+package ui {
 	
-	import config.Icons;
-	import config.TextStyles;
+	import ui.Icons;
+	import ui.TextStyles;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Point;

@@ -1,6 +1,8 @@
-package components {
+package ui {
 	
+	import components.Scene;
 	import flash.display.MovieClip;
+	import ui.ListItem;
 	
 	import core.CustomEvent;
 	import core.GraphicsUtil;

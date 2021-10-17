@@ -90,7 +90,7 @@ package core
 			add(_scope, _target, MouseEvent.MOUSE_OUT, _handler, _args);
 		}
 		
-		private static function add(_scope : * , _target : MovieClip, _type : String, _handler : Function, _args : Array) : void {
+		private static function add(_scope : * , _target : DisplayObject, _type : String, _handler : Function, _args : Array) : void {
 			_target.addEventListener(_type, function(e : MouseEvent) : void {
 				if (_args.length > 0) {
 					_handler.apply(_scope, _args);

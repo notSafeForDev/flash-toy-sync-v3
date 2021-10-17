@@ -1,11 +1,12 @@
-package components {
+package ui {
 	
-	import config.TextStyles;
+	import ui.TextStyles;
 	import core.Fonts;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import global.GlobalState;
+	import ui.Panel;
 	
 	import core.DisplayObjectUtil;
 	import core.MovieClipUtil;

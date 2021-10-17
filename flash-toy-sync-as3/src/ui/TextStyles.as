@@ -1,4 +1,4 @@
-package config {
+package ui {
 	
 	import flash.filters.GlowFilter;
 	

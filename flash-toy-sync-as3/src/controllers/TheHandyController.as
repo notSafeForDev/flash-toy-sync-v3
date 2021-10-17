@@ -3,7 +3,7 @@ package controllers {
 	import api.TheHandyAPI;
 	import components.Scene;
 	import components.SceneScript;
-	import components.ToyPanel;
+	import ui.ToyPanel;
 	import core.ArrayUtil;
 	import core.MovieClipUtil;
 	import core.StageUtil;

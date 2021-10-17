@@ -1,4 +1,4 @@
-package components {
+package ui {
 	
 	import core.ArrayUtil;
 	import flash.display.MovieClip;
@@ -13,7 +13,7 @@ package components {
 	
 	import global.GlobalState;
 	
-	import config.TextStyles;
+	import ui.TextStyles;
 	
 	/**
 	 * ...

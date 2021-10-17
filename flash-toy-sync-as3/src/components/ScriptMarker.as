@@ -6,6 +6,7 @@ package components {
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import ui.ScriptMarkerElement;
 
 	import core.DisplayObjectUtil;
 	import core.stateTypes.DisplayObjectState;

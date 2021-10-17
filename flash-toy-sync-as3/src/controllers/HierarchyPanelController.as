@@ -11,7 +11,7 @@ package controllers {
 	import global.GlobalEvents;
 	import global.GlobalState;
 	
-	import components.HierarchyPanel;
+	import ui.HierarchyPanel;
 	
 	/**
 	 * ...

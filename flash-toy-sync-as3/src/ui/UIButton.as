@@ -1,4 +1,4 @@
-package components {
+package ui {
 	
 	import flash.display.MovieClip;
 	
@@ -55,6 +55,7 @@ package components {
 		
 		private function _onMouseDown() : void {
 			isMouseDown = true;
+			isDragging = false;
 			onMouseDown.emit();
 		}
 		

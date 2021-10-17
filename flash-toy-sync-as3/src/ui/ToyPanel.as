@@ -1,5 +1,5 @@
-package components {
-	import config.TextStyles;
+package ui {
+	import ui.TextStyles;
 	import core.CustomEvent;
 	import core.TextElement;
 	import flash.display.MovieClip;

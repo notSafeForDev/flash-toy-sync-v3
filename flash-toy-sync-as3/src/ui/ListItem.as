@@ -1,4 +1,4 @@
-package components {
+package ui {
 	
 	import flash.display.MovieClip;
 	
@@ -9,7 +9,7 @@ package components {
 	import core.MovieClipUtil;
 	import core.TextElement;
 	
-	import config.TextStyles;
+	import ui.TextStyles;
 	
 	/**
 	 * ...

@@ -1,6 +1,6 @@
-package components {
+package ui {
 	
-	import config.Icons;
+	import ui.Icons;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 
