@@ -6,6 +6,8 @@ package components {
 	
 	import core.DisplayObjectUtil;
 	import core.MovieClipUtil;
+
+	import global.GlobalState;
 	
 	/**
 	 * A class for keeping track of the active frames for a nested child and it's parents
@@ -130,7 +132,7 @@ package components {
 				throw new Error("Unable to update frame ranges, the Scene have not been initialized");
 			}
 			
-			if (_isForceStopped == true) {
+			if (_isForceStopped == true || GlobalState.isEditor.state == false) {
 				return;
 			}
 			
@@ -236,6 +238,20 @@ package components {
 			}
 			
 			return true;
+		}
+		
+		public function isActive(_topParent : MovieClip) : Boolean {
+			var topParentCurrentFrame : Number = MovieClipUtil.getCurrentFrame(_topParent);
+			if (topParentCurrentFrame < frameRanges[0].min || topParentCurrentFrame > frameRanges[0].max) {
+				return false;
+			}
+			
+			var childFromPath : DisplayObject = DisplayObjectUtil.getChildFromPath(_topParent, path);
+			if (childFromPath == null) {
+				return false;
+			}
+			
+			return isAtScene(_topParent, MovieClipUtil.objectAsMovieClip(childFromPath), 0);
 		}
 		
 		/**

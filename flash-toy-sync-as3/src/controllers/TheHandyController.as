@@ -95,8 +95,6 @@ package controllers {
 		}
 		
 		private function onTheHandySyncPlay(_response : Object) : void {
-			// trace(JSON.stringify(_response));
-			
 			if (_response.error != undefined) {
 				globalState._toyStatus.setState("");
 				globalState._toyError.setState(_response.error);
@@ -111,8 +109,6 @@ package controllers {
 		}
 		
 		private function onTheHandySyncStop(_response : Object) : void {
-			trace(JSON.stringify(_response));
-			
 			isPlaying = false;
 			
 			if (_response.error != undefined) {
@@ -153,15 +149,12 @@ package controllers {
 		}
 		
 		private function prepareScript() : void {
-			var currentScene : Scene = GlobalState.currentScene.state;
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
 			var sceneScript : SceneScript = GlobalState.currentSceneScript.state;
-			var i : Number;
-			
 			if (sceneScript == null || theHandyAPI.connectionKey == "") {
 				return;
 			}
 			
+			var i : Number;
 			var depths : Array = sceneScript.getDepths();
 			var script : Array = ScriptUtil.depthsToScriptFormat(depths);
 			script = ScriptUtil.reduceKeyframes(script);
@@ -171,8 +164,6 @@ package controllers {
 			for (i = 0; i < script.length; i++) {
 				csvUrl += script[i].time + "," + script[i].position + ",";
 			}
-			
-			trace(csvUrl);
 			
 			// The url loader caches responses from urls, and sends those back on repeated requests, 
 			// so we add to the url in order to make it seem like a different request
@@ -196,10 +187,9 @@ package controllers {
 			var startFrame : Number = sceneScript.getStartFrame();
 			var totalFrames : Number = sceneScript.getDepths().length;
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-			// var time : Number = Math.floor((currentFrame + totalFrames - startFrame) * 1000 / StageUtil.getFrameRate());
 			var time : Number = Math.floor((currentFrame + totalFrames - startFrame) * 1000 / StageUtil.getFrameRate());
 			var duration : Number = totalFrames * 1000 / StageUtil.getFrameRate();
-			var shouldAdjustOffset : Boolean = true; // duration > 0.75;
+			var shouldAdjustOffset : Boolean = true;
 			
 			theHandyAPI.syncPlay(time, shouldAdjustOffset, this, onTheHandySyncPlay);
 		}

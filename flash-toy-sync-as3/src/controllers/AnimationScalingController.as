@@ -1,5 +1,6 @@
 package controllers {
 	
+	import core.VersionUtil;
 	import flash.display.MovieClip;
 	import flash.ui.Keyboard;
 	
@@ -31,7 +32,7 @@ package controllers {
 			
 			keyboardManager = new KeyboardManager(_animation);
 			
-			if (isValidSize == false) {
+			if (VersionUtil.isActionscript3() == false && GlobalState.isEditor.state == true) {
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.RIGHT], onDecreaseSWFWidthShortcut);
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.LEFT], onIncreaseSWFWidthShortcut);
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.DOWN], onDecreaseSWFHeightShortcut);
