@@ -23,7 +23,10 @@ package ui {
 			onConnectionKeyChange = new CustomEvent();
 			onPrepareScript = new CustomEvent();
 			
-			addInputText("connectionKey...", this, onConnectionKeyInputChange);
+			var theHandyConnectionKey : String = GlobalState.theHandyConnectionKey.state;
+			var inputStartText : String = theHandyConnectionKey == "" ? "connectionKey..." : theHandyConnectionKey;
+			
+			addInputText(inputStartText, this, onConnectionKeyInputChange);
 			prepareScriptButton = addButton("Prepare Script");
 			prepareScriptButton.disable();
 			prepareScriptButton.onMouseClick.listen(this, onPrepareScriptButtonClick);

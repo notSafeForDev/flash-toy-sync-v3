@@ -8,7 +8,6 @@ package global {
 	 */
 	public class GlobalEvents {
 		
-		public static var swfFileLoaded : CustomEvent;
 		public static var enterFrame : CustomEvent;
 		public static var animationManualResize : CustomEvent;
 		public static var childSelected : CustomEvent;
@@ -20,7 +19,6 @@ package global {
 		public static var finishedRecordingScript : CustomEvent;
 		
 		public static function init() : void {
-			swfFileLoaded = new CustomEvent();
 			enterFrame = new CustomEvent();
 			animationManualResize = new CustomEvent();
 			childSelected = new CustomEvent();

@@ -36,6 +36,14 @@ package global {
 		// The state references are available to all classes, where the state value is readonly,
 		// This is to prevent other classes from interacting with the state in unintended ways
 		
+		/** If it's currently in the editor mode */
+		public var _isEditor : BooleanState;
+		public static var isEditor : BooleanStateReference;
+		
+		/** The name of the external swf */
+		public var _animationName : StringState;
+		public static var animationName : StringStateReference;
+		
 		/** The stage width for the external swf */
 		public var _animationWidth : NumberState;
 		public static var animationWidth : NumberStateReference;
@@ -130,6 +138,10 @@ package global {
 		public var _currentSceneScript : SceneScriptState;
 		public static var currentSceneScript : SceneScriptStateReference;
 		
+		/** The connection key for theHandy sex toy */
+		public var _theHandyConnectionKey : StringState;
+		public static var theHandyConnectionKey : StringStateReference;
+		
 		/** The status of the currently connected sex toy */
 		public var _toyStatus : StringState;
 		public static var toyStatus : StringStateReference;
@@ -146,6 +158,16 @@ package global {
 			GlobalState.stateManager = _stateManager;
 			
 			var added : Object;
+			
+			// isEditor
+			added = _stateManager.addBooleanState(false);
+			_isEditor = added.state;
+			GlobalState.isEditor = added.reference;
+			
+			// animationName
+			added = _stateManager.addStringState("");
+			_animationName = added.state;
+			GlobalState.animationName = added.reference;
 			
 			// animationWidth
 			added = _stateManager.addNumberState(StageUtil.getWidth());
@@ -261,6 +283,11 @@ package global {
 			added = _stateManager.addSceneScriptState(null);
 			_currentSceneScript = added.state;
 			GlobalState.currentSceneScript = added.reference;
+			
+			// theHandyConnectionKey
+			added = _stateManager.addStringState("");
+			_theHandyConnectionKey = added.state;
+			GlobalState.theHandyConnectionKey = added.reference;
 			
 			// toyStatus
 			added = _stateManager.addStringState("");

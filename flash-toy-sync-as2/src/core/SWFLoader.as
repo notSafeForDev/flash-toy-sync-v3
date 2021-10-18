@@ -3,20 +3,21 @@
 class core.SWFLoader {
 	
 	public var swf : MovieClip;
-		
+	
 	public var onError : Function;
 	
 	function SWFLoader() {
 		
 	}
 	
-	public function browse(_onSelected : Function) {
+	public function browse(_onSelected : Function, _customFileDescription : String) {
 		var fileReference : FileReference = new FileReference();
 		var jsonLoader : LoadVars = new LoadVars();
 		var listener : Object = new Object();
+		var fileDescription : String = _customFileDescription ? _customFileDescription : "swf";
 		
 		fileReference.addListener(listener);
-		fileReference.browse([{description: "swf", extension: "*.swf"}]);
+		fileReference.browse([{description: fileDescription, extension: "*.swf"}]);
 		
 		listener.onSelect = function(_file : FileReference) {
 			_onSelected(_file.name);

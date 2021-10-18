@@ -4,6 +4,7 @@ package controllers {
 	import components.Scene;
 	import components.SceneScript;
 	import core.JSONLoader;
+	import core.VersionUtil;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.net.FileReference;
@@ -26,12 +27,15 @@ package controllers {
 		
 		private var sharedObject : SharedObject;
 		
-		public function SaveDataController(_globalState : GlobalState, _animation : MovieClip, _saveDataPanel : SaveDataPanel, _swfFileName : String) {
+		public function SaveDataController(_globalState : GlobalState, _animation : MovieClip, _saveDataPanel : SaveDataPanel) {
 			globalState = _globalState;
 			animation = _animation;
 			saveDataPanel = _saveDataPanel;
 			
-			sharedObject = SharedObject.getLocal(_swfFileName, "/");
+			var animationName : String = GlobalState.animationName.state;
+			var sharedObjectName : String = VersionUtil.isActionscript3() ? animationName + "-as3" : animationName + "-as2";
+			
+			sharedObject = SharedObject.getLocal(sharedObjectName, "/");
 			
 			var hasLoadedAnyData : Boolean = false;
 			
@@ -47,7 +51,7 @@ package controllers {
 			saveDataPanel.setSaveData(JSON.stringify(sharedObject.data, null));
 			
 			if (hasLoadedAnyData == false) {
-				JSONLoader.load("animations/" + _swfFileName.split(".swf")[0] + ".json", this, onJSONLoaded);
+				JSONLoader.load("animations/" + animationName.split(".swf")[0] + ".json", this, onJSONLoaded);
 			}
 			
 			_saveDataPanel.onSave.listen(this, onSaveDataPanelSave);

@@ -42,7 +42,7 @@ package components {
 		}
 		
 		public function browse(_scope : *, _onSelectedhandler : Function) : void {
-			loader.browse(FunctionUtil.bind(_scope, _onSelectedhandler));
+			loader.browse(FunctionUtil.bind(_scope, _onSelectedhandler), "swf (in animations folder)");
 		}
 		
 		public function load(_name : String) : void {

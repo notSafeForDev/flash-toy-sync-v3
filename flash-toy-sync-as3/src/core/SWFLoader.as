@@ -22,9 +22,10 @@
 		 * Opens a native OS file browse window and passes the selected file's name to the callback
 		 * @param	_onSelected		Called when the user have selected a file, the name of the file is passed to the function
 		 */
-		public function browse(_onSelected : Function) : void {
+		public function browse(_onSelected : Function, _customFileDescription : String = "") : void {
 			var fileReference : FileReference = new FileReference();
-			var fileFilter : FileFilter = new FileFilter("swf", "*.swf");
+			var fileDescription : String = _customFileDescription ? _customFileDescription : "swf";
+			var fileFilter : FileFilter = new FileFilter(fileDescription, "*.swf");
 			fileReference.browse([fileFilter]);
 			
 			fileReference.addEventListener(Event.SELECT, onSelect);
@@ -44,8 +45,14 @@
 			var loader : Loader = new Loader();
 			
 			function onLoaderComplete(e : Event) : void {
+				var actionScriptVersion : Number = loader.contentLoaderInfo.actionScriptVersion;
+				if (actionScriptVersion != 3) {
+					onError("Unable to load the swf, it's actionscript version: " + actionScriptVersion + ", can not be loaded");
+					return;
+				}
+				
 				try {
-					 swf = MovieClip(loader.content);
+					swf = MovieClip(loader.content);
 				} catch (error : Error) {
 					if (onError != null) {
 						onError(error);

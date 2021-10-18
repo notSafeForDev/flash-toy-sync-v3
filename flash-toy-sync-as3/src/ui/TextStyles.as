@@ -44,6 +44,13 @@ package ui {
 			_text.setFont(font, false);
 		}
 		
+		public static function applyStartUpMenuButtonStyle(_text : TextElement) : void {
+			_text.element.textColor = 0x000000;
+			_text.setFont(font, false);
+			_text.setFontSize(14);
+			_text.setBold(true);
+		}
+		
 		public static function applyInputStyle(_text : TextElement) : void {
 			_text.element.textColor = 0x000000;
 			_text.setFont(font, false);

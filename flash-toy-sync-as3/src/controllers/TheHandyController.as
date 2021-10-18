@@ -32,6 +32,7 @@ package controllers {
 			globalState = _globalState;
 			
 			theHandyAPI = new TheHandyAPI();
+			theHandyAPI.connectionKey = GlobalState.theHandyConnectionKey.state;
 			
 			_toyPanel.onConnectionKeyChange.listen(this, onToyPanelConnectionKeyChange);
 			_toyPanel.onPrepareScript.listen(this, onToyPanelPrepareScript);
@@ -44,6 +45,7 @@ package controllers {
 		}
 		
 		private function onToyPanelConnectionKeyChange(_key : String) : void {
+			globalState._theHandyConnectionKey.setState(_key);
 			theHandyAPI.connectionKey = _key;
 		}
 		

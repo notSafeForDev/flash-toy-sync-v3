@@ -24,6 +24,23 @@ class core.GraphicsUtil {
 		_movieClip.lineTo(_x, _y);
 	}
 	
+	public static function drawRoundedRect(_sprite : MovieClip, _x : Number, _y : Number, _width : Number, _height : Number, _cornerRadius : Number) : Void {
+		var right : Number = _x + _width;
+		var bottom : Number = _y + _height;
+		
+		with (_sprite) {
+			moveTo(_x + _cornerRadius, _y); // Top left
+			lineTo(right - _cornerRadius, _y); // Top edge
+			curveTo(right, _y, right, _y + _cornerRadius); // Top right corner 
+			lineTo(right, _height - _cornerRadius); // Right edge
+			curveTo(right, bottom, right - _cornerRadius, bottom); // Bottom right corner
+			lineTo(_x + _cornerRadius, bottom); // Bottom edge
+			curveTo(_x, bottom, _x, bottom - _cornerRadius); // Bottom left corner
+			lineTo(_x, _y + _cornerRadius); // Left edge
+			curveTo(_x, _y, _x + _cornerRadius, _y); // Top left corner
+		}
+	}
+	
 	public static function drawCircle(_movieClip : MovieClip, _x : Number, _y : Number, _radius : Number) : Void {
 		_movieClip.moveTo(_x+_radius, _y);
 		_movieClip.curveTo(_radius+_x, Math.tan(Math.PI/8)*_radius+_y, Math.sin(Math.PI/4)*_radius+_x, 

@@ -50,6 +50,23 @@ package core {
 			_sprite.graphics.lineTo(_x, _y);
 		}
 		
+		public static function drawRoundedRect(_sprite : Sprite, _x : Number, _y : Number, _width : Number, _height : Number, _cornerRadius : Number) : void {
+			var right : Number = _x + _width;
+			var bottom : Number = _y + _height;
+			
+			with (_sprite.graphics) {
+				moveTo(_x + _cornerRadius, _y); // Top left
+				lineTo(right - _cornerRadius, _y); // Top edge
+				curveTo(right, _y, right, _y + _cornerRadius); // Top right corner 
+				lineTo(right, _height - _cornerRadius); // Right edge
+				curveTo(right, bottom, right - _cornerRadius, bottom); // Bottom right corner
+				lineTo(_x + _cornerRadius, bottom); // Bottom edge
+				curveTo(_x, bottom, _x, bottom - _cornerRadius); // Bottom left corner
+				lineTo(_x, _y + _cornerRadius); // Left edge
+				curveTo(_x, _y, _x + _cornerRadius, _y); // Top left corner
+			}
+		}
+		
 		public static function drawCircle(_sprite : Sprite, _x : Number, _y : Number, _radius : Number) : void {
 			_sprite.graphics.drawCircle(_x, _y, _radius);
 		}
