@@ -18,46 +18,33 @@ package controllers {
 	 */
 	public class TheHandyController {
 		
-		private var globalState : GlobalState;
+		protected var globalState : GlobalState;
 		
-		private var theHandyAPI : TheHandyAPI;
+		protected var theHandyAPI : TheHandyAPI;
 		
-		private var isScriptPrepared : Boolean = false;
-		private var isPlaying : Boolean = false;
-		private var loopCount : Number = 3;
-		private var currentLoopCount : Number = 0;
-		private var serverTimeDelta : Number = -1;
+		protected var isScriptPrepared : Boolean = false;
+		protected var isPlaying : Boolean = false;
+		protected var loopCount : Number = 3;
+		protected var currentLoopCount : Number = 0;
+		protected var serverTimeDelta : Number = -1;
 		
-		public function TheHandyController(_globalState : GlobalState, _toyPanel : ToyPanel) {
+		public function TheHandyController(_globalState : GlobalState) {
 			globalState = _globalState;
 			
 			theHandyAPI = new TheHandyAPI();
 			theHandyAPI.connectionKey = GlobalState.theHandyConnectionKey.state;
 			
-			_toyPanel.onConnectionKeyChange.listen(this, onToyPanelConnectionKeyChange);
-			_toyPanel.onPrepareScript.listen(this, onToyPanelPrepareScript);
-			
-			GlobalEvents.finishedRecordingScript.listen(this, onFinishedRecordingScript);
 			GlobalEvents.sceneLooped.listen(this, onSceneLooped);
 			
-			GlobalState.listen(this, onIsForceStoppedStateChanged, [GlobalState.isForceStopped]);
-			GlobalState.listen(this, onCurrentSceneScriptChanged, [GlobalState.currentSceneScript]);
+			GlobalState.listen(this, onCurrentSceneStateChange, [GlobalState.currentScene]);
+			GlobalState.listen(this, onConnectionKeyStateChange, [GlobalState.theHandyConnectionKey]);
 		}
 		
-		private function onToyPanelConnectionKeyChange(_key : String) : void {
-			globalState._theHandyConnectionKey.setState(_key);
+		private function onConnectionKeyStateChange(_key : String) : void {
 			theHandyAPI.connectionKey = _key;
 		}
 		
-		private function onToyPanelPrepareScript() : void {
-			prepareScript();
-		}
-		
-		private function onFinishedRecordingScript() : void {
-			prepareScript();
-		}
-		
-		private function onTheHandySyncPrepare(_response : Object) : void {
+		private function onSyncPrepareResponse(_response : Object) : void {
 			trace(JSON.stringify(_response));
 			
 			if (_response.error != undefined) {
@@ -70,31 +57,14 @@ package controllers {
 				isScriptPrepared = true;
 			}
 			
-			if (isScriptPrepared == true && GlobalState.isForceStopped.state == false) {
+			if (canPlay() == true) {
 				currentLoopCount = 0;
 				playScript();
 				trace("Play on sync prepare");
 			}
 		}
 		
-		private function onIsForceStoppedStateChanged() : void {
-			if (GlobalState.currentSceneScript.state == null) {
-				return;
-			}
-			
-			if (GlobalState.isForceStopped.state == false && isScriptPrepared == true) {
-				currentLoopCount = 0;
-				playScript();
-				trace("Play on force stop change");
-			}
-			
-			if (GlobalState.isForceStopped.state == true && isPlaying == true) {
-				theHandyAPI.syncStop(this, onTheHandySyncStop);
-				trace("Stop on force stop change");
-			}
-		}
-		
-		private function onTheHandySyncPlay(_response : Object) : void {
+		private function onSyncPlayResponse(_response : Object) : void {
 			if (_response.error != undefined) {
 				globalState._toyStatus.setState("");
 				globalState._toyError.setState(_response.error);
@@ -108,7 +78,7 @@ package controllers {
 			}
 		}
 		
-		private function onTheHandySyncStop(_response : Object) : void {
+		protected function onSyncStopResponse(_response : Object) : void {
 			isPlaying = false;
 			
 			if (_response.error != undefined) {
@@ -120,22 +90,14 @@ package controllers {
 			}
 		}
 		
-		private function onCurrentSceneScriptChanged() : void {
-			isScriptPrepared = false;
-			if (isPlaying == true) {
-				theHandyAPI.syncStop(this, onTheHandySyncStop);
-			}
-			
-			if (isScriptPrepared == false || GlobalState.currentSceneScript.state == null) {
-				return;
-			}
-			
+		protected function onCurrentSceneStateChange() : void {
 			currentLoopCount = 0;
 			playScript();
 		}
 		
 		private function onSceneLooped() : void {
-			if (isScriptPrepared == false || GlobalState.currentSceneScript.state == null) {
+			if (canPlay() == false) {
+				currentLoopCount = 0;
 				return;
 			}
 			
@@ -148,76 +110,44 @@ package controllers {
 			}
 		}
 		
-		private function prepareScript() : void {
-			var sceneScript : SceneScript = GlobalState.currentSceneScript.state;
-			if (sceneScript == null || theHandyAPI.connectionKey == "") {
-				return;
-			}
-			
-			var i : Number;
-			var depths : Array = sceneScript.getDepths();
-			var script : Array = ScriptUtil.depthsToScriptFormat(depths);
-			script = ScriptUtil.reduceKeyframes(script);
-			script = ScriptUtil.getLoopedScript(script, loopCount + 2);
-			
-			var csvUrl : String = "https://hump-feed.herokuapp.com/generateCSV/";
-			for (i = 0; i < script.length; i++) {
-				csvUrl += script[i].time + "," + script[i].position + ",";
-			}
-			
-			// The url loader caches responses from urls, and sends those back on repeated requests, 
-			// so we add to the url in order to make it seem like a different request
-			var date : Date = new Date();
-			csvUrl += date.getTime() + ",0";
-			
-			theHandyAPI.syncPrepare(csvUrl, this, onTheHandySyncPrepare);
+		protected function canPlay() : Boolean {
+			return theHandyAPI.connectionKey != "" && isScriptPrepared == true;
+		}
+		
+		protected function prepareScript(_csvUrl : String) : void {			
+			theHandyAPI.syncPrepare(_csvUrl, this, onSyncPrepareResponse);
 			globalState._toyStatus.setState("Preparing script...");
 			globalState._toyError.setState("");
 			isScriptPrepared = false;
 			isPlaying = false;
 		}
 		
-		private function playScript() : void {
-			if (theHandyAPI.connectionKey == "") {
+		protected function getSceneStartTime(_sceneScript : SceneScript) : Number {
+			if (isScriptPrepared == false) {
+				return -1;
+			}
+			
+			return 0;
+		}
+		
+		protected function playScript() : void {
+			if (canPlay() == false) {
 				return;
 			}
 			
 			var selectedChild : MovieClip = GlobalState.selectedChild.state;
 			var sceneScript : SceneScript = GlobalState.currentSceneScript.state;
 			var startFrame : Number = sceneScript.getStartFrame();
-			var totalFrames : Number = sceneScript.getDepths().length;
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-			var time : Number = Math.floor((currentFrame + totalFrames - startFrame) * 1000 / StageUtil.getFrameRate());
-			var duration : Number = totalFrames * 1000 / StageUtil.getFrameRate();
+			var elapsedTime : Number = Math.floor((currentFrame - startFrame) * 1000 / StageUtil.getFrameRate());
+			var time : Number = getSceneStartTime(sceneScript) + elapsedTime;
 			var shouldAdjustOffset : Boolean = true;
 			
-			theHandyAPI.syncPlay(time, shouldAdjustOffset, this, onTheHandySyncPlay);
+			theHandyAPI.syncPlay(time, shouldAdjustOffset, this, onSyncPlayResponse);
 		}
 		
-		private function generateCompactCSVData(_indexAndDepths : Array) : Array {
-			var data : Array = [];
-			var previousTime : Number = 0;
-			var frameRate : Number = StageUtil.getFrameRate();
-			
-			// The index of each character, multiplied by 2, represents the depth, 0 -> 100
-			var depthCharacters : String = "-aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ";
-			
-			for (var i : Number = 0; i < _indexAndDepths.length; i++) {
-				var index : Number = _indexAndDepths[i].i;
-				var depth : Number = _indexAndDepths[i].depth;
-				var depthInt : Number = 100 - Math.floor(depth * 100);
-				
-				var time : Number = Math.floor(index * 1000 / frameRate);
-				var duration : Number = time - previousTime;
-				var depthCharacter : String = depthCharacters.charAt(Math.floor(depthInt / 2));
-				
-				data.push(duration.toString(36));
-				data.push(depthCharacter);
-				
-				previousTime = time;
-			}
-			
-			return data;
+		protected function stopScript() : void {
+			theHandyAPI.syncStop(this, onSyncStopResponse);
 		}
 	}
 }

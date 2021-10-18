@@ -21,6 +21,7 @@ package {
 	import controllers.ScriptRecordingController;
 	import controllers.HierarchyPanelController;
 	import controllers.TheHandyController;
+	import controllers.TheHandyEditorController;
 	import controllers.ScenesController;
 	import controllers.SaveDataController;
 	
@@ -65,7 +66,6 @@ package {
 		private var scriptSampleMarkersController : ScriptSampleMarkersController;
 		private var scriptMarkersController : ScriptMarkersController;
 		private var scriptRecordingController : ScriptRecordingController;
-		private var theHandyController : TheHandyController;
 		private var saveDataController : SaveDataController;
 		
 		private var errorText : TextElement;
@@ -172,9 +172,13 @@ package {
 				scriptSampleMarkersController = new ScriptSampleMarkersController(globalState, animation, overlayContainer);
 				scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer);
 				scriptRecordingController = new ScriptRecordingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
+				
+				var theHandyEditorController : TheHandyEditorController = new TheHandyEditorController(globalState, toyPanel);
 			}
 			
-			theHandyController = new TheHandyController(globalState, toyPanel);
+			if (GlobalState.isEditor.state == false) {
+				var theHandyController : TheHandyController = new TheHandyController(globalState);
+			}
 			
 			// animation.gotoAndStop(256); // midna-3x-pleasure
 		}
