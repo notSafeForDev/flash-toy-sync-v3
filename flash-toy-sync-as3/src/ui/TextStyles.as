@@ -13,9 +13,14 @@ package ui {
 		private static var font : String = "Consolas";
 		
 		public static function applyErrorStyle(_text : TextElement) : void {
+			var textOutlineFilter : GlowFilter = new GlowFilter(0x000000, 0.5, 4, 4, 255);
+			var textFilters : Array = [textOutlineFilter];
+			
 			_text.setFontSize(16);
 			_text.setFont(font, false);
+			_text.setBold(true);
 			_text.element.textColor = 0xFFFFFF;
+			_text.setFilters(textFilters);
 		}
 		
 		public static function applyListItemStyle(_text : TextElement) : void {

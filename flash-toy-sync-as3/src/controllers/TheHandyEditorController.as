@@ -1,7 +1,9 @@
 package controllers {
 	
 	import components.SceneScript;
+	import core.ArrayUtil;
 	import core.StageUtil;
+	import ui.UIButton;
 	import global.GlobalEvents;
 	import global.GlobalState;
 	import ui.ToyPanel;
@@ -13,8 +15,8 @@ package controllers {
 	 */
 	public class TheHandyEditorController extends TheHandyController {
 		
-		public function TheHandyEditorController(_globalState : GlobalState, _toyPanel : ToyPanel) {
-			super(_globalState);
+		public function TheHandyEditorController(_globalState : GlobalState, _prepareScriptButton : UIButton, _toyPanel : ToyPanel) {
+			super(_globalState, _prepareScriptButton);
 			
 			_toyPanel.onConnectionKeyChange.listen(this, onToyPanelConnectionKeyChange);
 			_toyPanel.onPrepareScript.listen(this, onToyPanelPrepareScript);
@@ -27,6 +29,10 @@ package controllers {
 		private function onToyPanelConnectionKeyChange(_key : String) : void {
 			globalState._theHandyConnectionKey.setState(_key);
 			theHandyAPI.connectionKey = _key;
+		}
+		
+		protected override function onToyErrorStateChange() : void {
+			// Do nothing
 		}
 		
 		private function onToyPanelPrepareScript() : void {
@@ -63,7 +69,7 @@ package controllers {
 		}
 		
 		protected override function canPlay() : Boolean {
-			return super.canPlay() == true && GlobalState.isForceStopped.state == false;
+			return super.canPlay() == true && GlobalState.isForceStopped.state == false && sceneStartTimes[currentSceneIndex] >= 0;
 		}
 		
 		private function prepareScriptForCurrentScene() : void {
@@ -73,18 +79,32 @@ package controllers {
 			}
 			
 			var i : Number;
-			var depths : Array = sceneScript.getDepths();
-			var script : Array = ScriptUtil.depthsToScriptFormat(depths);
-			script = ScriptUtil.reduceKeyframes(script);
-			script = ScriptUtil.getLoopedScript(script, loopCount + 2);
+			var loopCount : Number = getMinLoopCountForScene(sceneScript);
+			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			
+			currentSceneIndex = ArrayUtil.indexOf(sceneScripts, sceneScript);
+			sceneStartTimes = [];
+			sceneLoopCounts = [];
+			
+			for (i = 0; i < sceneScripts.length; i++) {
+				if (i == currentSceneIndex) {
+					sceneStartTimes.push(0);
+					sceneLoopCounts.push(loopCount);
+				} else {
+					sceneStartTimes.push(-1);
+					sceneLoopCounts.push(-1);
+				}
+			}
+			
+			var scriptData : Array = generateScriptDataForScene(sceneScript, loopCount, 0);
 			
 			var csvUrl : String = "https://hump-feed.herokuapp.com/generateCSV/";
-			for (i = 0; i < script.length; i++) {
-				csvUrl += script[i].time + "," + script[i].position + ",";
+			for (i = 0; i < scriptData.length; i++) {
+				csvUrl += scriptData[i].time + "," + scriptData[i].position + ",";
 			}
 			
 			// The url loader caches responses from urls, and sends those back on repeated requests, 
-			// so we add to the url in order to make it seem like a different request
+			// so we alter the url in order to make it seem like a different request
 			var date : Date = new Date();
 			csvUrl += date.getTime() + ",0";
 			

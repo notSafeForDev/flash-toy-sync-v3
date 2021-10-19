@@ -10,12 +10,13 @@ package controllers {
 	import global.GlobalState;
 	import global.GlobalEvents;
 	
-	import ui.ScriptingPanel;
 	import components.MarkerSceneScript;
 	import components.SceneScript;
 	import components.Scene;
-	import ui.ScenesPanel;
 	import components.ScriptMarker;
+	
+	import ui.ScriptingPanel;
+	import ui.ScenesPanel;
 	import ui.ScriptMarkerElement;
 
 	/**
@@ -44,9 +45,6 @@ package controllers {
 			_scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
 			
 			_scenesPanel.onSceneSelected.listen(this, onScenesPanelSceneSelected);
-			
-			GlobalEvents.scenesMerged.listen(this, onScenesMerged);
-			GlobalEvents.sceneChanged.listen(this, onSceneChanged);
 		}
 		
 		public function onEnterFrame() : void {
@@ -63,21 +61,6 @@ package controllers {
 				var depth : Number = depths[currentFrame - startFrame];
 				trace(depth.toString().substring(0, 4));
 			} */
-		}
-		
-		private function onSceneChanged() : void {
-			currentSceneScript = getSceneScriptForCurrentScene();
-			globalState._currentSceneScript.setState(currentSceneScript);
-		}
-		
-		private function onScenesMerged(_previousScene : Scene, _combinedScene : Scene) : void {
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
-			for (var i : Number = 0; i < sceneScripts.length; i++) {
-				var sceneScript : SceneScript = sceneScripts[i];
-				if (sceneScript.scene == _previousScene) {
-					sceneScript.scene = _combinedScene;
-				}
-			}
 		}
 		
 		private function onScriptingPanelStartRecording() : void {

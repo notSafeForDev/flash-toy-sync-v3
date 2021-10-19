@@ -3,6 +3,7 @@ package {
 	import flash.display.MovieClip;
 	import flash.ui.Mouse;
 	
+	import core.GraphicsUtil;
 	import core.DisplayObjectUtil;
 	import core.TextElement;
 	import core.VersionUtil;
@@ -23,6 +24,7 @@ package {
 	import controllers.TheHandyController;
 	import controllers.TheHandyEditorController;
 	import controllers.ScenesController;
+	import controllers.SceneScriptsController;
 	import controllers.SaveDataController;
 	
 	import components.CustomStateManager;
@@ -37,6 +39,7 @@ package {
 	import ui.ScriptingPanel;
 	import ui.HierarchyPanel;
 	import ui.ToyPanel;
+	import ui.UIButton;
 	
 	/**
 	 * ...
@@ -54,6 +57,8 @@ package {
 		private var externalSWF : ExternalSWF;
 		private var externalSWFName : String;
 		private var animation : MovieClip;
+		
+		private var prepareScriptButton : UIButton;
 		
 		private var startUpMenu : StartupMenu;
 		
@@ -96,8 +101,12 @@ package {
 			errorText.setAutoSize(TextElement.AUTO_SIZE_CENTER);
 			TextStyles.applyErrorStyle(errorText);
 			errorText.setX(StageUtil.getWidth() / 2);
-			errorText.setY(StageUtil.getHeight() - 50);
+			errorText.setY(StageUtil.getHeight() - 90);
 			errorText.setMouseEnabled(false);
+			
+			prepareScriptButton = createPrepareScriptButton();
+			DisplayObjectUtil.setY(prepareScriptButton.element, StageUtil.getHeight() - 60);
+			DisplayObjectUtil.setVisible(prepareScriptButton.element, false);
 			
 			startUpMenu = new StartupMenu(container);
 			startUpMenu.onTheHandyConnectionKeyChange.listen(this, onStartUpMenuTheHandyConnectionKeyChange);
@@ -106,6 +115,8 @@ package {
 			startUpMenu.onEnterEditor.listen(this, onStartUpMenuEnterEditor);
 			
 			MovieClipEvents.addOnEnterFrame(this, container, onEnterFrame);
+			
+			GlobalState.listen(this, onToyErrorStateChange, [GlobalState.toyError]);
 		}
 		
 		private function onStartUpMenuTheHandyConnectionKeyChange(_key : String) : void {
@@ -124,6 +135,14 @@ package {
 		private function onStartUpMenuEnterEditor() : void {
 			globalState._isEditor.setState(true);
 			externalSWF.load(GlobalState.animationName.state);
+		}
+		
+		private function onToyErrorStateChange() : void {		
+			if (GlobalState.toyError.state != "") {
+				errorText.setText("Toy error: " + GlobalState.toyError.state);
+			} else {
+				errorText.setText("");
+			}
 		}
 		
 		private function onSWFSelected(_name : String) : void {
@@ -150,6 +169,7 @@ package {
 			
 			saveDataController = new SaveDataController(globalState, animation, saveDataPanel);
 			scenesController = new ScenesController(globalState, animation);
+			var sceneScriptsController : SceneScriptsController = new SceneScriptsController(globalState);
 			
 			if (GlobalState.isEditor.state == true) {
 				var hierarchyPanel : HierarchyPanel = new HierarchyPanel(panelContainer, animation);
@@ -173,11 +193,11 @@ package {
 				scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer);
 				scriptRecordingController = new ScriptRecordingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
 				
-				var theHandyEditorController : TheHandyEditorController = new TheHandyEditorController(globalState, toyPanel);
+				var theHandyEditorController : TheHandyEditorController = new TheHandyEditorController(globalState, prepareScriptButton, toyPanel);
 			}
 			
 			if (GlobalState.isEditor.state == false) {
-				var theHandyController : TheHandyController = new TheHandyController(globalState);
+				var theHandyController : TheHandyController = new TheHandyController(globalState, prepareScriptButton);
 			}
 			
 			// animation.gotoAndStop(256); // midna-3x-pleasure
@@ -222,6 +242,29 @@ package {
 			}
 			
 			errorText.setText(_error);
+		}
+		
+		private function createPrepareScriptButton() : UIButton {
+			var width : Number = 220;
+			
+			var button : MovieClip = MovieClipUtil.create(container, "prepareScriptButton");
+			DisplayObjectUtil.setX(button, StageUtil.getWidth() / 2 - width / 2);
+			
+			var text : TextElement = new TextElement(button, "Prepare Script");
+			text.setAlign(TextElement.ALIGN_CENTER); // Setting it left and then center is required to make this work, for some reason
+			TextStyles.applyStartUpMenuButtonStyle(text);
+			
+			text.setWidth(width);
+			text.setY(10);
+			text.setMouseEnabled(false);
+			
+			GraphicsUtil.beginFill(button, 0xFFFFFF);
+			GraphicsUtil.drawRoundedRect(button, 0, 0, width, 40, 10);
+			
+			var uiButton : UIButton = new UIButton(button);
+			uiButton.disabledAlpha = 0.5;
+			
+			return uiButton;
 		}
 	}
 }

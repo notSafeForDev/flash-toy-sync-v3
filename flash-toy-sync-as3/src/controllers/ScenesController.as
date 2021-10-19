@@ -140,10 +140,10 @@ package controllers {
 			var activeScene : Scene = getActiveScene();
 			var selectedChild : MovieClip = GlobalState.selectedChild.state;
 			var currentFrame : Number = selectedChild != null ? MovieClipUtil.getCurrentFrame(selectedChild) : -1;
+			var isStopped : Boolean = currentScene != null && currentScene.isStopped(selectedChild);
 			
 			if (selectedChild != null && currentScene != null && activeScene == currentScene) {
 				var lastFrameInChild : Number = MovieClipUtil.getTotalFrames(selectedChild);
-				var isStopped : Boolean = currentScene.isStopped(selectedChild);
 				var notAtExpectedFrame : Boolean = nextExpectedFrame >= 0 && currentFrame != nextExpectedFrame;
 				var didLoopNaturally : Boolean = currentFrame == 1 && previousFrame == lastFrameInChild && isStopped == false;
 				
@@ -162,6 +162,7 @@ package controllers {
 				if (activeScene != null) {
 					var childFromPath : DisplayObject = DisplayObjectUtil.getChildFromPath(animation, activeScene.getPath());
 					selectedChild = MovieClipUtil.objectAsMovieClip(childFromPath);
+					isStopped = activeScene.isStopped(selectedChild);
 					setCurrentScene(activeScene);
 					setSelectedChild(selectedChild);
 				}
@@ -196,7 +197,7 @@ package controllers {
 			
 			if (activeSceneForChild != null) {
 				setCurrentScene(activeSceneForChild);
-			} else if (GlobalState.isEditor == true) {
+			} else if (GlobalState.isEditor.state == true) {
 				trace("Created new scene at a potentially invalid starting point, total scenes: " + GlobalState.scenes.state.length);
 				setCurrentScene(addNewScene(_child));
 			}

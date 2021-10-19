@@ -1,5 +1,6 @@
 package utils {
 	
+	import components.SceneScript;
 	import core.ArrayUtil;
 	import core.StageUtil;
 	
@@ -10,15 +11,19 @@ package utils {
 	public class ScriptUtil {
 		
 		public static function getMilisecondsAtFrame(_frame : Number) : Number {
-			return _frame * 1000 / StageUtil.getFrameRate();
+			return Math.floor(_frame * 1000 / StageUtil.getFrameRate());
 		}
 		
-		public static function depthsToScriptFormat(_depths : Array) : Array {
+		public static function getDurationForSceneScript(_sceneScript : SceneScript) : Number {
+			return Math.floor(_sceneScript.getDepths().length * 1000 / StageUtil.getFrameRate());
+		}
+		
+		public static function depthsToScriptFormat(_depths : Array, _startTime : Number) : Array {
 			var output : Array = [];
 			var frameRate : Number = StageUtil.getFrameRate();
 			
 			for (var i : Number = 0; i < _depths.length; i++) {
-				var time : Number = Math.floor(i * 1000 / frameRate);
+				var time : Number = _startTime + Math.floor(i * 1000 / frameRate);
 				var position : Number = 100 - Math.floor(_depths[i] * 100);
 				output.push({time: time, position: position});
 			}
