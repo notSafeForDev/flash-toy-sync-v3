@@ -1,7 +1,11 @@
 package core {
+	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Shape;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	/**
@@ -9,6 +13,40 @@ package core {
 	 * @author notSafeForDev
 	 */
 	public class DisplayObjectUtil {
+		
+		public static function remove(_object : DisplayObject) : void {
+			if (_object.parent != null) {
+				_object.parent.removeChild(_object);
+			}
+		}
+		
+		public static function drawToBitmap(_object : DisplayObject, _parent : DisplayObjectContainer) : Bitmap {
+			var bounds : Rectangle = _object.getBounds(_object);
+			var bitmapData : BitmapData = new BitmapData(bounds.width, bounds.height, true, 0x00000000);
+			
+			bitmapData.draw(_object, new Matrix(1, 0, 0, 1, -bounds.x, -bounds.y));			
+			
+			var bitmap : Bitmap = new Bitmap(bitmapData);
+			
+			_parent.addChild(bitmap);
+			
+			return bitmap;
+		}
+		
+		public static function applyTransformMatrixFromOtherObject(_fromObject : DisplayObject, _toObject : DisplayObject) : void {
+			var fromBounds : Rectangle = _fromObject.getBounds(_toObject.parent);
+			
+			_toObject.transform.matrix = _fromObject.transform.matrix.clone();
+			
+			var toBounds : Rectangle = _toObject.getBounds(_toObject.parent);
+			_toObject.scaleX = fromBounds.width / toBounds.width;
+			_toObject.scaleY = fromBounds.height / toBounds.height;
+			
+			toBounds = _toObject.getBounds(_toObject.parent);
+			
+			_toObject.x += fromBounds.x - toBounds.x;
+			_toObject.y += fromBounds.y - toBounds.y;
+		}
 		
 		/**
 		 * Get the name used for the child in a child path

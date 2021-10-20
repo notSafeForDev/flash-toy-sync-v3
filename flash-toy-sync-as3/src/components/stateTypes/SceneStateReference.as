@@ -1,21 +1,22 @@
 package components.stateTypes {
 	
+	import core.stateTypes.State;
+	import core.stateTypes.StateReference;
+	
 	import components.Scene;
 	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class SceneStateReference {
+	public class SceneStateReference extends StateReference {
 		
-		private var actualState : SceneState;
-		
-		public function SceneStateReference(_state : SceneState) {
-			actualState = _state;
+		public function SceneStateReference(_state : State) {
+			super(_state);
 		}
 		
-		public function get state() : Scene {
-			return actualState.getState();
+		public function get value() : Scene {
+			return stateObject.getValue();
 		}
 	}
 }

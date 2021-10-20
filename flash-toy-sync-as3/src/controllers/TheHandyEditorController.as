@@ -1,13 +1,19 @@
 package controllers {
 	
-	import components.SceneScript;
 	import core.ArrayUtil;
 	import core.StageUtil;
-	import ui.UIButton;
+	import global.SceneScriptsState;
+	
+	import global.ToyState;
+	import global.ScenesState;
 	import global.GlobalEvents;
-	import global.GlobalState;
-	import ui.ToyPanel;
+	
+	import components.SceneScript;
+	
 	import utils.ScriptUtil;
+	
+	import ui.UIButton;
+	import ui.ToyPanel;
 	
 	/**
 	 * ...
@@ -15,19 +21,19 @@ package controllers {
 	 */
 	public class TheHandyEditorController extends TheHandyController {
 		
-		public function TheHandyEditorController(_globalState : GlobalState, _prepareScriptButton : UIButton, _toyPanel : ToyPanel) {
-			super(_globalState, _prepareScriptButton);
+		public function TheHandyEditorController(_toyState : ToyState, _prepareScriptButton : UIButton, _toyPanel : ToyPanel) {
+			super(_toyState, _prepareScriptButton);
 			
 			_toyPanel.onConnectionKeyChange.listen(this, onToyPanelConnectionKeyChange);
 			_toyPanel.onPrepareScript.listen(this, onToyPanelPrepareScript);
 			
 			GlobalEvents.finishedRecordingScript.listen(this, onFinishedRecordingScript);
 			
-			GlobalState.listen(this, onIsForceStoppedStateChange, [GlobalState.isForceStopped]);
+			ScenesState.listen(this, onIsForceStoppedStateChange, [ScenesState.isForceStopped]);
 		}
 		
 		private function onToyPanelConnectionKeyChange(_key : String) : void {
-			globalState._theHandyConnectionKey.setState(_key);
+			toyState._theHandyConnectionKey.setValue(_key);
 			theHandyAPI.connectionKey = _key;
 		}
 		
@@ -44,17 +50,17 @@ package controllers {
 		}
 		
 		private function onIsForceStoppedStateChange() : void {
-			if (GlobalState.currentSceneScript.state == null) {
+			if (SceneScriptsState.currentScript.value == null) {
 				return;
 			}
 			
-			if (GlobalState.isForceStopped.state == false && isScriptPrepared == true) {
+			if (ScenesState.isForceStopped.value == false && isScriptPrepared == true) {
 				currentLoopCount = 0;
 				playScript();
 				trace("Play on force stop change");
 			}
 			
-			if (GlobalState.isForceStopped.state == true && isPlaying == true) {
+			if (ScenesState.isForceStopped.value == true && isPlaying == true) {
 				stopScript();
 				trace("Stop on force stop change");
 			}
@@ -69,18 +75,18 @@ package controllers {
 		}
 		
 		protected override function canPlay() : Boolean {
-			return super.canPlay() == true && GlobalState.isForceStopped.state == false && sceneStartTimes[currentSceneIndex] >= 0;
+			return super.canPlay() == true && ScenesState.isForceStopped.value == false && sceneStartTimes[currentSceneIndex] >= 0;
 		}
 		
 		private function prepareScriptForCurrentScene() : void {
-			var sceneScript : SceneScript = GlobalState.currentSceneScript.state;
+			var sceneScript : SceneScript = SceneScriptsState.currentScript.value;
 			if (sceneScript == null || theHandyAPI.connectionKey == "") {
 				return;
 			}
 			
 			var i : Number;
 			var loopCount : Number = getMinLoopCountForScene(sceneScript);
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			
 			currentSceneIndex = ArrayUtil.indexOf(sceneScripts, sceneScript);
 			sceneStartTimes = [];

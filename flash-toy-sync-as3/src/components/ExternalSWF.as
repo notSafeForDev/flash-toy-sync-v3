@@ -1,6 +1,7 @@
 package components {
 	
 	import flash.display.MovieClip;
+	import global.AnimationInfoState;
 	
 	import core.DisplayObjectUtil;
 	import core.StageUtil;
@@ -9,7 +10,6 @@ package components {
 	import core.SWFLoader;
 	
 	import global.GlobalEvents;
-	import global.GlobalState;
 	
 	public class ExternalSWF {
 	
@@ -38,7 +38,7 @@ package components {
 			loader = new SWFLoader();
 			loader.onError =  FunctionUtil.bind(this, _onError);
 			
-			GlobalState.listen(this, onAnimationSizeStateUpdate, [GlobalState.animationWidth, GlobalState.animationHeight]);
+			AnimationInfoState.listen(this, onAnimationSizeStateUpdate, [AnimationInfoState.width, AnimationInfoState.height]);
 		}
 		
 		public function browse(_scope : *, _onSelectedhandler : Function) : void {
@@ -50,8 +50,8 @@ package components {
 		}
 		
 		private function onAnimationSizeStateUpdate() : void {
-			contentWidth = GlobalState.animationWidth.state;
-			contentHeight = GlobalState.animationHeight.state;
+			contentWidth = AnimationInfoState.width.value;
+			contentHeight = AnimationInfoState.height.value;
 			
 			if (loadedSWF == null) {
 				return;

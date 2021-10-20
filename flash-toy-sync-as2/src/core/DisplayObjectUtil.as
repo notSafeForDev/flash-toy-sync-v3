@@ -1,10 +1,48 @@
+import flash.display.BitmapData;
+import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+
 /**
  * ...
  * @author notSafeForDev
  */
 class core.DisplayObjectUtil {
+	
+	public static function remove(_object : MovieClip) : Void {
+		// MovieClips created through Adobe Flash/Animate, have a negative depth, and can't be removed
+		// this gives it a positive depth so that it can be removed
+		_object.swapDepths(10000);
+		_object.removeMovieClip();
+	}
+	
+	public static function drawToBitmap(_object : MovieClip, _parent : MovieClip) : MovieClip {		
+		var bounds : Rectangle = getBounds(_object, _object);
+		
+		var bitmapData : BitmapData = new BitmapData(bounds.width, bounds.height, true, 0x00000000);
+		var bitmapMovieClip : MovieClip = _parent.createEmptyMovieClip("", _parent.getNextHighestDepth());
+		
+		bitmapData.draw(_object, new Matrix(1, 0, 0, 1, -bounds.x, -bounds.y));
+		bitmapMovieClip.attachBitmap(bitmapData, 1);
+		
+		return bitmapMovieClip;
+	}
+	
+	public static function applyTransformMatrixFromOtherObject(_fromObject : MovieClip, _toObject : MovieClip) : Void {
+		var fromBounds : Rectangle = getBounds(_fromObject, _toObject._parent);
+		
+		_toObject.transform.matrix = _fromObject.transform.matrix.clone();
+		_toObject._rotation = _fromObject._rotation; // Specific to AS2
+		
+		var toBounds : Rectangle = getBounds(_toObject, _toObject._parent);
+		_toObject._xscale = (fromBounds.width / toBounds.width) * 100;
+		_toObject._yscale = (fromBounds.height / toBounds.height) * 100;
+		
+		toBounds = getBounds(_toObject, _toObject._parent);
+		
+		_toObject._x += fromBounds.x - toBounds.x;
+		_toObject._y += fromBounds.y - toBounds.y;
+	}
 	
 	static function getChildPathPart(_child : MovieClip, _depth : Number) : String {
 		if (_child._name.indexOf("instance") != 0) {

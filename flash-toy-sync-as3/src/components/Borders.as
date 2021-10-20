@@ -8,8 +8,8 @@ package components {
 	import core.GraphicsUtil;
 	import core.StageUtil;
 
+	import global.AnimationInfoState;
 	import global.GlobalEvents;
-	import global.GlobalState;
 	
 	/**
 	 * ...
@@ -28,7 +28,7 @@ package components {
 			color = _color;
 			currentColor = _color;
 			
-			GlobalState.listen(this, onStateChange, [GlobalState.animationWidth, GlobalState.animationHeight]);
+			AnimationInfoState.listen(this, onStateChange, [AnimationInfoState.width, AnimationInfoState.height]);
 			GlobalEvents.animationManualResize.listen(this, onAnimationManualResize);
 		}
 		
@@ -37,7 +37,7 @@ package components {
 		}
 		
 		private function onStateChange() : void {
-			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
+			update(AnimationInfoState.width.value / AnimationInfoState.height.value);
 		}
 		
 		private function update(_aspectRatio : Number) : void {
@@ -68,7 +68,7 @@ package components {
 		private function makeTransparentForADuration(_seconds : Number) : void {
 			DisplayObjectUtil.setAlpha(element, 0.25);
 			currentColor = 0xFF0000;
-			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
+			update(AnimationInfoState.width.value / AnimationInfoState.height.value);
 			
 			Timeout.clear(makeTransparentTimeout);
 			makeTransparentTimeout = Timeout.set(this, doneMakingItTransparent, _seconds * 1000);
@@ -77,7 +77,7 @@ package components {
 		private function doneMakingItTransparent() : void {
 			DisplayObjectUtil.setAlpha(element, 1);
 			currentColor = color;
-			update(GlobalState.animationWidth.state / GlobalState.animationHeight.state);
+			update(AnimationInfoState.width.value / AnimationInfoState.height.value);
 		}
 	}
 }

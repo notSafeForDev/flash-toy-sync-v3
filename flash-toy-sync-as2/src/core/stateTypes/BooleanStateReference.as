@@ -1,18 +1,17 @@
-import core.stateTypes.BooleanState;
+import core.stateTypes.StateReference;
+import core.stateTypes.State;
 
 /**
  * ...
  * @author notSafeForDev
  */
-class core.stateTypes.BooleanStateReference {
+class core.stateTypes.BooleanStateReference extends StateReference {
 	
-	private var actualState : BooleanState;
-	
-	public function BooleanStateReference(_state : BooleanState) {
-		actualState = _state;
+	public function BooleanStateReference(_state : State) {
+		super(_state);
 	}
 	
-	public function get state() : Boolean {
-		return actualState.getState();
+	public function get value() : Boolean {
+		return stateObject.getValue();
 	}
 }

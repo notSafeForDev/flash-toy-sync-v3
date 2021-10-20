@@ -7,9 +7,6 @@ package components {
 	
 	import core.DisplayObjectUtil;
 	
-	import global.GlobalEvents;
-	import global.GlobalState;
-	
 	/**
 	 * ...
 	 * @author notSafeForDev

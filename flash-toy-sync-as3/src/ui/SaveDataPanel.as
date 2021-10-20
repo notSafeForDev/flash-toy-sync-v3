@@ -5,7 +5,6 @@ package ui {
 	import core.Timeout;
 	import flash.display.MovieClip;
 	import flash.system.System;
-	import global.GlobalState;
 	
 	/**
 	 * ...

@@ -4,6 +4,10 @@ package controllers {
 	import components.Scene;
 	import components.SceneScript;
 	import core.DisplayObjectUtil;
+	import global.EditorState;
+	import global.SceneScriptsState;
+	import global.ScenesState;
+	import global.ToyState;
 	import ui.UIButton;
 	import ui.ToyPanel;
 	import core.ArrayUtil;
@@ -11,7 +15,6 @@ package controllers {
 	import core.StageUtil;
 	import flash.display.MovieClip;
 	import global.GlobalEvents;
-	import global.GlobalState;
 	import utils.ScriptUtil;
 	
 	/**
@@ -20,7 +23,7 @@ package controllers {
 	 */
 	public class TheHandyController {
 		
-		protected var globalState : GlobalState;
+		protected var toyState : ToyState;
 		
 		protected var theHandyAPI : TheHandyAPI;
 		
@@ -35,21 +38,21 @@ package controllers {
 		
 		private var prepareScriptButton : UIButton;
 		
-		public function TheHandyController(_globalState : GlobalState, _prepareScriptButton : UIButton) {
-			globalState = _globalState;
+		public function TheHandyController(_toyState : ToyState, _prepareScriptButton : UIButton) {
+			toyState = _toyState;
 			prepareScriptButton = _prepareScriptButton;
 			prepareScriptButton.onMouseClick.listen(this, onPrepareScriptButtonClick);
 			
 			theHandyAPI = new TheHandyAPI();
-			theHandyAPI.connectionKey = GlobalState.theHandyConnectionKey.state;
+			theHandyAPI.connectionKey = ToyState.theHandyConnectionKey.value;
 			
 			GlobalEvents.sceneLooped.listen(this, onSceneLooped);
 			
-			GlobalState.listen(this, onCurrentSceneStateChange, [GlobalState.currentScene]);
-			GlobalState.listen(this, onConnectionKeyStateChange, [GlobalState.theHandyConnectionKey]);
-			GlobalState.listen(this, onToyErrorStateChange, [GlobalState.toyError]);
+			ScenesState.listen(this, onCurrentSceneStateChange, [ScenesState.currentScene]);
+			ToyState.listen(this, onConnectionKeyStateChange, [ToyState.theHandyConnectionKey]);
+			ToyState.listen(this, onToyErrorStateChange, [ToyState.error]);
 			
-			if (GlobalState.isEditor.state == false) {
+			if (EditorState.isEditor.value == false) {
 				prepareScriptForAllScenes();
 			}
 		}
@@ -58,24 +61,24 @@ package controllers {
 			prepareScriptForAllScenes();
 		}
 		
-		private function onConnectionKeyStateChange(_key : String) : void {
-			theHandyAPI.connectionKey = _key;
+		private function onConnectionKeyStateChange() : void {
+			theHandyAPI.connectionKey = ToyState.theHandyConnectionKey.value;
 		}
 		
 		protected function onToyErrorStateChange() : void {
-			DisplayObjectUtil.setVisible(prepareScriptButton.element, GlobalState.toyError.state != "");
+			DisplayObjectUtil.setVisible(prepareScriptButton.element, ToyState.error.value != "");
 		}
 		
 		private function onSyncPrepareResponse(_response : Object) : void {
 			// trace(JSON.stringify(_response));
 			
 			if (_response.error != undefined) {
-				globalState._toyStatus.setState("");
-				globalState._toyError.setState(_response.error);
+				toyState._status.setValue("");
+				toyState._error.setValue(_response.error);
 				isScriptPrepared = false;
 			} else {
-				globalState._toyStatus.setState("Script prepared");
-				globalState._toyError.setState("");
+				toyState._status.setValue("Script prepared");
+				toyState._error.setValue("");
 				isScriptPrepared = true;
 			}
 			
@@ -88,11 +91,11 @@ package controllers {
 		
 		private function onSyncPlayResponse(_response : Object) : void {
 			if (_response.error != undefined) {
-				globalState._toyStatus.setState("");
-				globalState._toyError.setState(_response.error);
+				toyState._status.setValue("");
+				toyState._error.setValue(_response.error);
 			} else {
-				globalState._toyStatus.setState("Playing");
-				globalState._toyError.setState("");
+				toyState._status.setValue("Playing");
+				toyState._error.setValue("");
 				isPlaying = true;
 				if (serverTimeDelta < 0) {
 					serverTimeDelta = _response.serverTimeDelta;
@@ -104,16 +107,16 @@ package controllers {
 			isPlaying = false;
 			
 			if (_response.error != undefined) {
-				globalState._toyStatus.setState("");
-				globalState._toyError.setState(_response.error);
+				toyState._status.setValue("");
+				toyState._error.setValue(_response.error);
 			} else {
-				globalState._toyStatus.setState("Stopped");
-				globalState._toyError.setState("");
+				toyState._status.setValue("Stopped");
+				toyState._error.setValue("");
 			}
 		}
 		
 		protected function onCurrentSceneStateChange() : void {
-			currentSceneIndex = ArrayUtil.indexOf(GlobalState.sceneScripts.state, GlobalState.currentSceneScript.state);
+			currentSceneIndex = ArrayUtil.indexOf(SceneScriptsState.scripts.value, SceneScriptsState.currentScript.value);
 			currentLoopCount = 0;
 			
 			if (currentSceneIndex >= 0) {
@@ -139,7 +142,7 @@ package controllers {
 		}
 		
 		protected function canPlay() : Boolean {
-			return theHandyAPI.connectionKey != "" && isScriptPrepared == true && currentSceneIndex >= 0 && GlobalState.toyError.state == "";
+			return theHandyAPI.connectionKey != "" && isScriptPrepared == true && currentSceneIndex >= 0 && ToyState.error.value == "";
 		}
 		
 		protected function getMinLoopCountForScene(_sceneScript : SceneScript) : Number {
@@ -158,14 +161,14 @@ package controllers {
 		
 		protected function prepareScript(_csvUrl : String) : void {			
 			theHandyAPI.syncPrepare(_csvUrl, this, onSyncPrepareResponse);
-			globalState._toyStatus.setState("Preparing script...");
-			globalState._toyError.setState("");
+			toyState._status.setValue("Preparing script...");
+			toyState._error.setValue("");
 			isScriptPrepared = false;
 			isPlaying = false;
 		}
 		
 		private function prepareScriptForAllScenes() : void {
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			var startTime : Number = 0;
 			var combinedScript : Array = [];
 			var i : Number;
@@ -203,8 +206,8 @@ package controllers {
 				return;
 			}
 			
-			var selectedChild : MovieClip = GlobalState.selectedChild.state;
-			var sceneScript : SceneScript = GlobalState.currentSceneScript.state;
+			var selectedChild : MovieClip = ScenesState.selectedChild.value;
+			var sceneScript : SceneScript = SceneScriptsState.currentScript.value;
 			var startFrame : Number = sceneScript.getStartFrame();
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 			

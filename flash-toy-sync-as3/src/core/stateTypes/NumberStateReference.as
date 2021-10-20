@@ -4,16 +4,14 @@ package core.stateTypes {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class NumberStateReference {
+	public class NumberStateReference extends StateReference {
 		
-		private var actualState : NumberState;
-		
-		public function NumberStateReference(_state : NumberState) {
-			actualState = _state;
+		public function NumberStateReference(_state : State) {
+			super(_state);
 		}
 		
-		public function get state() : Number {
-			return actualState.getState();
+		public function get value() : Number {
+			return stateObject.getValue();
 		}
 	}
 }

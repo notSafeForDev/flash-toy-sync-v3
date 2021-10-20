@@ -1,21 +1,19 @@
 package core.stateTypes {
-
+	
 	import flash.display.DisplayObject;
 	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class DisplayObjectStateReference {
+	public class DisplayObjectStateReference extends StateReference {
 		
-		private var actualState : DisplayObjectState;
-		
-		public function DisplayObjectStateReference(_state : DisplayObjectState) {
-			actualState = _state;
+		public function DisplayObjectStateReference(_state : State) {
+			super(_state);
 		}
 		
-		public function get state() : DisplayObject {
-			return actualState.getState();
+		public function get value() : DisplayObject {
+			return stateObject.getValue();
 		}
 	}
 }

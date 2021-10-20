@@ -1,16 +1,17 @@
 package components {
 	
-	import core.CustomEvent;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import ui.ScriptMarkerElement;
-
+	
+	import core.CustomEvent;
 	import core.DisplayObjectUtil;
 	import core.stateTypes.DisplayObjectState;
 	import core.stateTypes.PointState;
+	
+	import ui.ScriptMarkerElement;
 	
 	/**
 	 * ...
@@ -54,27 +55,27 @@ package components {
 				point = DisplayObjectUtil.globalToLocal(_child, centerX, centerY);
 			}
 			
-			attachedToState.setState(_child);
-			pointState.setState(point);
+			attachedToState.setValue(_child);
+			pointState.setValue(point);
 			attachedToReference = new DisplayObjectReference(animation, _child);
 		}
 		
 		public function update() : void {
-			if (attachedToState.getState() == null && element.isDragging == false) {
+			if (attachedToState.getValue() == null && element.isDragging == false) {
 				element.setVisible(false);
 				return;
 			}
 			
-			if (attachedToState.getState() != null) {
+			if (attachedToState.getValue() != null) {
 				attachedToReference.update();
 			
-				if (DisplayObjectUtil.isNested(animation, attachedToState.getState()) == false) {
+				if (DisplayObjectUtil.isNested(animation, attachedToState.getValue()) == false) {
 					var replacement : DisplayObject = attachedToReference.getObject();
 					if (replacement != null) {
-						attachedToState.setState(replacement);
+						attachedToState.setValue(replacement);
 					} else {
-						attachedToState.setState(null);
-						pointState.setState(null);
+						attachedToState.setValue(null);
+						pointState.setValue(null);
 						attachedToReference = null;
 						return;
 					}
@@ -87,7 +88,7 @@ package components {
 				return;
 			}
 			
-			var globalPoint : Point = DisplayObjectUtil.localToGlobal(attachedToState.getState(), pointState.getState().x, pointState.getState().y);
+			var globalPoint : Point = DisplayObjectUtil.localToGlobal(attachedToState.getValue(), pointState.getValue().x, pointState.getValue().y);
 			element.setPosition(globalPoint);
 		}
 		
@@ -97,8 +98,8 @@ package components {
 		}
 		
 		public function detatch() : void {
-			attachedToState.setState(null);
-			pointState.setState(null);
+			attachedToState.setValue(null);
+			pointState.setValue(null);
 			attachedToReference = null;
 		}
 		
@@ -107,9 +108,9 @@ package components {
 		}
 		
 		private function onElementStopDrag() : void {
-			if (attachedToState.getState() != null) {
-				var point : Point = DisplayObjectUtil.globalToLocal(attachedToState.getState(), element.getX(), element.getY());
-				pointState.setState(point);
+			if (attachedToState.getValue() != null) {
+				var point : Point = DisplayObjectUtil.globalToLocal(attachedToState.getValue(), element.getX(), element.getY());
+				pointState.setValue(point);
 			}
 			
 			onStopDrag.emit();

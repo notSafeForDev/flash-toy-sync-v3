@@ -6,16 +6,14 @@ package core.stateTypes {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class MovieClipStateReference {
+	public class MovieClipStateReference extends StateReference {
 		
-		private var actualState : MovieClipState;
-		
-		public function MovieClipStateReference(_state : MovieClipState) {
-			actualState = _state;
+		public function MovieClipStateReference(_state : State) {
+			super(_state);
 		}
 		
-		public function get state() : MovieClip {
-			return actualState.getState();
+		public function get value() : MovieClip {
+			return stateObject.getValue();
 		}
 	}
 }

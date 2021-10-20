@@ -6,50 +6,18 @@ package core.stateTypes {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class DisplayObjectState {
+	public class DisplayObjectState extends State {
 		
-		private var value : DisplayObject;
-		private var previousValue : DisplayObject;
-		private var listeners : Array;
-		
-		public function DisplayObjectState(_default : DisplayObject = null) {
-			listeners = [];
-			previousValue = _default;
-			value = _default;
+		public function DisplayObjectState() {
+			super();
 		}
 		
-		public function listen(_scope : *, _handler : Function) : Object {
-			var listener : Object = {handler: _handler, scope : _scope}
-			listeners.push(listener);
-			return listener;
-		}
-		
-		public function setState(_value : DisplayObject) : void {
-			if (_value == value) {
-				return;
-			}
-			
-			for (var i : Number = 0; i < listeners.length; i++) {
-				this.listeners[i].handler(_value);
-				if (this.listeners[i].once == true) {
-					this.listeners.splice(i, 1);
-					i--;
-				}
-			}
-			previousValue = value;
+		public function setValue(_value : DisplayObject) : void {
 			value = _value;
 		}
 		
-		public function getState() : DisplayObject {
+		public function getValue() : DisplayObject {
 			return value;
-		}
-		
-		public function getRawState() : DisplayObject {
-			return value;
-		}
-		
-		public function getPreviousState() : DisplayObject {
-			return previousValue;
 		}
 	}
 }

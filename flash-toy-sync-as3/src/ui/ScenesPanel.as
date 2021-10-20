@@ -1,15 +1,17 @@
 package ui {
 	
-	import components.Scene;
 	import flash.display.MovieClip;
-	import ui.ListItem;
 	
 	import core.CustomEvent;
 	import core.GraphicsUtil;
 	import core.MovieClipUtil;
 	import core.UIScrollArea;
-	
-	import global.GlobalState;
+
+	import global.ScenesState;
+
+	import components.Scene;
+
+	import ui.ListItem;
 	
 	/**
 	 * ...
@@ -47,13 +49,13 @@ package ui {
 			uiScrollArea = new UIScrollArea(scrollContent, mask, scrollBar);
 			uiScrollArea.handleAlphaWhenNotScrollable = 0.25;
 			
-			GlobalState.listen(this, onSceneStatesChange, [GlobalState.scenes, GlobalState.currentScene]);
+			ScenesState.listen(this, onSceneStatesChange, [ScenesState.scenes, ScenesState.currentScene]);
 			
 			onSceneSelected = new CustomEvent();
 		}
 		
 		private function onSceneStatesChange() : void {
-			var scenes : Array = GlobalState.scenes.state;
+			var scenes : Array = ScenesState.scenes.value;
 			var listItem : ListItem;
 			var i : Number;
 			
@@ -71,7 +73,7 @@ package ui {
 				listItem.setPrimaryText("Scene: " + i + " | " + scene.getFirstFrames().join(","));
 				
 				listItem.setVisible(true);
-				listItem.setHighlighted(scene == GlobalState.currentScene.state);
+				listItem.setHighlighted(scene == ScenesState.currentScene.value);
 			}
 			
 			for (i = scenes.length; i < listItems.length; i++) {
@@ -81,7 +83,7 @@ package ui {
 		}
 		
 		private function onListItemSelect(_index : Number) : void {
-			onSceneSelected.emit(GlobalState.scenes.state[_index]);
+			onSceneSelected.emit(ScenesState.scenes.value[_index]);
 		}
 	}
 }

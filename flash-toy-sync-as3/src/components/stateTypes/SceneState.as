@@ -1,55 +1,25 @@
 package components.stateTypes {
 	
+	import core.stateTypes.State;
+	
 	import components.Scene;
 	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class SceneState {
+	public class SceneState extends State {
 		
-		private var value : Scene;
-		private var previousValue : Scene;
-		private var listeners : Array;
-		
-		public function SceneState(_default : Scene) {
-			listeners = [];
-			previousValue = _default;
-			value = _default;
+		public function SceneState() {
+			super();
 		}
 		
-		public function listen(_scope : *, _handler : Function) : Object {
-			var listener : Object = {handler: _handler, scope : _scope}
-			listeners.push(listener);
-			return listener;
-		}
-		
-		public function setState(_value : Scene) : void {
-			if (_value == value) {
-				return;
-			}
-			
-			for (var i : Number = 0; i < listeners.length; i++) {
-				this.listeners[i].handler(_value);
-				if (this.listeners[i].once == true) {
-					this.listeners.splice(i, 1);
-					i--;
-				}
-			}
-			previousValue = value;
+		public function setValue(_value : Scene) : void {
 			value = _value;
 		}
 		
-		public function getState() : Scene {
+		public function getValue() : Scene {
 			return value;
-		}
-		
-		public function getRawState() : Scene {
-			return value;
-		}
-		
-		public function getPreviousState() : Scene {
-			return previousValue;
 		}
 	}
 }

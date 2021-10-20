@@ -9,8 +9,10 @@ package controllers {
 	import flash.events.Event;
 	import flash.net.FileReference;
 	import flash.net.SharedObject;
+	import global.AnimationInfoState;
 	import global.GlobalEvents;
-	import global.GlobalState;
+	import global.SceneScriptsState;
+	import global.ScenesState;
 	import ui.SaveDataPanel;
 	
 	/**
@@ -19,7 +21,8 @@ package controllers {
 	 */
 	public class SaveDataController {
 		
-		private var globalState : GlobalState;
+		private var scenesState : ScenesState;
+		private var sceneScriptsState : SceneScriptsState;
 		
 		private var animation : MovieClip;
 		
@@ -27,12 +30,14 @@ package controllers {
 		
 		private var sharedObject : SharedObject;
 		
-		public function SaveDataController(_globalState : GlobalState, _animation : MovieClip, _saveDataPanel : SaveDataPanel) {
-			globalState = _globalState;
+		public function SaveDataController(_scenesState : ScenesState, _sceneScriptsState : SceneScriptsState, _animation : MovieClip, _saveDataPanel : SaveDataPanel) {
+			scenesState = _scenesState;
+			sceneScriptsState = _sceneScriptsState;
+			
 			animation = _animation;
 			saveDataPanel = _saveDataPanel;
 			
-			var animationName : String = GlobalState.animationName.state;
+			var animationName : String = AnimationInfoState.name.value;
 			var sharedObjectName : String = VersionUtil.isActionscript3() ? animationName + "-as3" : animationName + "-as2";
 			
 			sharedObject = SharedObject.getLocal(sharedObjectName, "/");
@@ -78,13 +83,13 @@ package controllers {
 			sharedObject.data.scenes = [];
 			sharedObject.data.sceneScripts = [];
 			
-			var scenes : Array = GlobalState.scenes.state;
+			var scenes : Array = ScenesState.scenes.value;
 			for (i = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
 				sharedObject.data.scenes.push(scene.toSaveData());
 			}
 			
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			for (i = 0; i < sceneScripts.length; i++) {
 				var sceneScript : SceneScript = sceneScripts[i];
 				sharedObject.data.sceneScripts.push(sceneScript.toSaveData());
@@ -100,7 +105,7 @@ package controllers {
 				scenes.push(scene);
 			}
 			
-			globalState._scenes.setState(scenes);
+			scenesState._scenes.setValue(scenes);
 		}
 		
 		private function loadSceneScripts(_sceneScripts : Array) : void {
@@ -113,7 +118,7 @@ package controllers {
 				}
 			}
 			
-			globalState._sceneScripts.setState(sceneScripts);
+			sceneScriptsState._scripts.setValue(sceneScripts);
 		}
 	}
 }

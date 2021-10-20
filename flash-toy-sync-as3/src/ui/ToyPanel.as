@@ -1,9 +1,10 @@
 package ui {
+	import global.SceneScriptsState;
+	import global.ToyState;
 	import ui.TextStyles;
 	import core.CustomEvent;
 	import core.TextElement;
 	import flash.display.MovieClip;
-	import global.GlobalState;
 	
 	/**
 	 * ...
@@ -23,7 +24,7 @@ package ui {
 			onConnectionKeyChange = new CustomEvent();
 			onPrepareScript = new CustomEvent();
 			
-			var theHandyConnectionKey : String = GlobalState.theHandyConnectionKey.state;
+			var theHandyConnectionKey : String = ToyState.theHandyConnectionKey.value;
 			var inputStartText : String = theHandyConnectionKey == "" ? "connectionKey..." : theHandyConnectionKey;
 			
 			addInputText(inputStartText, this, onConnectionKeyInputChange);
@@ -33,22 +34,22 @@ package ui {
 			
 			statusText = addText("Status: ...", 35);
 			
-			GlobalState.listen(this, onToyStatesChange, [GlobalState.toyStatus, GlobalState.toyError]);
-			GlobalState.listen(this, onCurrentSceneScriptStateChange, [GlobalState.currentSceneScript]);
+			ToyState.listen(this, onToyStatesChange, [ToyState.status, ToyState.error]);
+			SceneScriptsState.listen(this, onCurrentSceneScriptStateChange, [SceneScriptsState.currentScript]);
 		}
 		
 		private function onToyStatesChange() : void {
-			if (GlobalState.toyError.state != "") {
-				statusText.setText("Error: " + GlobalState.toyError.state);
-			} else if (GlobalState.toyStatus.state != "") {
-				statusText.setText("Status: " + GlobalState.toyStatus.state);
+			if (ToyState.error.value != "") {
+				statusText.setText("Error: " + ToyState.error.value);
+			} else if (ToyState.status.value != "") {
+				statusText.setText("Status: " + ToyState.status.value);
 			} else {
 				statusText.setText("Status: ...");
 			}
 		}
 		
 		private function onCurrentSceneScriptStateChange() : void {
-			if (GlobalState.currentSceneScript.state == null) {
+			if (SceneScriptsState.currentScript.value == null) {
 				prepareScriptButton.disable();
 			} else {
 				prepareScriptButton.enable();

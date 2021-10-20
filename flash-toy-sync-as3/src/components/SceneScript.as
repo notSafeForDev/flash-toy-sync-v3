@@ -1,11 +1,10 @@
 package components {
 	
 	import flash.display.MovieClip;
+	import global.ScenesState;
 	
 	import core.DisplayObjectUtil;
 	import core.MovieClipUtil;
-	
-	import global.GlobalState;
 	
 	import components.Scene;
 	
@@ -38,7 +37,7 @@ package components {
 		}
 		
 		public static function fromSaveData(_saveData : Object) : SceneScript {
-			var scenes : Array = GlobalState.scenes.state;
+			var scenes : Array = ScenesState.scenes.value;
 			var scene : Scene;
 			for (var i : Number = 0; i < scenes.length; i++) {
 				scene = scenes[i];
@@ -63,7 +62,7 @@ package components {
 		}
 		
 		public function updateRecording(_topParent : MovieClip, _depth : Number) : void {
-			var animationRoot : MovieClip = GlobalState.selectedChild.state;
+			var animationRoot : MovieClip = ScenesState.selectedChild.value;
 			var currentRootFrame : Number = MovieClipUtil.getCurrentFrame(animationRoot);
 			
 			if (startRootFrame < 0) {

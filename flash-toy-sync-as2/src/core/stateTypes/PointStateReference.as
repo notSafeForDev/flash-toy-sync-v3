@@ -1,19 +1,18 @@
-import core.stateTypes.PointState;
+import core.stateTypes.StateReference;
+import core.stateTypes.State;
 import flash.geom.Point;
 
 /**
  * ...
  * @author notSafeForDev
  */
-class core.stateTypes.PointStateReference {
+class core.stateTypes.PointStateReference extends StateReference {
 	
-	private var actualState : PointState;
-	
-	public function PointStateReference(_state : PointState) {
-		actualState = _state;
+	public function PointStateReference(_state : State) {
+		super(_state);
 	}
 	
-	public function get state() : Point {
-		return actualState.getState();
+	public function get value() : Point {
+		return stateObject.getValue();
 	}
 }

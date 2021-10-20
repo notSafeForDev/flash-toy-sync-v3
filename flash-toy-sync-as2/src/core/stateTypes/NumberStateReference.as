@@ -1,18 +1,17 @@
-import core.stateTypes.NumberState;
+import core.stateTypes.StateReference;
+import core.stateTypes.State;
 
 /**
  * ...
  * @author notSafeForDev
  */
-class core.stateTypes.NumberStateReference {
+class core.stateTypes.NumberStateReference extends StateReference {
 	
-	private var actualState : NumberState;
-	
-	public function NumberStateReference(_state : NumberState) {
-		actualState = _state;
+	public function NumberStateReference(_state : State) {
+		super(_state);
 	}
 	
-	public function get state() : Number {
-		return actualState.getState();
+	public function get value() : Number {
+		return stateObject.getValue();
 	}
 }

@@ -448,6 +448,9 @@ function transpileActionScript3To2(actionscript) {
     // Repace : Sprite with "any"
     replaceInActionScriptLines(lines, [":", "Sprite"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
+    // Repace : Bitmap with "any"
+    replaceInActionScriptLines(lines, [":", "Bitmap"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
+
     // TODO: Fix (var child : DisplayObject) // Without semi-colon
     // TODO: In trace, replace comma outside of strings with: + ", " + 
 

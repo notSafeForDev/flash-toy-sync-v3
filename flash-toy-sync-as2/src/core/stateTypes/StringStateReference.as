@@ -1,18 +1,17 @@
-import core.stateTypes.StringState;
+import core.stateTypes.StateReference;
+import core.stateTypes.State;
 
 /**
  * ...
  * @author notSafeForDev
  */
-class core.stateTypes.StringStateReference {
+class core.stateTypes.StringStateReference extends StateReference {
 	
-	private var actualState : StringState;
-	
-	public function StringStateReference(_state : StringState) {
-		actualState = _state;
+	public function StringStateReference(_state : State) {
+		super(_state);
 	}
 	
-	public function get state() : String {
-		return actualState.getState();
+	public function get value() : String {
+		return stateObject.getValue();
 	}
 }

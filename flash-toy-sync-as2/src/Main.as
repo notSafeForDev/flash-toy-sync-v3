@@ -24,7 +24,7 @@ class Main {
 		pleasure-bonbon.swf					- Decent, only marked as decent as the cursor disapears during cum scenes, which might cause problems (Missing music)
 		yoko-f-series.swf					- Poorly, too few elements can be selected
 		blackhole-gloryhole.swf				- Undecided, while relevant elements can be selected, the dynamic nature of clicking to go faster is likely going to be hard to work with
-		demon-girl-the-showcase.swf			- Poorly, though there are some scenes with selectable movieclips that will work well
+		demon-girl-the-showcase.swf			- Decent, All scenes have some kind of element that follows the movement, though scene 2 is glitchy at the moment
 		Derpixon-Fre4ks_Dream.swf			- Decent, while it is frame by frame, there's at least 1 suitable element to use
 		Derpixon-Resident_Evil_Hounded.swf	- Poorly, no element is selectable as it's done frame by frame
 		Derpixon-Teras_Castle.swf 			- Poorly, almost no elements are selectable as it's done frame by frame

@@ -2,12 +2,14 @@ package controllers {
 	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import global.SceneScriptsState;
+	import global.ScenesState;
+	import global.ScriptingState;
 
 	import core.ArrayUtil;
 	import core.MovieClipUtil;
 	import core.DisplayObjectUtil;
 	
-	import global.GlobalState;
 	import global.GlobalEvents;
 	
 	import components.MarkerSceneScript;
@@ -18,7 +20,7 @@ package controllers {
 	import ui.ScriptingPanel;
 	import ui.ScenesPanel;
 	import ui.ScriptMarkerElement;
-
+	
 	/**
 	 * ...
 	 * @author notSafeForDev
@@ -27,7 +29,7 @@ package controllers {
 		
 		private var animation : MovieClip;
 		
-		private var globalState : GlobalState;
+		private var sceneScriptsState : SceneScriptsState;
 		
 		private var isRecording : Boolean = false;
 		private var recordingScene : Scene = null;
@@ -37,12 +39,12 @@ package controllers {
 		
 		private var scriptingPanel : ScriptingPanel;
 		
-		public function ScriptRecordingController(_globalState : GlobalState, _scriptingPanel : ScriptingPanel, _scenesPanel : ScenesPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
-			animation = _animation;
-			globalState = _globalState;
+		public function ScriptRecordingController(_sceneScriptsState : SceneScriptsState, _scriptingPanel : ScriptingPanel, _scenesPanel : ScenesPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
+			sceneScriptsState = _sceneScriptsState;
 			scriptingPanel = _scriptingPanel;
+			animation = _animation;
 			
-			_scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
+			scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
 			
 			_scenesPanel.onSceneSelected.listen(this, onScenesPanelSceneSelected);
 		}
@@ -53,8 +55,8 @@ package controllers {
 			}
 			
 			// TEMP: Only for debugging the depth of the current scripted scene
-			/* if (isRecording == false && currentSceneScript != null && GlobalState.selectedChild.state != null) {
-				var selectedChild : MovieClip = GlobalState.selectedChild.state;
+			/* if (isRecording == false && currentSceneScript != null && ScenesState.selectedChild.value != null) {
+				var selectedChild : MovieClip = ScenesState.selectedChild.value;
 				var startFrame : Number = currentSceneScript.getStartFrame();
 				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 				var depths : Array = currentSceneScript.getDepths();
@@ -64,7 +66,7 @@ package controllers {
 		}
 		
 		private function onScriptingPanelStartRecording() : void {
-			if (GlobalState.currentScene.state != null) {
+			if (ScenesState.currentScene.value != null) {
 				startRecording();
 			}
 		}
@@ -79,16 +81,18 @@ package controllers {
 			if (existingSceneScript != null) {
 				trace("Start recording existing scene");
 				currentSceneScript = existingSceneScript;
-				globalState._currentSceneScript.setState(currentSceneScript);
+				sceneScriptsState._currentScript.setValue(currentSceneScript);
 			} else {
 				trace("Start recording new scene");
-				trace("First frames of current scene: " + GlobalState.currentScene.state.getFirstFrames());
-				currentSceneScript = MarkerSceneScript.fromGlobalState(animation);
-				globalState._sceneScripts.push(currentSceneScript);
-				globalState._currentSceneScript.setState(currentSceneScript);
+				trace("First frames of current scene: " + ScenesState.currentScene.value.getFirstFrames());
+				currentSceneScript = MarkerSceneScript.fromCurrentState(animation);
+				var scripts : Array = SceneScriptsState.scripts.value.slice();
+				scripts = scripts.concat(currentSceneScript);
+				sceneScriptsState._scripts.setValue(scripts);
+				sceneScriptsState._currentScript.setValue(currentSceneScript);
 			}
 			
-			recordingScene = GlobalState.currentScene.state;
+			recordingScene = ScenesState.currentScene.value;
 			isRecording = true;
 			
 			GlobalEvents.playFromSceneStart.emit(recordingScene);
@@ -99,14 +103,14 @@ package controllers {
 			if (startFrame > 0) {
 				var sceneStartFrame : Number = currentSceneScript.scene.getFirstFrame();
 				var sceneEndFrame : Number = currentSceneScript.scene.getLastFrame();
-				var selectedChild : MovieClip = GlobalState.selectedChild.state;
+				var selectedChild : MovieClip = ScenesState.selectedChild.value;
 				
 				if (startFrame >= sceneStartFrame && startFrame <= sceneEndFrame) {
 					selectedChild.gotoAndPlay(startFrame);
 				}
 			}
 			
-			trace("firstRecordingFrame: " + MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state));
+			trace("firstRecordingFrame: " + MovieClipUtil.getCurrentFrame(ScenesState.selectedChild.value));
 			currentSceneScript.startRecording(animation, -1);
 			
 			if (endFrame > 0 && endFrame == startFrame) {
@@ -114,11 +118,11 @@ package controllers {
 				return;
 			}
 			
-			nextFrameToRecord = MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state) + 1;
+			nextFrameToRecord = MovieClipUtil.getCurrentFrame(ScenesState.selectedChild.value) + 1;
 		}
 		
 		private function updateRecording() : void {
-			var selectedChild : MovieClip = GlobalState.selectedChild.state;
+			var selectedChild : MovieClip = ScenesState.selectedChild.value;
 			if (selectedChild == null) {
 				trace("Lost selected child during recording");
 				finishRecording();
@@ -138,17 +142,24 @@ package controllers {
 			
 			if (currentSceneScript.canRecord() == false) {
 				var dependencies : Array = [
-					GlobalState.stimulationMarkerAttachedTo.state,
-					GlobalState.stimulationMarkerPoint.state,
-					GlobalState.baseMarkerAttachedTo.state,
-					GlobalState.baseMarkerPoint.state,
-					GlobalState.tipMarkerAttachedTo.state,
-					GlobalState.tipMarkerPoint.state
+					ScriptingState.stimulationMarkerAttachedTo.value,
+					ScriptingState.stimulationMarkerPoint.value,
+					ScriptingState.baseMarkerAttachedTo.value,
+					ScriptingState.baseMarkerPoint.value,
+					ScriptingState.tipMarkerAttachedTo.value,
+					ScriptingState.tipMarkerPoint.value
 				];
 				
 				trace(dependencies);
 				
 				throw new Error("Unable to update recording, it's not possible to record");
+			}
+			
+			var haveLoopedOrStopped : Boolean = currentFrame != nextFrameToRecord;
+			if (haveLoopedOrStopped == true) {
+				trace("Looped or stopped during recording");
+				finishRecording();
+				return;
 			}
 			
 			trace("Recording... Frame: " + currentFrame);
@@ -157,15 +168,6 @@ package controllers {
 			var endFrame : Number = parseInt(scriptingPanel.endFrameInputText.getText());
 			if (endFrame > 0 && currentFrame >= endFrame) {
 				trace("Finished recording based on the end frame in the scripting panel");
-				finishRecording();
-				return;
-			}
-
-			// It's important that this happens after updating the recording,
-			// Especially if it have looped
-			var haveLoopedOrStopped : Boolean = currentFrame != nextFrameToRecord;
-			if (haveLoopedOrStopped == true) {
-				trace("Looped or stopped during recording");
 				finishRecording();
 				return;
 			}
@@ -185,14 +187,14 @@ package controllers {
 		}
 		
 		private function getSceneScriptForCurrentScene() : SceneScript {
-			if (GlobalState.currentScene.state == null) {
+			if (ScenesState.currentScene.value == null) {
 				return null;
 			}
 			
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			for (var i : Number = 0; i < sceneScripts.length; i++) {
 				var existingSceneScript : SceneScript = sceneScripts[i];
-				if (existingSceneScript.getScene() == GlobalState.currentScene.state) {
+				if (existingSceneScript.getScene() == ScenesState.currentScene.value) {
 					return existingSceneScript;
 				}
 			}

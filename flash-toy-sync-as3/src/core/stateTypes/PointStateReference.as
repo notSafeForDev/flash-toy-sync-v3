@@ -6,16 +6,14 @@ package core.stateTypes {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class PointStateReference {
+	public class PointStateReference extends StateReference {
 		
-		private var actualState : PointState;
-		
-		public function PointStateReference(_state : PointState) {
-			actualState = _state;
+		public function PointStateReference(_state : State) {
+			super(_state);
 		}
 		
-		public function get state() : Point {
-			return actualState.getState();
+		public function get value() : Point {
+			return stateObject.getValue();
 		}
 	}
 }

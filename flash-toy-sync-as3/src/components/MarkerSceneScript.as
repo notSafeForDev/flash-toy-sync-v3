@@ -8,7 +8,8 @@ package components {
 	import core.DisplayObjectUtil;
 	import core.MathUtil;
 	
-	import global.GlobalState;
+	import global.ScenesState;
+	import global.ScriptingState;
 	
 	import components.Scene;
 	import components.SceneScript;
@@ -46,7 +47,7 @@ package components {
 		
 		public static function fromSaveData(_saveData : Object) : MarkerSceneScript {
 			var i : Number;
-			var scenes : Array = GlobalState.scenes.state;
+			var scenes : Array = ScenesState.scenes.value;
 			var scene : Scene;
 			for (i = 0; i < scenes.length; i++) {
 				scene = scenes[i];
@@ -76,8 +77,8 @@ package components {
 			return sceneScript;
 		}
 		
-		public static function fromGlobalState(_topParent : MovieClip) : MarkerSceneScript {
-			var currentScene : Scene = GlobalState.currentScene.state;
+		public static function fromCurrentState(_topParent : MovieClip) : MarkerSceneScript {
+			var currentScene : Scene = ScenesState.currentScene.value;
 			var markerSceneScript : MarkerSceneScript = new MarkerSceneScript(currentScene);
 			
 			return markerSceneScript;
@@ -107,9 +108,9 @@ package components {
 		}
 		
 		protected override function addDataForCurrentFrame(_index : Number, _depth : Number) : void {
-			var stimulation : Point = getMarkerPosition(GlobalState.stimulationMarkerAttachedTo.state, GlobalState.stimulationMarkerPoint.state);
-			var base : Point = getMarkerPosition(GlobalState.baseMarkerAttachedTo.state, GlobalState.baseMarkerPoint.state);
-			var tip : Point = getMarkerPosition(GlobalState.tipMarkerAttachedTo.state, GlobalState.tipMarkerPoint.state);
+			var stimulation : Point = getMarkerPosition(ScriptingState.stimulationMarkerAttachedTo.value, ScriptingState.stimulationMarkerPoint.value);
+			var base : Point = getMarkerPosition(ScriptingState.baseMarkerAttachedTo.value, ScriptingState.baseMarkerPoint.value);
+			var tip : Point = getMarkerPosition(ScriptingState.tipMarkerAttachedTo.value, ScriptingState.tipMarkerPoint.value);
 			var depth : Number = calculateDepth(stimulation, base, tip);
 			
 			if (_index >= stimulationPositions.length) {
@@ -131,12 +132,12 @@ package components {
 		
 		public override function canRecord() : Boolean {
 			var dependencies : Array = [
-				GlobalState.stimulationMarkerAttachedTo.state,
-				GlobalState.stimulationMarkerPoint.state,
-				GlobalState.baseMarkerAttachedTo.state,
-				GlobalState.baseMarkerPoint.state,
-				GlobalState.tipMarkerAttachedTo.state,
-				GlobalState.tipMarkerPoint.state
+				ScriptingState.stimulationMarkerAttachedTo.value,
+				ScriptingState.stimulationMarkerPoint.value,
+				ScriptingState.baseMarkerAttachedTo.value,
+				ScriptingState.baseMarkerPoint.value,
+				ScriptingState.tipMarkerAttachedTo.value,
+				ScriptingState.tipMarkerPoint.value
 			];
 			
 			return ArrayUtil.indexOf(dependencies, null) < 0;

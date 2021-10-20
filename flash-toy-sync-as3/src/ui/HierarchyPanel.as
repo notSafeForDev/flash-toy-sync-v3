@@ -1,6 +1,5 @@
 package ui {
 	
-	import ui.Icons;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 
@@ -12,8 +11,11 @@ package ui {
 	import core.ArrayUtil;
 	import core.MovieClipUtil;
 
+	import global.EditorState;
+	import global.ScenesState;
 	import global.GlobalEvents;
-	import global.GlobalState;
+
+	import ui.Icons;
 
 	/**
 	 * ...
@@ -167,21 +169,21 @@ package ui {
 			latestTime = Debug.getTime();
 			
 			// Add the clickedChild and it's parents to the list of displayed children
-			if (GlobalState.clickedChild.state != null) {
-				addChildToDisplay(GlobalState.clickedChild.state);
+			if (EditorState.clickedChild.value != null) {
+				addChildToDisplay(EditorState.clickedChild.value);
 			}
 			
 			// Add the selectedChild and it's parents to the list of displayed children
-			if (GlobalState.selectedChild.state != null) {
-				addChildToDisplay(GlobalState.selectedChild.state);
+			if (ScenesState.selectedChild.value != null) {
+				addChildToDisplay(ScenesState.selectedChild.value);
 			}
 			
-			var disabledMouseSelectForChildren : Array = GlobalState.disabledMouseSelectForChildren.state;
+			var disabledMouseSelectForChildren : Array = EditorState.mouseSelectDisabledForChildren.value;
 			
 			// Add the elements with disabled mouse select, so that the user always can enable them again, just incase
 			for (i = 0; i < disabledMouseSelectForChildren.length; i++) {
 				// Checking this to reduce the number of ArrayUtil.indexOf calls
-				if (disabledMouseSelectForChildren[i] != GlobalState.clickedChild.state) {
+				if (disabledMouseSelectForChildren[i] != EditorState.clickedChild.value) {
 					addChildToDisplay(disabledMouseSelectForChildren[i]);
 				}
 			}
@@ -212,8 +214,8 @@ package ui {
 					var isMouseSelectEnabled : Boolean = ArrayUtil.indexOf(disabledMouseSelectForChildren, child) < 0;
 					
 					listItem.setVisible(true);
-					listItem.setHighlighted(GlobalState.selectedChild.state == child);
-					listItem.setIsClickedChild(GlobalState.clickedChild.state == child);
+					listItem.setHighlighted(ScenesState.selectedChild.value == child);
+					listItem.setIsClickedChild(EditorState.clickedChild.value == child);
 					listItem.setMouseSelectEnabled(isMouseSelectEnabled);
 					listItem.update(child, depth, isExpandable, isExpanded);
 				}

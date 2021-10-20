@@ -1,27 +1,13 @@
 package core {
 	
-	import flash.display.DisplayObject;
-	import flash.display.MovieClip;
-	import flash.geom.Point;
+	import flash.utils.getQualifiedSuperclassName;
+	import flash.utils.getQualifiedClassName;
 	
-	import core.stateTypes.ArrayState;
-	import core.stateTypes.ArrayStateReference;
-	import core.stateTypes.StringState;
-	import core.stateTypes.StringStateReference;
-	import core.stateTypes.BooleanState;
-	import core.stateTypes.BooleanStateReference;
-	import core.stateTypes.MovieClipState;
-	import core.stateTypes.MovieClipStateReference;
-	import core.stateTypes.NumberState;
-	import core.stateTypes.NumberStateReference;
-	import core.stateTypes.DisplayObjectState;
-	import core.stateTypes.DisplayObjectStateReference;
-	import core.stateTypes.PointState;
-	import core.stateTypes.PointStateReference;
+	import core.stateTypes.State;
+	import core.stateTypes.StateReference;
 	
 	/**
-	 * Used to hold different states, with the ability to listen for changes to specific state changes
-	 * 
+	 * ...
 	 * @author notSafeForDev
 	 */
 	public class StateManager {
@@ -31,133 +17,86 @@ package core {
 		protected var references : Array;
 		protected var lastNotificationStateValues : Array;
 		
-		/**
-		 * Used to hold different states, with the ability to listen for changes to specific state changes
-		 */
 		public function StateManager() {
 			listeners = [];
 			states = [];
 			references = [];
 			lastNotificationStateValues = [];
-			
-			for (var i : int = 0; i < states.length; i++) {
-				lastNotificationStateValues.push(undefined);
+		}
+		
+		/**
+		 * Add a state of a specific type
+		 * @param	_stateClass				The state class to use, must extend from the State class
+		 * @param	_stateReferenceClass	The state reference class to use, must extend from the StateReference class
+		 * @param	_defaultValue			The default value for the state
+		 * 
+		 * @example 
+		 * var state : StringState = stateManager.addState(StringState, StringStateReference, "Some string");
+		 * var reference : StringStateReference = state.reference;
+		 * 
+		 * @return	The instance of the state
+		 */
+		public function addState(_stateClass : Class, _stateReferenceClass : Class, _defaultValue : *) : * {	
+			if (getQualifiedSuperclassName(_stateClass) != getQualifiedClassName(State)) {
+				throw new Error("Unable to add state, the provided state class does not extend from State");
 			}
-		}
-		
-		/**
-		 * Add a state that holds a Number
-		 * @param	_default	The default value for the state
-		 * @return	{state: NumberState, reference: NumberStateReference} - An object with the added state and reference
-		 */
-		public function addNumberState(_default : Number = 0) : Object {
-			var state : NumberState = new NumberState(_default);
-			var reference : NumberStateReference = new NumberStateReference(state);
+			if (getQualifiedSuperclassName(_stateReferenceClass) != getQualifiedClassName(StateReference)) {
+				throw new Error("Unable to add state, the provided stateReference class does not extend from StateReference");
+			}
+			
+			var state : * = new _stateClass();
+			var reference : * = new _stateReferenceClass(state);
+			
+			// The setValue method can not be part of the base class, as it's argument type would have to be * (any),
+			// which could not be overriden, so it's required that setValue is added to each class that extends State,
+			// in order to ensure that the state can not be assigned a different type than intended
+			if (state.hasOwnProperty("setValue") == false) {
+				throw new Error("Unable to add state, the provided state class does not have a setValue method");
+			}
+			
+			// In case of type casting, such as a number being converted into a string, we want to make sure that
+			// the provided default value matches the intended type exactly, to provent any potential issues
+			state.setValue(_defaultValue);
+			var raw : * = (state as State).getRawValue();
+			if (_defaultValue != null && _defaultValue != undefined && typeof raw != typeof _defaultValue) {
+				throw new Error("Unable to add state, the type of the provided default value is not valid for the state");
+			}
+			
+			(state as State).reference = new _stateReferenceClass(state);
 			states.push(state);
-			references.push(reference);
-			return {state: state, reference: reference};
+			references.push((state as State).reference);
+			lastNotificationStateValues.push(_defaultValue);
+			
+			return state;
 		}
 		
 		/**
-		 * Add a state that holds a Boolean
-		 * @param	_default	The default value for the state
-		 * @return	{state: BooleanState, reference: BooleanStateReference} - An object with the added state and reference
-		 */
-		public function addBooleanState(_default : Boolean = false) : Object {
-			var state : BooleanState = new BooleanState(_default);
-			var reference : BooleanStateReference = new BooleanStateReference(state);
-			states.push(state);
-			references.push(reference);
-			return {state: state, reference: reference};
-		}
-		
-		/**
-		 * Add a state that holds a Point
-		 * @param	_default	The default value for the state
-		 * @return	{state: PointState, reference: PointStateReference} - An object with the added state and reference
-		 */
-		public function addPointState(_default : Point = null) : Object {
-			var state : PointState = new PointState(_default);
-			var reference : PointStateReference = new PointStateReference(state);
-			states.push(state);
-			references.push(reference);
-			return {state: state, reference: reference};
-		}
-		
-		/**
-		 * Add a state that holds a DisplayObject
-		 * @param	_default	The default value for the state
-		 * @return	{state: DisplayObjectState, reference: DisplayObjectStateReference} - An object with the added state and reference
-		 */
-		public function addDisplayObjectState(_default : DisplayObject = null) : Object {
-			var state : DisplayObjectState = new DisplayObjectState(_default);
-			var reference : DisplayObjectStateReference = new DisplayObjectStateReference(state);
-			states.push(state);
-			references.push(reference);
-			return {state: state, reference: reference};
-		}
-		
-		/**
-		 * Add a state that holds a MovieClip
-		 * @param	_default	The default value for the state
-		 * @return	{state: MovieClipState, reference: MovieClipStateReference} - An object with the added state and reference
-		 */
-		public function addMovieClipState(_default : MovieClip = null) : Object {
-			var state : MovieClipState = new MovieClipState(_default);
-			var reference : MovieClipStateReference = new MovieClipStateReference(state);
-			states.push(state);
-			references.push(reference);
-			return {state: state, reference: reference};
-		}
-		
-		/**
-		 * Add a state that holds an Array
-		 * @param	_default	The default value for the state
-		 * @return	{state: ArrayState, reference: ArrayStateReference} - An object with the added state and reference
-		 */
-		public function addArrayState(_default : Array = null) : Object {
-			var state : ArrayState = new ArrayState(_default);
-			var reference : ArrayStateReference = new ArrayStateReference(state);
-			states.push(state);
-			references.push(reference);
-			return {state: state, reference: reference};
-		}
-		
-		/**
-		 * Add a state that holds a String
-		 * @param	_default	The default value for the state
-		 * @return	{state: StringState, reference: StringStateReference} - An object with the added state and reference
-		 */
-		public function addStringState(_default : String = "") : Object {
-			var state : StringState = new StringState(_default);
-			var reference : StringStateReference = new StringStateReference(state);
-			states.push(state);
-			references.push(reference);
-			return {state: state, reference: reference};
-		}
-		
-		/**
-		 * Calls a function when one of the states have been changed, if the provided references are an empty array, then it will call the function when any state have been changed
+		 * Calls a function when we notify the listeners, if at least one of the provided states have been changed
+		 * If the provided references is an empty array, then it will call the function when any state have been changed
 		 * @param	_scope				The scope for the function
-		 * @param	_handler			The callback function
+		 * @param	_stateChangeHandler	The callback function
 		 * @param	_statesReferences	An array of stateReferences
-		 * @return An object representing the listener, which can be removed using stopListening
+		 * @return An object representing the listener, which can be removed using the stopListening method
 		 */
-		public function listen(_scope : * , _handler : Function, _statesReferences : Array) : Object {
-			for (var i : int = 0; i < _statesReferences.length; i++) {
-				if (references.indexOf(_statesReferences[i]) < 0) {
+		public function listen(_scope : *, _stateChangeHandler : Function, _stateReferences : Array) : Object {
+			for (var i : int = 0; i < _stateReferences.length; i++) {
+				if (references.indexOf(_stateReferences[i]) < 0) {
 					throw new Error("Unable to start listening for state changes, one of the states are not managed by this state manager");
 				}
 			}
 			
-			var listener : Object = {handler: _handler, stateReferences: _statesReferences}
+			var listener : Object = {handler: _stateChangeHandler, stateReferences: _stateReferences}
 			listeners.push(listener);
+			
+			// We want to call the handler as soon as it starts listening, to make sure it's synced with the current state
+			listener.handler();
+			
 			return listener;
 		}
 		
 		/**
-		 * Removes a listener
-		 * @param	_listener	An object representing the listener, returned by listen
+		 * Removes an existing listener
+		 * @param	_listener	An object representing the listener, returned by the listen method
 		 */
 		public function stopListening(_listener : Object) : void {
 			var index : int = listeners.indexOf(_listener);
@@ -191,7 +130,7 @@ package core {
 		
 		private function notifyListener(_listener : Object, _updatedStatesReferences : Array) : void {
 			var shouldNotify : Boolean = _listener.stateReferences.length == 0;
-			for (var i : Number = 0; i < _listener.stateReferences.length; i++) {
+			for (var i : int = 0; i < _listener.stateReferences.length; i++) {
 				if (_updatedStatesReferences.indexOf(_listener.stateReferences[i]) >= 0) {
 					shouldNotify = true;
 					break;
@@ -208,7 +147,7 @@ package core {
 		private function getStateValues() : Array {
 			var values : Array = [];
 			for (var i : int = 0; i < states.length; i++) {
-				values.push(states[i].getRawState());
+				values.push(states[i].getRawValue());
 			}
 			return values;
 		}

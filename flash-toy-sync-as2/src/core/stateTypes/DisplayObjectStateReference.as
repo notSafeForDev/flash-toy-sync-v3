@@ -1,19 +1,17 @@
-import core.stateTypes.DisplayObjectState;
-import core.stateTypes.MovieClipState;
+import core.stateTypes.StateReference;
+import core.stateTypes.State;
 
 /**
  * ...
  * @author notSafeForDev
  */
-class core.stateTypes.DisplayObjectStateReference {
+class core.stateTypes.DisplayObjectStateReference extends StateReference {
 	
-	private var actualState : DisplayObjectState;
-	
-	public function DisplayObjectStateReference(_state : DisplayObjectState) {
-		actualState = _state;
+	public function DisplayObjectStateReference(_state : State) {
+		super(_state);
 	}
 	
-	public function get state() : MovieClip {
-		return actualState.getState();
+	public function get value() : MovieClip {
+		return stateObject.getValue();
 	}
 }

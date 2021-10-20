@@ -1,15 +1,14 @@
 package controllers {
 	
-	import core.DisplayObjectUtil;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	
-	import core.MovieClipUtil;
+	import core.DisplayObjectUtil;
 	import core.ArrayUtil;
-	import core.stateTypes.ArrayState;
 	
+	import global.EditorState;
+	import global.ScenesState;
 	import global.GlobalEvents;
-	import global.GlobalState;
 	
 	import ui.HierarchyPanel;
 	
@@ -19,10 +18,10 @@ package controllers {
 	 */
 	public class HierarchyPanelController {
 		
-		private var globalState : GlobalState;
+		private var editorState : EditorState;
 		
-		public function HierarchyPanelController(_globalState : GlobalState, _hierarchyPanel : HierarchyPanel, _animation : MovieClip) {
-			globalState = _globalState;
+		public function HierarchyPanelController(_editorState : EditorState, _hierarchyPanel : HierarchyPanel, _animation : MovieClip) {
+			editorState = _editorState;
 			
 			_hierarchyPanel.excludeChildrenWithoutNestedAnimations = true;
 			_hierarchyPanel.onSelectChild.listen(this, onPanelSelectChild);
@@ -32,8 +31,7 @@ package controllers {
 		}
 		
 		private function onEnterFrame() : void {
-			var state : ArrayState = globalState._disabledMouseSelectForChildren;
-			var stateValue : Array = state.getState();
+			var stateValue : Array = EditorState.mouseSelectDisabledForChildren.value;
 			var haveRemovedAny : Boolean = false;
 			
 			for (var i : Number = 0; i < stateValue.length; i++) {
@@ -45,12 +43,12 @@ package controllers {
 			}
 			
 			if (haveRemovedAny == true) {
-				state.setState(stateValue);
+				editorState._mouseSelectDisabledForChildren.setValue(stateValue);
 			}
 		}
 		
 		private function onPanelSelectChild(_child : MovieClip) : void {
-			if (GlobalState.selectedChild.state == _child) {
+			if (ScenesState.selectedChild.value == _child) {
 				return;
 			}
 			
@@ -58,9 +56,8 @@ package controllers {
 		}
 		
 		private function onPanelToggleMouseSelect(_child : DisplayObject) : void {
-			var state : ArrayState = globalState._disabledMouseSelectForChildren;
-			var stateValue : Array = state.getState();
-			var index : Number = ArrayUtil.indexOf(state.getState(), _child);
+			var stateValue : Array = EditorState.mouseSelectDisabledForChildren.value;
+			var index : Number = ArrayUtil.indexOf(stateValue, _child);
 			
 			if (index >= 0) {
 				stateValue.splice(index, 1);
@@ -68,7 +65,7 @@ package controllers {
 				stateValue.push(_child);
 			}
 			
-			state.setState(stateValue);
+			editorState._mouseSelectDisabledForChildren.setValue(stateValue);
 		}
 	}
 }

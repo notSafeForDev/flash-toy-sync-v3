@@ -6,7 +6,8 @@ package ui {
 	import core.StageUtil;
 	import core.TextElement;
 	import flash.display.MovieClip;
-	import global.GlobalState;
+	import global.AnimationInfoState;
+	import global.ToyState;
 	
 	/**
 	 * ...
@@ -42,7 +43,7 @@ package ui {
 			connectionKeyHeader.setX(centerX - 110);
 			connectionKeyHeader.setY(270);
 			
-			var connectionKeyInput : TextElement = new TextElement(container, GlobalState.theHandyConnectionKey.state);
+			var connectionKeyInput : TextElement = new TextElement(container, ToyState.theHandyConnectionKey.value);
 			TextStyles.applyInputStyle(connectionKeyInput);
 			connectionKeyInput.setWidth(220);
 			connectionKeyInput.setX(centerX - 110);
@@ -72,7 +73,7 @@ package ui {
 			DisplayObjectUtil.setX(editorButton.element, centerX + 10);
 			DisplayObjectUtil.setY(editorButton.element, 430);
 			
-			GlobalState.listen(this, onAnimationNameStateChange, [GlobalState.animationName]);
+			AnimationInfoState.listen(this, onAnimationNameStateChange, [AnimationInfoState.name]);
 		}
 		
 		private function createButton(_text : String, _width : Number, _clickHandler : Function) : UIButton {
@@ -114,11 +115,11 @@ package ui {
 		}
 		
 		private function onAnimationNameStateChange() : void {
-			if (GlobalState.animationName.state != "") {
-				var nameText : String = "Animation: " + GlobalState.animationName.state;
+			if (AnimationInfoState.name.value != "") {
+				var nameText : String = "Animation: " + AnimationInfoState.name.value;
 				
-				if (GlobalState.animationName.state.length > 20) {
-					nameText = "Animation: " + GlobalState.animationName.state.substring(0, 17) + "...";
+				if (AnimationInfoState.name.value.length > 20) {
+					nameText = "Animation: " + AnimationInfoState.name.value.substring(0, 17) + "...";
 				}
 				
 				animationNameText.setText(nameText);

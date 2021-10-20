@@ -7,11 +7,13 @@ package controllers {
 	import core.KeyboardManager;
 	import core.MovieClipUtil;
 	
-	import global.GlobalState;
-	
+	import global.SceneScriptsState;
+	import global.ScenesState;
+
 	import components.MarkerSceneScript;
 	import components.Scene;
 	import components.SceneScript;
+	
 	import ui.ScriptSampleMarkerElement;
 	
 	/**
@@ -31,7 +33,7 @@ package controllers {
 		
 		private var currentSceneScript : MarkerSceneScript;
 		
-		public function ScriptSampleMarkersController(_globalState : GlobalState, _animation : MovieClip, _overlayContainer : MovieClip) {
+		public function ScriptSampleMarkersController(_animation : MovieClip, _overlayContainer : MovieClip) {
 			animation = _animation;
 			
 			var markersOverlay : MovieClip = MovieClipUtil.create(_overlayContainer, "scriptSampleMarkersContainer");
@@ -54,7 +56,9 @@ package controllers {
 			
 			keyboardManager.addShortcut(this, [Keyboard.BACKSPACE], onRemovePositionShortcut);
 			
-			GlobalState.listen(this, onSceneStatesChange, [GlobalState.currentScene, GlobalState.sceneScripts, GlobalState.scenes]);
+			// TODO: Listen for isRecording
+			ScenesState.listen(this, onSceneStatesChange, [ScenesState.currentScene, ScenesState.scenes]);
+			SceneScriptsState.listen(this, onSceneStatesChange, [SceneScriptsState.scripts]);
 		}
 		
 		public function onEnterFrame() : void {
@@ -95,13 +99,13 @@ package controllers {
 				selectedMarker = null;
 			}
 			
-			var currentScene : Scene = GlobalState.currentScene.state;
+			var currentScene : Scene = ScenesState.currentScene.value;
 			if (currentScene == null) {
 				currentSceneScript = null;
 				return;
 			}
 			
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			for (var i : Number = 0; i < sceneScripts.length; i++) {
 				var sceneScript : SceneScript = sceneScripts[i];
 				if (sceneScript.scene == currentScene && sceneScript.getType() == MarkerSceneScript.sceneScriptType) {
@@ -162,10 +166,10 @@ package controllers {
 		}
 		
 		private function getFrameIndex() : Number {
-			if (currentSceneScript == null || GlobalState.selectedChild.state == null) {
+			if (currentSceneScript == null || ScenesState.selectedChild.value == null) {
 				return -1;
 			}
-			var currentFrame : Number = MovieClipUtil.getCurrentFrame(GlobalState.selectedChild.state);
+			var currentFrame : Number = MovieClipUtil.getCurrentFrame(ScenesState.selectedChild.value);
 			return currentFrame - currentSceneScript.getStartFrame();
 		}
 	}

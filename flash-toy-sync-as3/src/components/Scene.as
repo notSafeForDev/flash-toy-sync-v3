@@ -6,8 +6,8 @@ package components {
 	
 	import core.DisplayObjectUtil;
 	import core.MovieClipUtil;
-
-	import global.GlobalState;
+	
+	import global.EditorState;
 	
 	/**
 	 * A class for keeping track of the active frames for a nested child and it's parents
@@ -132,7 +132,7 @@ package components {
 				throw new Error("Unable to update frame ranges, the Scene have not been initialized");
 			}
 			
-			if (_isForceStopped == true || GlobalState.isEditor.state == false) {
+			if (_isForceStopped == true || EditorState.isEditor.value == false) {
 				return;
 			}
 			

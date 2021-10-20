@@ -1,8 +1,12 @@
 package ui {
 	
-	import core.ArrayUtil;
 	import flash.display.MovieClip;
 	
+	import global.EditorState;
+	import global.ScenesState;
+	import global.ScriptingState;
+	
+	import core.ArrayUtil;
 	import core.DisplayObjectUtil;
 	import core.MouseEvents;
 	import core.CustomEvent;
@@ -10,8 +14,6 @@ package ui {
 	import core.GraphicsUtil;
 	import core.MovieClipUtil;
 	import core.TextElement;
-	
-	import global.GlobalState;
 	
 	import ui.TextStyles;
 	
@@ -95,33 +97,34 @@ package ui {
 			
 			recordButton.onMouseClick.listen(this, onStartRecordingButtonClick);
 			
-			GlobalState.listen(this, onStatesChange, [
-				GlobalState.clickedChild, GlobalState.selectedChild, GlobalState.baseMarkerAttachedTo, GlobalState.stimulationMarkerAttachedTo, GlobalState.tipMarkerAttachedTo
-			]);
-			
-			GlobalState.listen(this, onCurrentSceneStateChange, [GlobalState.currentScene]);
-			
-			updateButtons();
+			ScriptingState.listen(this, onMarkerAttachStatesChange, [ScriptingState.baseMarkerAttachedTo, ScriptingState.stimulationMarkerAttachedTo, ScriptingState.tipMarkerAttachedTo]);
+			EditorState.listen(this, onClickedChildStateChange, [EditorState.clickedChild]);
+			ScenesState.listen(this, onCurrentSceneStateChange, [ScenesState.currentScene]);
 		}
 		
 		private function onFilterInputTextChange(_text : String) : void {
 			onMouseSelectFilterChange.emit(_text);
 		}
 		
-		private function onStatesChange() : void {
+		private function onMarkerAttachStatesChange() : void {
 			updateButtons();
-			if (GlobalState.clickedChild.state != null) {
-				lastClickedChildText.setText("Clicked: " + DisplayObjectUtil.getName(GlobalState.clickedChild.state));
+		}
+		
+		private function onClickedChildStateChange() : void {
+			if (EditorState.clickedChild.value != null) {
+				lastClickedChildText.setText("Clicked: " + DisplayObjectUtil.getName(EditorState.clickedChild.value));
 			}
 		}
 		
 		private function onCurrentSceneStateChange() : void {
 			startFrameInputText.setText("-1");
 			endFrameInputText.setText("-1");
+			
+			updateButtons();
 		}
 		
 		private function updateButtons() : void {
-			var canAttachMarkers : Boolean = GlobalState.selectedChild.state != null;
+			var canAttachMarkers : Boolean = ScenesState.selectedChild.value != null;
 			
 			stimulationMarkerButton.setEnabled(canAttachMarkers);
 			baseMarkerButton.setEnabled(canAttachMarkers);
@@ -131,7 +134,7 @@ package ui {
 		}
 		
 		private function onMarkerButtonClick(_attachMarkerEvent : CustomEvent) : void {
-			if (GlobalState.selectedChild.state != null) {
+			if (ScenesState.selectedChild.value != null) {
 				_attachMarkerEvent.emit();
 			}
 		}
@@ -146,11 +149,11 @@ package ui {
 		
 		private function canRecord() : Boolean {
 			var dependencies : Array = [
-				GlobalState.currentScene.state,
-				GlobalState.selectedChild.state,
-				GlobalState.stimulationMarkerAttachedTo.state,
-				GlobalState.baseMarkerAttachedTo.state,
-				GlobalState.tipMarkerAttachedTo.state
+				ScenesState.currentScene.value,
+				ScenesState.selectedChild.value,
+				ScriptingState.stimulationMarkerAttachedTo.value,
+				ScriptingState.baseMarkerAttachedTo.value,
+				ScriptingState.tipMarkerAttachedTo.value
 			];
 			
 			return ArrayUtil.indexOf(dependencies, null) < 0;

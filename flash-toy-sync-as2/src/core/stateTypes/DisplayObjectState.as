@@ -1,47 +1,20 @@
+import core.stateTypes.State;
+
 /**
  * ...
  * @author notSafeForDev
  */
-class core.stateTypes.DisplayObjectState {
+class core.stateTypes.DisplayObjectState extends State {
 	
-	private var value : MovieClip;
-	private var PreviousValue : MovieClip;
-	private var listeners : Array;
-	
-	public function DisplayObjectState(_default : MovieClip) {
-		listeners = [];
-		PreviousValue = _default != undefined ? _default : null;
-		value = _default != undefined ? _default : null;
+	public function DisplayObjectState() {
+		super();
 	}
 	
-	public function listen(_scope, _handler : Function) : Object {
-		var listener : Object = {handler: _handler, scope: _scope}
-		listeners.push(listener);
-		return listener;
-	}
-	
-	public function setState(_value : MovieClip) : Void {
-		if (_value == value) {
-			return;
-		}
-		
-		for (var i : Number = 0; i < listeners.length; i++) {
-			this.listeners[i].handler.apply(this.listeners[i].scope, [_value]);
-		}
-		
-		PreviousValue = value;
+	public function setValue(_value : MovieClip) : Void {
 		value = _value;
 	}
 	
-	public function getState() : MovieClip {
+	public function getValue() : MovieClip {
 		return value;
-	}
-	
-	public function getRawState() : MovieClip {
-		return value;
-	}
-	
-	public function getPreviousValue() : MovieClip {
-		return PreviousValue;
 	}
 }

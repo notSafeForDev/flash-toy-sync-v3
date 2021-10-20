@@ -1,7 +1,8 @@
 package controllers {
 	
 	import global.GlobalEvents;
-	import global.GlobalState;
+	import global.SceneScriptsState;
+	import global.ScenesState;
 	
 	import components.Scene;
 	import components.SceneScript;
@@ -12,21 +13,21 @@ package controllers {
 	 */
 	public class SceneScriptsController {
 		
-		private var globalState : GlobalState;
+		private var sceneScriptsState : SceneScriptsState;
 		
-		public function SceneScriptsController(_globalState : GlobalState) {
-			globalState = _globalState;
+		public function SceneScriptsController(_sceneScriptsState : SceneScriptsState) {
+			sceneScriptsState = _sceneScriptsState;
 			
 			GlobalEvents.sceneChanged.listen(this, onSceneChanged);
 			GlobalEvents.scenesMerged.listen(this, onScenesMerged);
 		}
 		
 		private function onSceneChanged() : void {
-			globalState._currentSceneScript.setState(getSceneScriptForCurrentScene());
+			sceneScriptsState._currentScript.setValue(getSceneScriptForCurrentScene());
 		}
 		
 		private function onScenesMerged(_previousScene : Scene, _combinedScene : Scene) : void {
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			for (var i : Number = 0; i < sceneScripts.length; i++) {
 				var sceneScript : SceneScript = sceneScripts[i];
 				if (sceneScript.scene == _previousScene) {
@@ -36,14 +37,14 @@ package controllers {
 		}
 		
 		protected function getSceneScriptForCurrentScene() : SceneScript {
-			if (GlobalState.currentScene.state == null) {
+			if (ScenesState.currentScene.value == null) {
 				return null;
 			}
 			
-			var sceneScripts : Array = GlobalState.sceneScripts.state;
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			for (var i : Number = 0; i < sceneScripts.length; i++) {
 				var existingSceneScript : SceneScript = sceneScripts[i];
-				if (existingSceneScript.getScene() == GlobalState.currentScene.state) {
+				if (existingSceneScript.getScene() == ScenesState.currentScene.value) {
 					return existingSceneScript;
 				}
 			}

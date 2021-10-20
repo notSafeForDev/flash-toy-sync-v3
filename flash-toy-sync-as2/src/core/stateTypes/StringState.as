@@ -1,47 +1,20 @@
+import core.stateTypes.State;
+
 /**
  * ...
  * @author notSafeForDev
  */
-class core.stateTypes.StringState {
+class core.stateTypes.StringState extends State {
 	
-	private var value : String;
-	private var PreviousValue : String;
-	private var listeners : Array;
-	
-	public function StringState(_default : String) {
-		listeners = [];
-		PreviousValue = _default != undefined ? _default : null;
-		value = _default != undefined ? _default : null;
+	public function StringState() {
+		super();
 	}
 	
-	public function listen(_scope, _handler : Function) : Object {
-		var listener : Object = {handler: _handler, scope : _scope}
-		listeners.push(listener);
-		return listener;
-	}
-	
-	public function setState(_value : String) : Void {
-		if (_value == value) {
-			return;
-		}
-		
-		for (var i : Number = 0; i < listeners.length; i++) {
-			this.listeners[i].handler.apply(this.listeners[i].scope, [_value]);
-		}
-		
-		PreviousValue = value;
+	public function setValue(_value : String) : Void {
 		value = _value;
 	}
 	
-	public function getState() : String {
+	public function getValue() : String {
 		return value;
-	}
-	
-	public function getRawState() : String {
-		return value;
-	}
-	
-	public function getPreviousValue() : String {
-		return PreviousValue;
 	}
 }

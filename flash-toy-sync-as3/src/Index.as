@@ -1,8 +1,17 @@
 package {
 	
+	import controllers.StageChildSelectionController;
 	import flash.display.MovieClip;
 	import flash.ui.Mouse;
+	import global.SceneScriptsState;
+	import global.ScenesState;
+	import global.ScriptingState;
+	import global.ToyState;
+	import ui.StageElementHighlighter;
 	
+	import core.StateManager;
+	import core.stateTypes.StringState;
+	import core.stateTypes.StringStateReference;
 	import core.GraphicsUtil;
 	import core.DisplayObjectUtil;
 	import core.TextElement;
@@ -12,8 +21,9 @@ package {
 	import core.StageUtil;
 	import core.MovieClipEvents;
 	
+	import global.AnimationInfoState;
+	import global.EditorState;
 	import global.GlobalEvents;
-	import global.GlobalState;
 	
 	import controllers.UserSettingsController;
 	import controllers.AnimationScalingController;
@@ -46,8 +56,14 @@ package {
 	 * @author notSafeForDev
 	 */
 	public class Index {
-		private var globalStateManager : CustomStateManager;
-		private var globalState : GlobalState;
+		private var stateManager : StateManager;
+		
+		private var animationInfoState : AnimationInfoState;
+		private var editorState : EditorState;
+		private var scenesState : ScenesState;
+		private var sceneScriptsState : SceneScriptsState;
+		private var scriptingState : ScriptingState;
+		private var toyState : ToyState;
 		
 		private var container : MovieClip;
 		private var animationContainer : MovieClip;
@@ -67,6 +83,7 @@ package {
 		private var userSettingsController : UserSettingsController;
 		private var scenesController : ScenesController;
 		private var animationScalingController : AnimationScalingController;
+		private var stageChildSelectionController : StageChildSelectionController;
 		private var hierarchyPanelController : HierarchyPanelController;
 		private var scriptSampleMarkersController : ScriptSampleMarkersController;
 		private var scriptMarkersController : ScriptMarkersController;
@@ -82,10 +99,16 @@ package {
 			
 			GlobalEvents.init();
 			
-			globalStateManager = new CustomStateManager();
-			globalState = new GlobalState(globalStateManager);
+			stateManager = new StateManager();
 			
-			userSettingsController = new UserSettingsController(globalState);
+			animationInfoState = new AnimationInfoState(stateManager);
+			editorState = new EditorState(stateManager);
+			scenesState = new ScenesState(stateManager);
+			sceneScriptsState = new SceneScriptsState(stateManager);
+			scriptingState = new ScriptingState(stateManager);
+			toyState = new ToyState(stateManager);
+			
+			userSettingsController = new UserSettingsController(toyState);
 			
 			container = _container;
 			animationContainer = MovieClipUtil.create(_container, "animationContainer");
@@ -116,11 +139,11 @@ package {
 			
 			MovieClipEvents.addOnEnterFrame(this, container, onEnterFrame);
 			
-			GlobalState.listen(this, onToyErrorStateChange, [GlobalState.toyError]);
+			ToyState.listen(this, onToyErrorStateChange, [ToyState.error]);
 		}
 		
 		private function onStartUpMenuTheHandyConnectionKeyChange(_key : String) : void {
-			globalState._theHandyConnectionKey.setState(_key);
+			toyState._theHandyConnectionKey.setValue(_key);
 		}
 		
 		private function onStartUpMenuBrowseSWF() : void {
@@ -128,25 +151,25 @@ package {
 		}
 		
 		private function onStartUpMenuEnterPlayer() : void {
-			globalState._isEditor.setState(false);
-			externalSWF.load(GlobalState.animationName.state);
+			editorState._isEditor.setValue(false);
+			externalSWF.load(AnimationInfoState.name.value);
 		}
 		
 		private function onStartUpMenuEnterEditor() : void {
-			globalState._isEditor.setState(true);
-			externalSWF.load(GlobalState.animationName.state);
+			editorState._isEditor.setValue(true);
+			externalSWF.load(AnimationInfoState.name.value);
 		}
 		
 		private function onToyErrorStateChange() : void {		
-			if (GlobalState.toyError.state != "") {
-				errorText.setText("Toy error: " + GlobalState.toyError.state);
+			if (ToyState.error.value != "") {
+				errorText.setText("Toy error: " + ToyState.error.value);
 			} else {
 				errorText.setText("");
 			}
 		}
 		
 		private function onSWFSelected(_name : String) : void {
-			globalState._animationName.setState(_name);
+			animationInfoState._name.setValue(_name);
 		}
 		
 		private function onSWFLoaded(_swf : MovieClip, _width : Number, _height : Number, _fps : Number) : void {
@@ -159,6 +182,8 @@ package {
 			
 			animation = _swf;
 			
+			var stageElementHighlighter : StageElementHighlighter = new StageElementHighlighter(animation, overlayContainer);
+			
 			var toyPanel : ToyPanel = new ToyPanel(panelContainer);
 			toyPanel.setPosition(1280 - 150, 550);
 			DisplayObjectUtil.setVisible(toyPanel.container, false);
@@ -167,11 +192,11 @@ package {
 			saveDataPanel.setPosition(1280 - 150, 400);
 			DisplayObjectUtil.setVisible(saveDataPanel.container, false);
 			
-			saveDataController = new SaveDataController(globalState, animation, saveDataPanel);
-			scenesController = new ScenesController(globalState, animation);
-			var sceneScriptsController : SceneScriptsController = new SceneScriptsController(globalState);
+			saveDataController = new SaveDataController(scenesState, sceneScriptsState, animation, saveDataPanel);
+			scenesController = new ScenesController(scenesState, animation);
+			var sceneScriptsController : SceneScriptsController = new SceneScriptsController(sceneScriptsState);
 			
-			if (GlobalState.isEditor.state == true) {
+			if (EditorState.isEditor.value == true) {
 				var hierarchyPanel : HierarchyPanel = new HierarchyPanel(panelContainer, animation);
 				hierarchyPanel.setPosition(0, 0);
 				
@@ -187,17 +212,19 @@ package {
 				DisplayObjectUtil.setVisible(toyPanel.container, true);
 				DisplayObjectUtil.setVisible(saveDataPanel.container, true);
 				
-				animationScalingController = new AnimationScalingController(globalState, animation, _width, _height);
-				hierarchyPanelController = new HierarchyPanelController(globalState, hierarchyPanel, animation);
-				scriptSampleMarkersController = new ScriptSampleMarkersController(globalState, animation, overlayContainer);
-				scriptMarkersController = new ScriptMarkersController(globalState, scriptingPanel, animation, overlayContainer);
-				scriptRecordingController = new ScriptRecordingController(globalState, scriptingPanel, scenesPanel, animation, overlayContainer);
+				stageChildSelectionController = new StageChildSelectionController(editorState, scriptingPanel, animation, overlayContainer);
 				
-				var theHandyEditorController : TheHandyEditorController = new TheHandyEditorController(globalState, prepareScriptButton, toyPanel);
+				animationScalingController = new AnimationScalingController(animationInfoState, animation, _width, _height);
+				hierarchyPanelController = new HierarchyPanelController(editorState, hierarchyPanel, animation);
+				scriptSampleMarkersController = new ScriptSampleMarkersController(animation, overlayContainer);
+				scriptMarkersController = new ScriptMarkersController(scriptingState, scriptingPanel, animation, overlayContainer);
+				scriptRecordingController = new ScriptRecordingController(sceneScriptsState, scriptingPanel, scenesPanel, animation, overlayContainer);
+				
+				var theHandyEditorController : TheHandyEditorController = new TheHandyEditorController(toyState, prepareScriptButton, toyPanel);
 			}
 			
-			if (GlobalState.isEditor.state == false) {
-				var theHandyController : TheHandyController = new TheHandyController(globalState, prepareScriptButton);
+			if (EditorState.isEditor.value == false) {
+				var theHandyController : TheHandyController = new TheHandyController(toyState, prepareScriptButton);
 			}
 			
 			// animation.gotoAndStop(256); // midna-3x-pleasure
@@ -208,20 +235,22 @@ package {
 			if (animation != null) {
 				scenesController.onEnterFrame();
 				
-				if (GlobalState.isEditor.state == true) {
+				if (EditorState.isEditor.value == true) {
+					stageChildSelectionController.onEnterFrame();
 					scriptSampleMarkersController.onEnterFrame();
 					scriptMarkersController.onEnterFrame();
 					scriptRecordingController.onEnterFrame();
 				}
 			}
 			
-			globalStateManager.notifyListeners();
+			stateManager.notifyListeners();
+			
 			GlobalEvents.enterFrame.emit();
 			// var endTime : Number = Debug.getTime();
 			// trace(endTime - startTime);
 			
 			// For animations that hides the cursor, make it always visible while in the editor
-			if (GlobalState.isEditor.state == true) {
+			if (EditorState.isEditor.value == true) {
 				Mouse.show();
 			}
 		}
