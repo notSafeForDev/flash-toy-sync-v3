@@ -19,6 +19,8 @@ package api {
 		private var serverTimeDelta : Number = 0;
 		private var isPlaying : Boolean = false;
 		
+		private var totalApiCalls : Number = 0;
+		
 		public function TheHandyAPI() {
 			
 		}
@@ -28,14 +30,23 @@ package api {
 				throw new Error("Unable to send syncPrepare request, no connection key have been set");
 			}
 			
-			var date : Date = new Date();
+			// We add the number of total api calls to the timeout, in order to make it seem like a unique request each time,
+			// otherwise it will use an existing cached response if it has one, which will result in no request being made to the server
+			var url : String = baseUrl + connectionKey + "/syncPrepare?url=" + _csvUrl + "&timeout=" + (20000 + totalApiCalls);
+			HTTPRequest.send(url, _scope, _responseHandler);
+			totalApiCalls++;
+		}
+		
+		public function syncPrepareFromCSV(_csv : String, _scope : *, _responseHandler : Function) : void {
+			if (connectionKey == "") {
+				throw new Error("Unable to send uploadCSVAndSync request, no connection key have been set");
+			}
 			
-			// disableCache is not actually a parameter of the api, it's a made up parameter in order to make sure that the url is always different each time,
-			// Otherwise the urlLoader uses cached responses, which would result in no new requests being made to the server
-			var url : String = baseUrl + connectionKey + "/syncPrepare?disableCache=" + date.getTime() + "&url=" + _csvUrl;
-			HTTPRequest.send(url, this, function(_response : Object) : void {
-				_responseHandler.apply(_scope, [_response]);
-			});
+			// TODO: Verify that the response for this doesn't get cached
+			var prepareUrl : String = "https://hump-feed.herokuapp.com/prepareScriptForTheHandy/" + connectionKey;
+			var contentType : String = HTTPRequest.CONTENT_TYPE_TEXT;
+			
+			HTTPRequest.post(prepareUrl, _csv, contentType, _scope, _responseHandler);
 		}
 		
 		public function syncPlay(_time : Number, _adjustOffset : Boolean, _scope : *, _responseHandler : Function) : void {
@@ -52,7 +63,8 @@ package api {
 			
 			var url : String = baseUrl + connectionKey + "/syncPlay?play=true&time=" + _time + "&serverTime=" + serverTime;
 			
-			HTTPRequest.send(url, this, onSyncPlayResponse, _adjustOffset, _scope, _responseHandler);
+			HTTPRequest.send(url, _scope, onSyncPlayResponse, _adjustOffset, _scope, _responseHandler);
+			totalApiCalls++;
 		}
 		
 		private function onSyncPlayResponse(_response : Object, _adjustOffset : Boolean, _scope : * , _responseHandler : Function) : void {
@@ -64,20 +76,21 @@ package api {
 				_responseHandler.apply(_scope, [_response]);
 			}
 			if (_adjustOffset == true) {
-				syncOffset(-serverTimeDelta);
+				syncOffset(-serverTimeDelta, this, null);
 			}
 		}
 		
-		private function syncOffset(_offset : Number) : void {
+		public function syncOffset(_offset : Number, _scope : *, _responseHandler : Function) : void {
 			if (connectionKey == "") {
 				throw new Error("Unable to send syncOffset request, no connection key have been set");
 			}
 			
 			var date : Date = new Date();
 			
-			var url : String = baseUrl + connectionKey + "/syncOffset?disableCache=" + date.getTime() + "&offset=" + _offset;
+			var url : String = baseUrl + connectionKey + "/syncOffset?offset=" + _offset + "&timeout=" + (5000 + totalApiCalls);
 			
-			HTTPRequest.send(url, this, null);
+			HTTPRequest.send(url, _scope, _responseHandler);
+			totalApiCalls++;
 		}
 		
 		public function syncStop(_scope : *, _responseHandler : Function) : void {
@@ -89,13 +102,10 @@ package api {
 			
 			var date : Date = new Date();
 			
-			var url : String = baseUrl + connectionKey + "/syncPlay?disableCache=" + date.getTime() + "&play=false";
+			var url : String = baseUrl + connectionKey + "/syncPlay?play=false&timeout=" + (5000 + totalApiCalls);
 			
-			HTTPRequest.send(url, this, function(_response : Object) : void {
-				if (_responseHandler != null) {
-					_responseHandler.apply(_scope, [_response]);
-				}
-			});
+			HTTPRequest.send(url, _scope, _responseHandler);
+			totalApiCalls++;
 		}
 	}
 }

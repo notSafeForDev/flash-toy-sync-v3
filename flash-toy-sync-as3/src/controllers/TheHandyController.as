@@ -4,6 +4,7 @@ package controllers {
 	import components.Scene;
 	import components.SceneScript;
 	import core.DisplayObjectUtil;
+	import core.HTTPRequest;
 	import global.EditorState;
 	import global.SceneScriptsState;
 	import global.ScenesState;
@@ -69,13 +70,18 @@ package controllers {
 			DisplayObjectUtil.setVisible(prepareScriptButton.element, ToyState.error.value != "");
 		}
 		
-		private function onSyncPrepareResponse(_response : Object) : void {
-			// trace(JSON.stringify(_response));
+		private function onSyncPrepareResponse(_response : *) : void {
+			isScriptPrepared = false;
 			
-			if (_response.error != undefined) {
+			if (typeof _response == "string") {
+				toyState._status.setValue("");
+				toyState._error.setValue("Unable to download the script");
+			} else if (_response.downloaded == false) {
+				toyState._status.setValue("");
+				toyState._error.setValue("Unable to download the script");
+			} else if (_response.success == false) {
 				toyState._status.setValue("");
 				toyState._error.setValue(_response.error);
-				isScriptPrepared = false;
 			} else {
 				toyState._status.setValue("Script prepared");
 				toyState._error.setValue("");
@@ -88,7 +94,6 @@ package controllers {
 				trace("Play on sync prepare");
 			}
 		}
-		
 		private function onSyncPlayResponse(_response : Object) : void {
 			if (_response.error != undefined) {
 				toyState._status.setValue("");
@@ -159,18 +164,24 @@ package controllers {
 			return script;
 		}
 		
-		protected function prepareScript(_csvUrl : String) : void {			
-			theHandyAPI.syncPrepare(_csvUrl, this, onSyncPrepareResponse);
+		protected function prepareScript(_csv : String) : void {			
 			toyState._status.setValue("Preparing script...");
 			toyState._error.setValue("");
 			isScriptPrepared = false;
 			isPlaying = false;
+			
+			theHandyAPI.syncPrepareFromCSV(_csv, this, onSyncPrepareResponse);
 		}
 		
 		private function prepareScriptForAllScenes() : void {
 			var sceneScripts : Array = SceneScriptsState.scripts.value;
-			var startTime : Number = 0;
-			var combinedScript : Array = [];
+			if (sceneScripts.length == 0) {
+				return;
+			}
+			
+			// We add an extra position at the start, to make the first loop in the script loop smoothly
+			var startTime : Number = 1000;
+			var combinedScript : Array = [{time: 0, position: 0}];
 			var i : Number;
 			
 			sceneStartTimes = [];
@@ -187,18 +198,12 @@ package controllers {
 				combinedScript = combinedScript.concat(script);
 			}
 			
-			// TEMP: We should upload a file to a server instead
-			var csvUrl : String = "https://hump-feed.herokuapp.com/generateCSV/";
+			var csv : String = "\n";
 			for (i = 0; i < combinedScript.length; i++) {
-				csvUrl += combinedScript[i].time + "," + combinedScript[i].position + ",";
+				csv += combinedScript[i].time + "," + combinedScript[i].position + "\n";
 			}
 			
-			// The url loader caches responses from urls, and sends those back on repeated requests, 
-			// so we alter the url in order to make it seem like a different request
-			var date : Date = new Date();
-			csvUrl += date.getTime() + ",0";
-			
-			prepareScript(csvUrl);
+			prepareScript(csv);
 		}
 		
 		protected function playScript() : void {

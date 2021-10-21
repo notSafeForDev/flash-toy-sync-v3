@@ -7,34 +7,54 @@ import core.JSON;
  */
 class core.HTTPRequest {
 	
-	public static function send(_url : String, _scope, _responseHandler : Function) : Void {
-		var loader : LoadVars = new LoadVars();
-		
-		var responseHandler : Function = null;
-		if (_responseHandler != null) {
-			responseHandler = FunctionUtil.bind(_scope, _responseHandler);
-		}
-		
+	public static var CONTENT_TYPE_JSON : String = "application/json";
+	public static var CONTENT_TYPE_TEXT : String = "text/plain";
+	
+	public static function send(_url : String, _scope, _responseHandler : Function) : Void {		
 		var rest : Array = arguments.slice(3);
 		
-		loader.onData = function(_response : String) {
-			if (_response.indexOf("<!DOCTYPE html>") == 0) {
-				var faultyArgs : Array = [{error: "Bad Request"}];
-				faultyArgs = faultyArgs.concat(rest);
+		var loader : LoadVars = setupLoader(_scope, _responseHandler, rest);
+		
+		loader.load(_url);
+	}
+	
+	public static function post(_url : String, _body, _contentType : String, _scope, _responseHandler : Function) : Void {		
+		var rest : Array = arguments.slice(3);
+		
+		var loader : LoadVars = setupLoader(_scope, _responseHandler, rest);
+		loader.contentType = _contentType;
+		loader.addRequestHeader("body", _body.split("\n").join("\\n"));
+		
+		loader.sendAndLoad(_url, loader, "POST");
+	}
+	
+	private static function setupLoader(_scope, _responseHandler : Function, restArguments : Array) : LoadVars {
+		var loader : LoadVars = new LoadVars();
+		
+		loader.onData = function(_response : String) : Void {
+			if (_response.toLowerCase().indexOf("<!doctype html>") == 0) {
+				var faultyArgs : Array = [{error: "Server Error"}];
+				faultyArgs = faultyArgs.concat(restArguments);
 				if (_responseHandler != null) {
 					_responseHandler.apply(_scope, faultyArgs);
 				}
 				return;
 			}
 			
-			var response : Object = JSON.parse(_response);
-			var args : Array = [response];
-			args = args.concat(rest);
+			var args : Array;
+			try {
+				args = [JSON.parse(_response)];
+			} catch (err : Error) {
+				args = [_response];
+			}
+			
+			args = args.concat(restArguments);
+			
 			if (_responseHandler != null) {
 				_responseHandler.apply(_scope, args);
 			}
 		}
 		
-		loader.load(_url);
+		return loader;
 	}
 }

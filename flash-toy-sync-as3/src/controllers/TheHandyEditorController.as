@@ -87,6 +87,7 @@ package controllers {
 			var i : Number;
 			var loopCount : Number = getMinLoopCountForScene(sceneScript);
 			var sceneScripts : Array = SceneScriptsState.scripts.value;
+			var startOffset : Number = 1000;
 			
 			currentSceneIndex = ArrayUtil.indexOf(sceneScripts, sceneScript);
 			sceneStartTimes = [];
@@ -94,7 +95,7 @@ package controllers {
 			
 			for (i = 0; i < sceneScripts.length; i++) {
 				if (i == currentSceneIndex) {
-					sceneStartTimes.push(0);
+					sceneStartTimes.push(startOffset);
 					sceneLoopCounts.push(loopCount);
 				} else {
 					sceneStartTimes.push(-1);
@@ -102,21 +103,19 @@ package controllers {
 				}
 			}
 			
-			var scriptData : Array = generateScriptDataForScene(sceneScript, loopCount, 0);
+			var scriptData : Array = generateScriptDataForScene(sceneScript, loopCount, startOffset);
+			// We add an extra position at the start, to make the first loop in the script loop smoothly
+			scriptData.unshift({time: 0, position: 0});
 			
-			var csvUrl : String = "https://hump-feed.herokuapp.com/generateCSV/";
+			var csv : String = "\n";
 			for (i = 0; i < scriptData.length; i++) {
-				csvUrl += scriptData[i].time + "," + scriptData[i].position + ",";
+				csv += scriptData[i].time + "," + scriptData[i].position + "\n";
 			}
 			
-			// The url loader caches responses from urls, and sends those back on repeated requests, 
-			// so we alter the url in order to make it seem like a different request
-			var date : Date = new Date();
-			csvUrl += date.getTime() + ",0";
-			
-			prepareScript(csvUrl);
+			prepareScript(csv);
 		}
 		
+		// TODO: Remove since the prepare route seems to work really well
 		private function generateCompactCSVData(_indexAndDepths : Array) : Array {
 			var data : Array = [];
 			var previousTime : Number = 0;

@@ -1,6 +1,7 @@
 package {
 	
 	import controllers.StageChildSelectionController;
+	import core.HTTPRequest;
 	import flash.display.MovieClip;
 	import flash.ui.Mouse;
 	import global.SceneScriptsState;
