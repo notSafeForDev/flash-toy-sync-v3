@@ -89,7 +89,7 @@ package controllers {
 			}
 			
 			if (_marker.isDragging == false) {
-				_marker.setPosition(currentSceneScript.getRecordedPosition(positions, _frameIndex));
+				_marker.setPosition(currentSceneScript.getInterpolatedPosition(positions, _frameIndex));
 			}
 		}
 		

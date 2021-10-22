@@ -46,10 +46,9 @@ package components {
 		}
 		
 		public static function fromSaveData(_saveData : Object) : MarkerSceneScript {
-			var i : Number;
 			var scenes : Array = ScenesState.scenes.value;
 			var scene : Scene;
-			for (i = 0; i < scenes.length; i++) {
+			for (var i : Number = 0; i < scenes.length; i++) {
 				scene = scenes[i];
 				if (scene.isFrameInScene(_saveData.scenePath, _saveData.sceneFirstFrames) == true) {
 					break;
@@ -60,21 +59,23 @@ package components {
 			sceneScript.depthsAtFrames = _saveData.depthsAtFrames.slice();
 			sceneScript.startRootFrame = _saveData.startRootFrame;
 			
-			sceneScript.stimulationPositions = [];
-			sceneScript.basePositions = [];
-			sceneScript.tipPositions = [];
-			
-			for (i = 0; i < _saveData.stimulationPositions.length; i++) {
-				sceneScript.stimulationPositions.push(new Point(_saveData.stimulationPositions[i].x, _saveData.stimulationPositions[i].y));
-			}
-			for (i = 0; i < _saveData.basePositions.length; i++) {
-				sceneScript.basePositions.push(new Point(_saveData.basePositions[i].x, _saveData.basePositions[i].y));
-			}
-			for (i = 0; i < _saveData.tipPositions.length; i++) {
-				sceneScript.tipPositions.push(new Point(_saveData.tipPositions[i].x, _saveData.tipPositions[i].y));
-			}
+			sceneScript.stimulationPositions = parseSaveDataPositions(_saveData.stimulationPositions);
+			sceneScript.basePositions = parseSaveDataPositions(_saveData.basePositions);
+			sceneScript.tipPositions = parseSaveDataPositions(_saveData.tipPositions);
 			
 			return sceneScript;
+		}
+		
+		private static function parseSaveDataPositions(_saveDataPositions : Array) : Array {
+			var positions : Array = [];
+			for (var i : Number = 0; i < _saveDataPositions.length; i++) {
+				if (_saveDataPositions[i].x == undefined) {
+					positions.push(null);
+				} else {
+					positions.push(new Point(_saveDataPositions[i].x, _saveDataPositions[i].y));
+				}
+			}
+			return positions;
 		}
 		
 		public static function fromCurrentState(_topParent : MovieClip) : MarkerSceneScript {
@@ -146,12 +147,21 @@ package components {
 		public override function getDepths() : Array {
 			var depths : Array = [];
 			for (var i : Number = 0; i < stimulationPositions.length; i++) {
-				depths.push(calculateDepth(stimulationPositions[i], basePositions[i], tipPositions[i]));
+				var stimulation : Point = getInterpolatedPosition(stimulationPositions, i);
+				var base : Point = getInterpolatedPosition(basePositions, i);
+				var tip : Point = getInterpolatedPosition(tipPositions, i);
+				depths.push(calculateDepth(stimulation, base, tip));
 			}
 			return depths;
 		}
 		
-		public function getRecordedPosition(_positions : Array, _frameIndex : Number) : Point {
+		/**
+		 * Get the position at a specific frame, if it has a recorded position on that frame, then it returns that, otherwise it interpolates the position
+		 * @param	_positions	The positions to read from
+		 * @param	_frameIndex	The index of the frame, will be 0 at the first frame of the scene, regardless of which frame the scene starts on
+		 * @return
+		 */
+		public function getInterpolatedPosition(_positions : Array, _frameIndex : Number) : Point {
 			_frameIndex = MathUtil.clamp(_frameIndex, 0, _positions.length - 1);
 			if (_positions[_frameIndex] != null) {
 				return _positions[_frameIndex];
