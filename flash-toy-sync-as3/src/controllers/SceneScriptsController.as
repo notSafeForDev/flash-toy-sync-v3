@@ -20,6 +20,7 @@ package controllers {
 			
 			GlobalEvents.sceneChanged.listen(this, onSceneChanged);
 			GlobalEvents.scenesMerged.listen(this, onScenesMerged);
+			GlobalEvents.sceneDeleted.listen(this, onSceneDeleted);
 		}
 		
 		private function onSceneChanged() : void {
@@ -32,6 +33,21 @@ package controllers {
 				var sceneScript : SceneScript = sceneScripts[i];
 				if (sceneScript.scene == _previousScene) {
 					sceneScript.scene = _combinedScene;
+				}
+			}
+		}
+		
+		private function onSceneDeleted(_scene : Scene) : void {
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
+			for (var i : Number = 0; i < sceneScripts.length; i++) {
+				var sceneScript : SceneScript = sceneScripts[i];
+				if (sceneScript.scene == _scene) {
+					sceneScripts.splice(i, 1);
+					sceneScriptsState._scripts.setValue(sceneScripts);
+					if (SceneScriptsState.currentScript.value == sceneScript) {
+						sceneScriptsState._currentScript.setValue(null);
+					}
+					break;
 				}
 			}
 		}

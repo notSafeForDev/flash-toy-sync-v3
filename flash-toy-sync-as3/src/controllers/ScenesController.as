@@ -22,17 +22,16 @@ package controllers {
 	 */
 	public class ScenesController {
 		
-		private var scenesState : ScenesState;
+		protected var scenesState : ScenesState;
 		
-		private var animation : MovieClip;
+		protected var animation : MovieClip;
 		
-		private var currentScene : Scene;
+		protected var currentScene : Scene;
 		
-		private var selectedChildPath : Array;
-		private var selectedChildParentChainLength : Number = -1;
-		private var previousFrame : Number = -1;
-		private var nextExpectedFrame : Number = -1;
-		private var shouldAutoDetectActiveScene : Boolean;
+		protected var selectedChildPath : Array;
+		protected var selectedChildParentChainLength : Number = -1;
+		protected var previousFrame : Number = -1;
+		protected var nextExpectedFrame : Number = -1;
 		
 		public function ScenesController(_scenesState : ScenesState, _animation : MovieClip) {
 			scenesState = _scenesState;
@@ -40,104 +39,12 @@ package controllers {
 			
 			selectedChildPath = null;
 			
-			// This could also be utilized for the editor, as a way to check how it will work when played regularly
-			shouldAutoDetectActiveScene = EditorState.isEditor.value == false;
-			
-			var keyboardManager : KeyboardManager = new KeyboardManager(animation);
-			
-			if (EditorState.isEditor.value == true) {
-				keyboardManager.addShortcut(this, [Keyboard.ENTER], onForceStopShortcut);
-				keyboardManager.addShortcut(this, [Keyboard.SPACE], onForceStopShortcut);
-				keyboardManager.addShortcut(this, [Keyboard.SHIFT, Keyboard.LEFT], onGotoStartShortcut);
-				keyboardManager.addShortcut(this, [Keyboard.LEFT], onStepBackwardsShortcut);
-				keyboardManager.addShortcut(this, [Keyboard.RIGHT], onStepForwardsShortcut);
-			}
-			
 			GlobalEvents.childSelected.listen(this, onChildSelected);
 			GlobalEvents.stopAtSceneStart.listen(this, onStopAtSceneStart);
 			GlobalEvents.playFromSceneStart.listen(this, onPlayFromSceneStart);
 		}
 		
-		public function onEnterFrame() : void {
-			if (shouldAutoDetectActiveScene == true) {
-				enterFrameAutoDetectActiveScene();
-			} else {
-				enterFrame();
-			}
-		}
-		
-		private function enterFrame() : void {
-			var selectedChild : MovieClip = ScenesState.selectedChild.value;
-			if (selectedChildPath == null) {
-				return;
-			}
-			
-			var isSelectedChildUpdated : Boolean = false;
-			var isRemovedFromDisplayList : Boolean = selectedChild == null || DisplayObjectUtil.getParents(selectedChild).length != selectedChildParentChainLength;
-			
-			if (isRemovedFromDisplayList == true) {
-				var childFromPath : DisplayObject = DisplayObjectUtil.getChildFromPath(animation, selectedChildPath);
-				if (MovieClipUtil.isMovieClip(childFromPath) == true) {
-					exitCurrentScene(selectedChild);
-					selectedChild = MovieClipUtil.objectAsMovieClip(childFromPath);
-					setSelectedChild(selectedChild);
-					isSelectedChildUpdated = true;
-				} else {
-					exitCurrentScene(selectedChild);
-					clearSelectedChild();
-					selectedChild = null;
-				}
-			}
-			
-			if (selectedChild == null) {
-				return;
-			}
-			
-			var lastFrameInChild : Number = MovieClipUtil.getTotalFrames(selectedChild);
-			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-			var isStopped : Boolean = currentScene != null && currentScene.isStopped(selectedChild);
-			var notAtExpectedFrame : Boolean = nextExpectedFrame >= 0 && currentFrame != nextExpectedFrame;
-			var didLoopNaturally : Boolean = currentFrame == 1 && previousFrame == lastFrameInChild && isStopped == false;
-			var activeSceneForChild : Scene = getActiveSceneForChild(selectedChild);
-			
-			if (currentScene != null) {
-				mergeWithOtherScenes(currentScene);
-			}
-			
-			if (isSelectedChildUpdated == true || notAtExpectedFrame == true || didLoopNaturally == true) {
-				var isAtCurrentScene : Boolean = currentScene != null && currentScene.isAtScene(animation, selectedChild, 0);
-				// We check the next frame as well, as the loss could be caused by the scene being created 1 frame after it's intended to,
-				// and since a scene can not consist of a single frame, this is a reasonable solution to that problem
-				var isNextFrameInCurrentScene : Boolean = currentScene != null && currentScene.isAtScene(animation, selectedChild, 1);
-				
-				if (isAtCurrentScene == true || isNextFrameInCurrentScene == true) {
-					GlobalEvents.sceneLooped.emit();
-				}
-				
-				if (activeSceneForChild != null && activeSceneForChild != currentScene) {
-					exitCurrentScene(selectedChild);
-					setCurrentScene(activeSceneForChild);
-					trace("Entered existing scene from start");
-				}
-				
-				if (activeSceneForChild == null && isAtCurrentScene == false && isNextFrameInCurrentScene == false) {
-					exitCurrentScene(selectedChild);
-					if (EditorState.isEditor.value == true) {
-						setCurrentScene(addNewScene(selectedChild));
-						trace("Created new scene at a natural starting point, frame: " + currentFrame + ", total scenes: " + ScenesState.scenes.value.length);
-					}
-				}
-			}
-			
-			if (currentScene != null) {
-				currentScene.update(selectedChild);
-			}
-			
-			nextExpectedFrame = isStopped ? currentFrame : getNextPlayingFrame(selectedChild);
-			previousFrame = currentFrame;
-		}
-		
-		private function enterFrameAutoDetectActiveScene() : void {
+		public function onEnterFrame() : void {	
 			var activeScene : Scene = getActiveScene();
 			var selectedChild : MovieClip = ScenesState.selectedChild.value;
 			var currentFrame : Number = selectedChild != null ? MovieClipUtil.getCurrentFrame(selectedChild) : -1;
@@ -179,7 +86,7 @@ package controllers {
 			}
 		}
 		
-		private function onChildSelected(_child : MovieClip) : void {
+		protected function onChildSelected(_child : MovieClip) : void {
 			var previousChild : MovieClip = ScenesState.selectedChild.value;
 			
 			if (_child == null && previousChild != null) {
@@ -198,9 +105,6 @@ package controllers {
 			
 			if (activeSceneForChild != null) {
 				setCurrentScene(activeSceneForChild);
-			} else if (EditorState.isEditor.value == true) {
-				trace("Created new scene at a potentially invalid starting point, total scenes: " + ScenesState.scenes.value.length);
-				setCurrentScene(addNewScene(_child));
 			}
 		}
 		
@@ -212,7 +116,7 @@ package controllers {
 			gotoSceneStart(_scene, true);
 		}
 		
-		private function gotoSceneStart(_scene : Scene, _shouldPlay : Boolean) : void {
+		protected function gotoSceneStart(_scene : Scene, _shouldPlay : Boolean) : void {
 			var isSameSceneAsCurrent : Boolean = _scene == currentScene;
 			
 			if (currentScene != null && isSameSceneAsCurrent == false) {
@@ -241,58 +145,7 @@ package controllers {
 			}
 		}
 		
-		private function onForceStopShortcut() : void {
-			if (currentScene == null) {
-				return;
-			}
-			
-			var selectedChild : MovieClip = ScenesState.selectedChild.value;
-			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-			var wasForceStopped : Boolean = currentScene.isForceStopped();
-			
-			if (wasForceStopped == true) {
-				currentScene.play(selectedChild);
-				nextExpectedFrame = currentFrame + 1;
-			} else {
-				currentScene.stop(selectedChild);
-				nextExpectedFrame = currentFrame;
-			}
-			
-			scenesState._isForceStopped.setValue(!wasForceStopped);
-		}
-		
-		private function onGotoStartShortcut() : void {
-			if (currentScene != null) {
-				var selectedChild : MovieClip = ScenesState.selectedChild.value;
-				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-				
-				currentScene.stopAtStart();
-				nextExpectedFrame = currentFrame;
-			}
-		}
-		
-		private function onStepBackwardsShortcut() : void {
-			stepFrames(-1);
-		}
-		
-		private function onStepForwardsShortcut() : void {
-			stepFrames(1);
-		}
-		
-		private function stepFrames(_direction : Number) : void {
-			var selectedChild : MovieClip = ScenesState.selectedChild.value;
-			if (currentScene == null || ScenesState.selectedChild.value == null) {
-				return;
-			}
-			
-			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-			var targetFrame : Number = MathUtil.clamp(currentFrame + _direction, currentScene.getFirstFrame(), currentScene.getLastFrame());
-			
-			currentScene.gotoAndStop(selectedChild, targetFrame);
-			nextExpectedFrame = targetFrame;
-		}
-		
-		private function exitCurrentScene(_selectedChild : MovieClip) : void {
+		protected function exitCurrentScene(_selectedChild : MovieClip) : void {
 			if (currentScene != null) {
 				if (currentScene.getFirstFrame() == currentScene.getLastFrame()) {
 					var scenes : Array = ScenesState.scenes.value;
@@ -309,90 +162,37 @@ package controllers {
 			}
 		}
 		
-		private function setSelectedChild(_child : MovieClip) : void {
+		protected function setSelectedChild(_child : MovieClip) : void {
 			nextExpectedFrame = -1;
-			selectedChildParentChainLength = DisplayObjectUtil.getParents(_child).length;
 			selectedChildPath = DisplayObjectUtil.getChildPath(animation, _child);
+			selectedChildParentChainLength = DisplayObjectUtil.getParents(_child).length;
 			
 			scenesState._selectedChild.setValue(_child);
 			scenesState._selectedChildPath.setValue(selectedChildPath);
 		}
 		
-		private function setCurrentScene(_scene : Scene) : void {
+		protected function setCurrentScene(_scene : Scene) : void {
 			currentScene = _scene;
 			scenesState._currentScene.setValue(_scene);
 			
 			GlobalEvents.sceneChanged.emit();
 		}
 		
-		private function clearSelectedChild() : void {
+		protected function clearSelectedChild() : void {
 			scenesState._selectedChild.setValue(null);
 			scenesState._selectedChildPath.setValue(null);
 			
-			// We don't clear the child path or parent chain length, as those are needed in order to reaquire the selected child
+			// We don't clear the child path, as it is needed in order to reaquire the selected child
 			nextExpectedFrame = -1;
 		}
 		
-		private function addNewScene(_selectedChild : MovieClip) : Scene {
-			var scene : Scene = new Scene(animation);
-			scene.init(_selectedChild);
-			
-			var scenes : Array = ScenesState.scenes.value;
-			
-			scenes.push(scene);
-			scenes.sort(function(_a : Scene, _b : Scene) : Number {
-				var aFirstFrames : Array = _a.getFirstFrames();
-				var bFirstFrames : Array = _b.getFirstFrames();
-				var aScore : Number = 0;
-				var maxLength : Number = Math.max(aFirstFrames.length, bFirstFrames.length);
-				
-				for (var i : Number = 0; i < maxLength; i++) {
-					var aFrame : Number = aFirstFrames.length > i ? aFirstFrames[i] : -1;
-					var bFrame : Number = bFirstFrames.length > i ? bFirstFrames[i] : -1;
-					if (aFrame > bFrame) {
-						return 1;
-					}
-					if (bFrame > aFrame) {
-						return -1;
-					}
-				}
-				
-				return 0;
-			});
-			
-			scenesState._scenes.setValue(scenes);
-			return scene;
-		}
-		
-		private function mergeWithOtherScenes(_scene : Scene) : void {
-			if (EditorState.isEditor.value == false) {
-				return;
-			}
-			
-			var scenes : Array = ScenesState.scenes.value;
-			for (var i : Number = 0; i < scenes.length; i++) {
-				var scene : Scene = scenes[i];
-				if (scene == _scene) {
-					continue;
-				}
-				if (scene.intersects(_scene) == true) {
-					_scene.merge(scene);
-					scenes.splice(i, 1);
-					scenesState._scenes.setValue(scenes);
-					i--;
-					GlobalEvents.scenesMerged.emit(scene, _scene);
-					trace("Found scene to merge with");
-				}
-			}
-		}
-		
-		private function getNextPlayingFrame(_movieClip : MovieClip) : Number {
+		protected function getNextPlayingFrame(_movieClip : MovieClip) : Number {
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(_movieClip);
 			var totalFrames : Number = MovieClipUtil.getTotalFrames(_movieClip);
 			return currentFrame == totalFrames ? 1 : currentFrame + 1;
 		}
 		
-		private function getActiveSceneForChild(_child : MovieClip) : Scene {
+		protected function getActiveSceneForChild(_child : MovieClip) : Scene {
 			var scenes : Array = ScenesState.scenes.value;
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
@@ -404,7 +204,7 @@ package controllers {
 			return null;
 		}
 		
-		private function getActiveScene() : Scene {
+		protected function getActiveScene() : Scene {
 			var scenes : Array = ScenesState.scenes.value;
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];

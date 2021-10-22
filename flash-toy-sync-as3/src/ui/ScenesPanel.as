@@ -2,6 +2,7 @@ package ui {
 	
 	import flash.display.MovieClip;
 	
+	import core.DisplayObjectUtil;
 	import core.CustomEvent;
 	import core.GraphicsUtil;
 	import core.MovieClipUtil;
@@ -20,6 +21,7 @@ package ui {
 	public class ScenesPanel extends Panel {
 		
 		public var onSceneSelected : CustomEvent;
+		public var onDelete : CustomEvent;
 		
 		private var scrollBarWidth : Number = 10;
 		
@@ -27,12 +29,14 @@ package ui {
 		
 		private var uiScrollArea : UIScrollArea;
 		
+		private var deleteButton : UIButton;
+		
 		private var listItems : Array = [];
 		
 		public function ScenesPanel(_parent : MovieClip) {
-			super(_parent, "Scenes", 200, 200);
+			super(_parent, "Scenes", 200, 245);
 			
-			var scrollContainerHeight : Number = contentHeight;
+			var scrollContainerHeight : Number = 200;
 			
 			var scrollContainer : MovieClip = MovieClipUtil.create(content, "scrollContainer");
 			
@@ -49,9 +53,15 @@ package ui {
 			uiScrollArea = new UIScrollArea(scrollContent, mask, scrollBar);
 			uiScrollArea.handleAlphaWhenNotScrollable = 0.25;
 			
-			ScenesState.listen(this, onSceneStatesChange, [ScenesState.scenes, ScenesState.currentScene]);
+			deleteButton = addButton("Delete");
+			// Since the scrollContainer isn't part of the layout, we have to manually move the button
+			DisplayObjectUtil.setY(deleteButton.element, scrollContainerHeight + layoutElementsSpacing);
+			deleteButton.onMouseClick.listen(this, onDeleteButtonClick);
 			
 			onSceneSelected = new CustomEvent();
+			onDelete = new CustomEvent();
+			
+			ScenesState.listen(this, onSceneStatesChange, [ScenesState.scenes, ScenesState.currentScene]);
 		}
 		
 		private function onSceneStatesChange() : void {
@@ -80,10 +90,20 @@ package ui {
 				listItem = listItems[i];
 				listItem.setVisible(false);
 			}
+			
+			if (ScenesState.currentScene.value != null) {
+				deleteButton.enable();
+			} else {
+				deleteButton.disable();
+			}
 		}
 		
 		private function onListItemSelect(_index : Number) : void {
 			onSceneSelected.emit(ScenesState.scenes.value[_index]);
+		}
+		
+		private function onDeleteButtonClick() : void {
+			onDelete.emit();
 		}
 	}
 }

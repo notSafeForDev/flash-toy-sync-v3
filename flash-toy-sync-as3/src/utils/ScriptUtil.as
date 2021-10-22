@@ -118,7 +118,7 @@ package utils {
 			var scriptDuration : Number = _script[_script.length - 1].time - _script[0].time;
 			
 			for (var i : Number = 0; i < _loopCount; i++) {
-				var startTime : Number = i * scriptDuration + Math.floor(i * 1000 / frameRate);
+				var startTime : Number = i * scriptDuration + Math.floor(i * (1000 / frameRate) * 0.8); // We add a bit less than a frame worth of padding to make it more in sync
 				var loop : Array = offsetTimeInScript(_script, startTime);
 				if (i > 0) {
 					loop = loop.slice(1);

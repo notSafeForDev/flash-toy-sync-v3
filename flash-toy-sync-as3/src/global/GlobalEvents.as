@@ -16,6 +16,7 @@ package global {
 		public static var scenesMerged : CustomEvent;
 		public static var sceneChanged : CustomEvent;
 		public static var sceneLooped : CustomEvent;
+		public static var sceneDeleted : CustomEvent;
 		public static var finishedRecordingScript : CustomEvent;
 		
 		public static function init() : void {
@@ -27,6 +28,7 @@ package global {
 			scenesMerged = new CustomEvent();
 			sceneChanged = new CustomEvent();
 			sceneLooped = new CustomEvent();
+			sceneDeleted = new CustomEvent();
 			finishedRecordingScript = new CustomEvent();
 		}
 	}

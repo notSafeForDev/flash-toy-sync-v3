@@ -18,7 +18,6 @@ package controllers {
 	import components.ScriptMarker;
 	
 	import ui.ScriptingPanel;
-	import ui.ScenesPanel;
 	import ui.ScriptMarkerElement;
 	
 	/**
@@ -39,14 +38,12 @@ package controllers {
 		
 		private var scriptingPanel : ScriptingPanel;
 		
-		public function ScriptRecordingController(_sceneScriptsState : SceneScriptsState, _scriptingPanel : ScriptingPanel, _scenesPanel : ScenesPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
+		public function ScriptRecordingController(_sceneScriptsState : SceneScriptsState, _scriptingPanel : ScriptingPanel, _animation : MovieClip, _overlayContainer : MovieClip) {
 			sceneScriptsState = _sceneScriptsState;
 			scriptingPanel = _scriptingPanel;
 			animation = _animation;
 			
 			scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
-			
-			_scenesPanel.onSceneSelected.listen(this, onScenesPanelSceneSelected);
 		}
 		
 		public function onEnterFrame() : void {
@@ -69,10 +66,6 @@ package controllers {
 			if (ScenesState.currentScene.value != null) {
 				startRecording();
 			}
-		}
-		
-		private function onScenesPanelSceneSelected(_scene : Scene) : void {
-			GlobalEvents.playFromSceneStart.emit(_scene);
 		}
 		
 		private function startRecording() : void {

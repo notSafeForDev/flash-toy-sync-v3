@@ -1,5 +1,6 @@
 package {
 	
+	import controllers.ScenesEditorController;
 	import controllers.StageChildSelectionController;
 	import core.HTTPRequest;
 	import flash.display.MovieClip;
@@ -194,15 +195,21 @@ package {
 			DisplayObjectUtil.setVisible(saveDataPanel.container, false);
 			
 			saveDataController = new SaveDataController(scenesState, sceneScriptsState, animation, saveDataPanel);
-			scenesController = new ScenesController(scenesState, animation);
+			
+			if (EditorState.isEditor.value == true) {
+				var scenesPanel : ScenesPanel = new ScenesPanel(panelContainer);
+				scenesPanel.setPosition(0, 350);
+				
+				scenesController = new ScenesEditorController(scenesState, scenesPanel, animation);
+			} else {
+				scenesController = new ScenesController(scenesState, animation);
+			}
+			
 			var sceneScriptsController : SceneScriptsController = new SceneScriptsController(sceneScriptsState);
 			
 			if (EditorState.isEditor.value == true) {
 				var hierarchyPanel : HierarchyPanel = new HierarchyPanel(panelContainer, animation);
 				hierarchyPanel.setPosition(0, 0);
-				
-				var scenesPanel : ScenesPanel = new ScenesPanel(panelContainer);
-				scenesPanel.setPosition(0, 350);
 				
 				var scriptingPanel : ScriptingPanel = new ScriptingPanel(panelContainer);
 				scriptingPanel.setPosition(1280 - 200, 0);
@@ -219,7 +226,7 @@ package {
 				hierarchyPanelController = new HierarchyPanelController(editorState, hierarchyPanel, animation);
 				scriptSampleMarkersController = new ScriptSampleMarkersController(animation, overlayContainer);
 				scriptMarkersController = new ScriptMarkersController(scriptingState, scriptingPanel, animation, overlayContainer);
-				scriptRecordingController = new ScriptRecordingController(sceneScriptsState, scriptingPanel, scenesPanel, animation, overlayContainer);
+				scriptRecordingController = new ScriptRecordingController(sceneScriptsState, scriptingPanel, animation, overlayContainer);
 				
 				var theHandyEditorController : TheHandyEditorController = new TheHandyEditorController(toyState, prepareScriptButton, toyPanel);
 			}
