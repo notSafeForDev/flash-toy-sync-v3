@@ -194,7 +194,7 @@ package {
 			saveDataPanel.setPosition(1280 - 150, 400);
 			DisplayObjectUtil.setVisible(saveDataPanel.container, false);
 			
-			saveDataController = new SaveDataController(scenesState, sceneScriptsState, animation, saveDataPanel);
+			saveDataController = new SaveDataController(animationInfoState, scenesState, sceneScriptsState, saveDataPanel, animation);
 			
 			if (EditorState.isEditor.value == true) {
 				var scenesPanel : ScenesPanel = new ScenesPanel(panelContainer);

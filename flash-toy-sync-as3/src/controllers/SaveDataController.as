@@ -21,6 +21,7 @@ package controllers {
 	 */
 	public class SaveDataController {
 		
+		private var animationInfoState : AnimationInfoState;
 		private var scenesState : ScenesState;
 		private var sceneScriptsState : SceneScriptsState;
 		
@@ -30,7 +31,8 @@ package controllers {
 		
 		private var sharedObject : SharedObject;
 		
-		public function SaveDataController(_scenesState : ScenesState, _sceneScriptsState : SceneScriptsState, _animation : MovieClip, _saveDataPanel : SaveDataPanel) {
+		public function SaveDataController(_animationInfoState : AnimationInfoState, _scenesState : ScenesState, _sceneScriptsState : SceneScriptsState, _saveDataPanel : SaveDataPanel, _animation : MovieClip) {
+			animationInfoState = _animationInfoState;
 			scenesState = _scenesState;
 			sceneScriptsState = _sceneScriptsState;
 			
@@ -42,20 +44,9 @@ package controllers {
 			
 			sharedObject = SharedObject.getLocal(sharedObjectName, "/");
 			
-			var hasLoadedAnyData : Boolean = false;
+			var haveLoaded : Boolean = load(sharedObject.data);
 			
-			if (sharedObject.data.scenes != undefined) {
-				loadScenes(sharedObject.data.scenes);
-				hasLoadedAnyData = true;
-			}
-			if (sharedObject.data.sceneScripts != undefined) {
-				loadSceneScripts(sharedObject.data.sceneScripts);
-				hasLoadedAnyData = true;
-			}
-			
-			saveDataPanel.setSaveData(JSON.stringify(sharedObject.data, null));
-			
-			if (hasLoadedAnyData == false) {
+			if (haveLoaded == false) {
 				JSONLoader.load("animations/" + animationName.split(".swf")[0] + ".json", this, onJSONLoaded);
 			}
 			
@@ -67,35 +58,68 @@ package controllers {
 				return;
 			}
 			
-			if (_json.scenes != undefined) {
-				loadScenes(_json.scenes);
-			}
-			if (_json.sceneScripts != undefined) {
-				loadSceneScripts(_json.sceneScripts);
-			}
-			
-			saveDataPanel.setSaveData(JSON.stringify(_json));
+			load(_json);
 		}
 		
 		private function onSaveDataPanelSave() : void {
+			save();
+		}
+		
+		private function save() : void {
+			// data is read only, so we can't assign it directly
+			updateSaveData(sharedObject.data);
+		}
+		
+		private function load(_data : Object) : Boolean {
+			var haveLoadedAnyData : Boolean = false;
+			if (_data.scenes != undefined) {
+				loadScenes(_data.scenes);
+				haveLoadedAnyData = true;
+			}
+			if (_data.sceneScripts != undefined) {
+				loadSceneScripts(_data.sceneScripts);
+				haveLoadedAnyData = true;
+			}
+			if (_data.animationWidth != undefined && _data.animationHeight != undefined) {
+				animationInfoState._width.setValue(_data.animationWidth);
+				animationInfoState._height.setValue(_data.animationHeight);
+				haveLoadedAnyData = true;
+			}
+			
+			if (haveLoadedAnyData == true) {
+				saveDataPanel.setSaveData(JSON.stringify(_data, null));
+			}
+			
+			return haveLoadedAnyData;
+		}
+		
+		private function updateSaveData(_target : Object) : void {
+			// formatVersion will be used later to be able to migrate old data, incase of changes to the save data format
+			// Each time changes are made to the save data format, a new function will have to be added to a list of migrator functions
+			// Where each function in the list will migrate the version by 1, and then pass on the migrated data to the next migrator function
+			// Example, function[0]: v1 -> v2, function[1]: v2 -> v3, function[2]: v3 -> v4 and so on
+			// This should ensure that save data can always be made up to date, no matter the version,
+			// and that we don't have to write (and rewrite) one massive function just to handle any number of possible formats
+			// There also should be some kind of validation, to ensure that we don't override valid data with invalid data
+			
+			_target.formatVersion = 1;
+			_target.animationWidth = AnimationInfoState.width;
+			_target.animationHeight =  AnimationInfoState.height;
+			_target.scenes = [];
+			_target.sceneScripts = [];
+			
 			var i : Number;
-			
-			sharedObject.data.scenes = [];
-			sharedObject.data.sceneScripts = [];
-			
 			var scenes : Array = ScenesState.scenes.value;
 			for (i = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
-				sharedObject.data.scenes.push(scene.toSaveData());
+				_target.scenes.push(scene.toSaveData());
 			}
 			
 			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			for (i = 0; i < sceneScripts.length; i++) {
 				var sceneScript : SceneScript = sceneScripts[i];
-				sharedObject.data.sceneScripts.push(sceneScript.toSaveData());
+				_target.sceneScripts.push(sceneScript.toSaveData());
 			}
-			
-			saveDataPanel.setSaveData(JSON.stringify(sharedObject.data, null));
 		}
 		
 		private function loadScenes(_scenes : Array) : void {

@@ -3,6 +3,7 @@ package components {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
+	import utils.SaveDataUtil;
 	
 	import core.ArrayUtil;
 	import core.DisplayObjectUtil;
@@ -38,9 +39,9 @@ package components {
 			var saveData : Object = super.toSaveData();
 			
 			saveData.type = getType();
-			saveData.stimulationPositions = stimulationPositions.slice();
-			saveData.basePositions = basePositions.slice();
-			saveData.tipPositions = tipPositions.slice();
+			saveData.stimulationPositions = SaveDataUtil.convertPointsToSaveData(stimulationPositions);
+			saveData.basePositions = SaveDataUtil.convertPointsToSaveData(basePositions);
+			saveData.tipPositions = SaveDataUtil.convertPointsToSaveData(tipPositions);
 			
 			return saveData;
 		}
@@ -59,9 +60,9 @@ package components {
 			sceneScript.depthsAtFrames = _saveData.depthsAtFrames.slice();
 			sceneScript.startRootFrame = _saveData.startRootFrame;
 			
-			sceneScript.stimulationPositions = parseSaveDataPositions(_saveData.stimulationPositions);
-			sceneScript.basePositions = parseSaveDataPositions(_saveData.basePositions);
-			sceneScript.tipPositions = parseSaveDataPositions(_saveData.tipPositions);
+			sceneScript.stimulationPositions = SaveDataUtil.getPointsFromSaveData(_saveData.stimulationPositions);
+			sceneScript.basePositions = SaveDataUtil.getPointsFromSaveData(_saveData.basePositions);
+			sceneScript.tipPositions = SaveDataUtil.getPointsFromSaveData(_saveData.tipPositions);
 			
 			return sceneScript;
 		}
@@ -212,6 +213,7 @@ package components {
 			
 			// Then we check where along the x axis the rotated stimulation point is, and use that get the "penetration" depth
 			var depth : Number = MathUtil.getPercentage(rotatedStimulation.x, rotatedTip.x, _base.x);
+			depth = Math.floor(depth * 1000) / 1000; // Reduces the number of decimals to 3
 			return MathUtil.clamp(depth, 0, 1);
 		}
 		

@@ -24,16 +24,9 @@ package controllers {
 		public function AnimationScalingController(_animationInfoState : AnimationInfoState, _animation : MovieClip, _width : Number, _height : Number) {
 			animationInfoState = _animationInfoState;
 			
-			var isValidSize : Boolean = _width > 0 && _height > 0;
-			var targetWidth : Number = isValidSize ? _width : StageUtil.getWidth();
-			var targetHeight : Number = isValidSize ? _height : StageUtil.getHeight();
-			
-			animationInfoState._width.setValue(targetWidth);
-			animationInfoState._height.setValue(targetHeight);
-			
 			keyboardManager = new KeyboardManager(_animation);
 			
-			// We only make it possible to resize it for AS2, as there doesn't seem to be a way to get an accurate stage for the animation in AS2
+			// We only make it possible to resize it for AS2, as we already get a valid size in AS3
 			if (VersionUtil.isActionscript3() == false && EditorState.isEditor.value == true) {
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.RIGHT], onDecreaseSWFWidthShortcut);
 				keyboardManager.addShortcut(this, [Keyboard.S, Keyboard.LEFT], onIncreaseSWFWidthShortcut);
