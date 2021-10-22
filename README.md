@@ -2,6 +2,10 @@
 
 Flash toy sync is being developed to make existing flash games able to control different kind of sex toys. For stroker toys, it does that by syncing the toy's movements, to the movements in the animations.
 
+It has a built in scripting editor, designed to make the process as quick as possible. The main tool for scripting are the base, stimulation and tip markers, which you can attach to different parts of the animation, then as the animation plays, it calculates the stroke depth based on how close the stimulation marker is to the base and tip marker.
+
+There will be more information about how scripting works later.
+
 &nbsp;
 
 ## Download
