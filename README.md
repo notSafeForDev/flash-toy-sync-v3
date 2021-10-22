@@ -10,9 +10,9 @@ You will be able to download a build of the project [here](https://github.com/no
 
 &nbsp;
 
-## Supported Toys
+## Currently Supported Toys
 
-- None ([theHandy](https://www.thehandy.com/) will be implemented first)
+- [theHandy](https://www.thehandy.com/)
 
 &nbsp;
 
