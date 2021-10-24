@@ -35,8 +35,6 @@ package controllers {
 		protected var sceneStartTimes : Array = null;
 		protected var sceneLoopCounts : Array = null;
 		
-		protected var currentSceneIndex : Number = -1;
-		
 		private var prepareScriptButton : UIButton;
 		
 		public function TheHandyController(_toyState : ToyState, _prepareScriptButton : UIButton) {
@@ -123,10 +121,9 @@ package controllers {
 		}
 		
 		protected function onCurrentSceneStateChange() : void {
-			currentSceneIndex = ArrayUtil.indexOf(SceneScriptsState.scripts.value, SceneScriptsState.currentScript.value);
 			currentLoopCount = 0;
 			
-			if (currentSceneIndex >= 0) {
+			if (getCurrentSceneIndex() >= 0) {
 				playScript();
 			} else if (isPlaying == true) {
 				stopScript();
@@ -141,7 +138,7 @@ package controllers {
 			
 			currentLoopCount++;
 			
-			if (currentLoopCount >= sceneLoopCounts[currentSceneIndex]) {
+			if (currentLoopCount >= sceneLoopCounts[getCurrentSceneIndex()]) {
 				currentLoopCount = 0;
 				playScript();
 				trace("Play on loop");
@@ -149,8 +146,13 @@ package controllers {
 		}
 		
 		protected function canPlay() : Boolean {
-			var sceneScript : SceneScript = SceneScriptsState.currentScript.value;
-			return theHandyAPI.getConnectionKey() != "" && sceneScript != null && isScriptPrepared == true && currentSceneIndex >= 0 && ToyState.error.value == "";
+			if (theHandyAPI.getConnectionKey() == "" || ToyState.error.value != "") {
+				return false;
+			}
+			if (isScriptPrepared == false || getCurrentSceneIndex() < 0 || sceneStartTimes[getCurrentSceneIndex()] < 0) {
+				return false;
+			}
+			return true;
 		}
 		
 		protected function getMinLoopCountForScene(_sceneScript : SceneScript) : Number {
@@ -217,7 +219,7 @@ package controllers {
 			var startFrame : Number = sceneScript.getStartFrame();
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 			
-			var startTime : Number = sceneStartTimes[currentSceneIndex];
+			var startTime : Number = sceneStartTimes[getCurrentSceneIndex()];
 			var elapsedTime : Number = ScriptUtil.getMilisecondsAtFrame(currentFrame - startFrame);
 			var time : Number = startTime + elapsedTime;
 			
@@ -226,6 +228,10 @@ package controllers {
 		
 		protected function stopScript() : void {
 			theHandyAPI.syncStop(this, onSyncStopResponse);
+		}
+		
+		private function getCurrentSceneIndex() : Number {
+			return ArrayUtil.indexOf(SceneScriptsState.scripts.value, SceneScriptsState.currentScript.value);
 		}
 	}
 }

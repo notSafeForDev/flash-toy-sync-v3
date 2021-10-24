@@ -89,7 +89,9 @@ package controllers {
 				}
 			}
 			
-			if (selectedChild == null) {
+			if (selectedChild == null || ScenesState.isForceStopped.value == true) {
+				nextExpectedFrame = -1;
+				previousFrame = -1;
 				return;
 			}
 			
@@ -120,6 +122,7 @@ package controllers {
 				trace("Entered existing scene");
 			} 
 			else if (canSplitScene == true) {
+				trace("Splitting current scene:");
 				trace("Current: " + currentFrame + ", First: " + currentScene.getFirstFrame() + ", Last: " + currentScene.getLastFrame());
 				splitCurrentScene();
 			} 
@@ -167,10 +170,8 @@ package controllers {
 			
 			if (wasForceStopped == true) {
 				currentScene.play(selectedChild);
-				nextExpectedFrame = currentFrame + 1;
 			} else {
 				currentScene.stop(selectedChild);
-				nextExpectedFrame = currentFrame;
 			}
 			
 			scenesState._isForceStopped.setValue(!wasForceStopped);
@@ -182,7 +183,7 @@ package controllers {
 				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 				
 				currentScene.stopAtStart();
-				nextExpectedFrame = currentFrame;
+				scenesState._isForceStopped.setValue(true);
 			}
 		}
 		
@@ -210,8 +211,7 @@ package controllers {
 			var targetFrame : Number = MathUtil.clamp(currentFrame + _direction, min, max);
 			
 			currentScene.gotoAndStop(selectedChild, targetFrame);
-			nextExpectedFrame = targetFrame;
-			nextExpectedFrame = targetFrame;
+			scenesState._isForceStopped.setValue(true);
 		}
 		
 		private function addNewScene(_selectedChild : MovieClip) : Scene {

@@ -80,6 +80,9 @@ package controllers {
 		}
 		
 		private function onCurrentSceneStateChange() : void {
+			// TODO: Perhaps add a setting if they should stay or only detach them if one of them had their display object reference updated
+			return;
+			
 			for (var i : Number = 0; i < scriptMarkers.length; i++) {
 				var scriptMarker : ScriptMarker = scriptMarkers[i];
 				scriptMarker.detatch();

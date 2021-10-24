@@ -31,6 +31,8 @@ class core.TextElement {
 		element.text = _value;
 		if (_autoSize != undefined) {
 			element.autoSize = _autoSize;
+		} else {
+			element._width = 100;
 		}
 		element.selectable = false;
 		

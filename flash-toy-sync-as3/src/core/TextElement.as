@@ -33,6 +33,8 @@ package core {
 			// The autoSize property is a bit buggy when assigned after it have been initialized, so we do it in the constructor
 			if (_autoSize != "") {
 				element.autoSize = _autoSize;
+			} else {
+				element.width = 100;
 			}
 			element.height = 20;
 			element.selectable = false;

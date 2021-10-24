@@ -67,7 +67,6 @@ package controllers {
 		}
 		
 		protected override function onCurrentSceneStateChange() : void {
-			currentSceneIndex = ArrayUtil.indexOf(SceneScriptsState.scripts.value, SceneScriptsState.currentScript.value);
 			isScriptPrepared = false;
 			currentLoopCount = 0;
 			
@@ -77,7 +76,7 @@ package controllers {
 		}
 		
 		protected override function canPlay() : Boolean {
-			return super.canPlay() == true && ScenesState.isForceStopped.value == false && sceneStartTimes[currentSceneIndex] >= 0;
+			return super.canPlay() == true && ScenesState.isForceStopped.value == false;
 		}
 		
 		private function prepareScriptForCurrentScene() : void {
