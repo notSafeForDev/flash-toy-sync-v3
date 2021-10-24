@@ -156,13 +156,13 @@ package controllers {
 		}
 		
 		protected function getMinLoopCountForScene(_sceneScript : SceneScript) : Number {
-			var depths : Array = _sceneScript.getDepths();
+			var depths : Array = _sceneScript.calculateDepths();
 			var duration : Number = Math.floor(depths.length * 1000 / StageUtil.getFrameRate());
 			return Math.ceil(3000 / duration);
 		}
 		
 		protected function generateScriptDataForScene(_sceneScript : SceneScript, _loopCount : Number, _startTime : Number) : Array {
-			var script : Array = ScriptUtil.depthsToScriptFormat(_sceneScript.getDepths(), _startTime);
+			var script : Array = ScriptUtil.depthsToScriptFormat(_sceneScript.calculateDepths(), _startTime);
 			script = ScriptUtil.reduceKeyframes(script);
 			script = ScriptUtil.getLoopedScript(script, _loopCount);
 			

@@ -15,7 +15,7 @@ package utils {
 		}
 		
 		public static function getDurationForSceneScript(_sceneScript : SceneScript) : Number {
-			return Math.floor(_sceneScript.getDepths().length * 1000 / StageUtil.getFrameRate());
+			return Math.floor(_sceneScript.calculateDepths().length * 1000 / StageUtil.getFrameRate());
 		}
 		
 		public static function depthsToScriptFormat(_depths : Array, _startTime : Number) : Array {

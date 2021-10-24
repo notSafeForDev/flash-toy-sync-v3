@@ -1,11 +1,11 @@
 package api {
 	
-	import core.Debug;
 	import core.FunctionUtil;
 	import core.HTTPRequest;
 	import core.Timeout;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.utils.getTimer;
 	
 	/**
 	 * ...
@@ -53,7 +53,7 @@ package api {
 			
 			var self : * = this;
 			var date : Date = new Date();
-			syncPrepareStartTime = Debug.getTime();
+			syncPrepareStartTime = getTimer();
 			
 			// We add the number of total api calls to the timeout, in order to make it seem like a unique request each time,
 			// otherwise it will use an existing cached response if it has one, which will result in no request being made to the server
@@ -65,7 +65,7 @@ package api {
 		}
 		
 		private function onSyncPrepareResponse(_scope : * , _responseHandler : Function) : void {
-			syncPrepareDuration = Debug.getTime() - syncPrepareStartTime;
+			syncPrepareDuration = getTimer() - syncPrepareStartTime;
 			
 			_responseHandler.apply(_scope);
 		}

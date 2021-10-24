@@ -2,9 +2,9 @@ package ui {
 	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.utils.getTimer;
 
 	import core.CustomEvent;
-	import core.Debug;
 	import core.DisplayObjectUtil;
 	import core.GraphicsUtil;
 	import core.UIScrollArea;
@@ -140,21 +140,12 @@ package ui {
 			displayedChildrenDepths.length = 0;
 			displayedChildrenDepths.push(0);
 			
-			var startTime : Number = Debug.getTime();
-			var latestTime : Number = Debug.getTime();
-			
 			// This updates nestedChildren and nestedChildrenDepths
 			MovieClipUtil.iterateOverChildren(animationContainer, nestedChildrenIterator, this);
-			
-			var elapsedTimeNestedChildren : Number = Debug.getTime() - latestTime;
-			latestTime = Debug.getTime();
 			
 			var i : Number = 0;
 			var child : DisplayObject;
 			var parent : MovieClip;
-			
-			var elapsedTimeExcludedChildren : Number = Debug.getTime() - latestTime;
-			latestTime = Debug.getTime();
 			
 			// Set the children to display in the list and update information used to determine if a child can be expanded or not
 			for (i = 1; i < nestedChildren.length; i++) {
@@ -164,9 +155,6 @@ package ui {
 					displayedChildrenDepths.push(nestedChildrenDepths[i]);
 				}
 			}
-			
-			var elapsedTimeDisplayedChildren : Number = Debug.getTime() - latestTime;
-			latestTime = Debug.getTime();
 			
 			// Add the clickedChild and it's parents to the list of displayed children
 			if (EditorState.clickedChild.value != null) {
@@ -225,19 +213,6 @@ package ui {
 			for (i = displayedChildren.length; i < listItems.length; i++) {
 				listItems[i].setVisible(false);
 			}
-			
-			var elapsedTimeUpdateList : Number = Debug.getTime() - latestTime;
-			var endTime : Number = Debug.getTime();
-			
-			/* if (Math.random() < 0.2) {
-				trace(
-					"Hierarchy Total: " + (endTime - startTime).toString() + 
-					", Nested: " + (elapsedTimeNestedChildren).toString() + 
-					", Excluded: " + (elapsedTimeExcludedChildren).toString() +
-					", Displayed: " + (elapsedTimeDisplayedChildren).toString() +
-					", List: " + (elapsedTimeUpdateList).toString()
-				);
-			} */
 		}
 		
 		private function addChildToDisplay(_child : DisplayObject) : void {

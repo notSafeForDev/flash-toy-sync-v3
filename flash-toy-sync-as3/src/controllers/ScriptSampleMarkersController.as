@@ -6,6 +6,7 @@ package controllers {
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
 	import ui.TextStyles;
+	import utils.Debug;
 	
 	import core.KeyboardManager;
 	import core.MovieClipUtil;
@@ -70,6 +71,8 @@ package controllers {
 		}
 		
 		public function onEnterFrame() : void {
+			Debug.startMeasuringPerformance("Sample Markers");
+			
 			var frameIndex : Number = getFrameIndex();
 			
 			// TODO: Perhaps also hide them while recording
@@ -84,6 +87,8 @@ package controllers {
 			updateMarker(baseMarker, frameIndex);
 			updateMarker(tipMarker, frameIndex);
 			
+			Debug.logMeasurements("Sample Markers", 10);
+			
 			if (ScenesState.selectedChild.value == null || SceneScriptsState.currentScript.value == null) {
 				depthText.setVisible(false);
 				return;
@@ -91,16 +96,16 @@ package controllers {
 			
 			depthText.setVisible(true);
 			
-			var textX : Number = DisplayObjectUtil.getX(stimulationMarker.element) + 12;
+			var textX : Number = DisplayObjectUtil.getX(stimulationMarker.element) + 15;
 			var textY : Number = DisplayObjectUtil.getY(stimulationMarker.element) - 10;
 			
 			depthText.setX(textX);
 			depthText.setY(textY);
 			
 			var script : SceneScript = SceneScriptsState.currentScript.value;
-			var depths : Array = script.getDepths();
+			var depth : Number = script.calculateDepth(frameIndex);
 			
-			depthText.setText("" + depths[frameIndex]);
+			depthText.setText("" + depth);
 		}
 		
 		private function updateMarker(_marker : ScriptSampleMarkerElement, _frameIndex : Number) : void {

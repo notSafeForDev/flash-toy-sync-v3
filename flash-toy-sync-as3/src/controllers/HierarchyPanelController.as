@@ -26,11 +26,9 @@ package controllers {
 			_hierarchyPanel.excludeChildrenWithoutNestedAnimations = true;
 			_hierarchyPanel.onSelectChild.listen(this, onPanelSelectChild);
 			_hierarchyPanel.onToggleMouseSelect.listen(this, onPanelToggleMouseSelect);
-			
-			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
-		private function onEnterFrame() : void {
+		public function onEnterFrame() : void {
 			var stateValue : Array = EditorState.mouseSelectDisabledForChildren.value;
 			var haveRemovedAny : Boolean = false;
 			
@@ -50,6 +48,10 @@ package controllers {
 		private function onPanelSelectChild(_child : MovieClip) : void {
 			if (ScenesState.selectedChild.value == _child) {
 				return;
+			}
+			
+			if (DisplayObjectUtil.getParent(_child) == null) {
+				throw new Error("Unable to select child from hierarchy, it's no longer in the display list");
 			}
 			
 			GlobalEvents.childSelected.emit(_child);

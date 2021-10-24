@@ -40,8 +40,8 @@ package controllers {
 			selectedChildPath = null;
 			
 			GlobalEvents.childSelected.listen(this, onChildSelected);
-			GlobalEvents.stopAtSceneStart.listen(this, onStopAtSceneStart);
-			GlobalEvents.playFromSceneStart.listen(this, onPlayFromSceneStart);
+			GlobalEvents.stopAtSceneFrames.listen(this, onStopAtSceneFrames);
+			GlobalEvents.playFromSceneFrames.listen(this, onPlayFromSceneFrames);
 		}
 		
 		public function onEnterFrame() : void {	
@@ -108,15 +108,15 @@ package controllers {
 			}
 		}
 		
-		private function onStopAtSceneStart(_scene : Scene) : void {
-			gotoSceneStart(_scene, false);
+		private function onStopAtSceneFrames(_scene : Scene, _frames : Array) : void {
+			gotoSceneFrames(_scene, _frames, false);
 		}
 		
-		private function onPlayFromSceneStart(_scene : Scene) : void {
-			gotoSceneStart(_scene, true);
+		private function onPlayFromSceneFrames(_scene : Scene, _frames : Array) : void {
+			gotoSceneFrames(_scene, _frames, true);
 		}
 		
-		protected function gotoSceneStart(_scene : Scene, _shouldPlay : Boolean) : void {
+		protected function gotoSceneFrames(_scene : Scene, _frames : Array, _shouldPlay : Boolean) : void {
 			var isSameSceneAsCurrent : Boolean = _scene == currentScene;
 			
 			if (currentScene != null && isSameSceneAsCurrent == false) {
@@ -127,9 +127,9 @@ package controllers {
 			setCurrentScene(_scene);
 			
 			if (_shouldPlay == true) {
-				_scene.playFromStart();
+				_scene.playFromFrames(_frames);
 			} else {
-				_scene.stopAtStart();
+				_scene.stopAtFrames(_frames);
 			}
 			
 			if (isSameSceneAsCurrent == false) {
@@ -174,7 +174,6 @@ package controllers {
 		}
 		
 		protected function setCurrentScene(_scene : Scene) : void {
-			trace("Current scene set to: " + _scene);
 			currentScene = _scene;
 			scenesState._currentScene.setValue(_scene);
 			
@@ -199,7 +198,7 @@ package controllers {
 			var scenes : Array = ScenesState.scenes.value;
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
-				if (scene.isAtScene(animation, _child, 0) == true) {
+				if (scene.isAtScene(_child, 0) == true) {
 					return scene;
 				}
 			}
@@ -211,7 +210,7 @@ package controllers {
 			var scenes : Array = ScenesState.scenes.value;
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
-				if (scene.isActive(animation) == true) {
+				if (scene.isActive() == true) {
 					return scene;
 				}
 			}

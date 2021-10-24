@@ -46,7 +46,10 @@ package controllers {
 		}
 		
 		private function onFinishedRecordingScript() : void {
-			prepareScriptForCurrentScene();
+			var currentScript : SceneScript = SceneScriptsState.currentScript.value;
+			if (currentScript.getStartFrame() == currentScript.scene.getFirstFrame() && currentScript.getTotalRecordedDepths() > 1) {
+				prepareScriptForCurrentScene();
+			}
 		}
 		
 		private function onIsForceStoppedStateChange() : void {

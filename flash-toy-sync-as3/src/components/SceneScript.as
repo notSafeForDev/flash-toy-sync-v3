@@ -90,10 +90,6 @@ package components {
 			return sceneScriptType;
 		}
 		
-		public function startRecording(_topParent : MovieClip, _depth : Number) : void {
-			updateRecording(_topParent, _depth);
-		}
-		
 		public function updateRecording(_topParent : MovieClip, _depth : Number) : void {
 			var animationRoot : MovieClip = ScenesState.selectedChild.value;
 			var currentRootFrame : Number = MovieClipUtil.getCurrentFrame(animationRoot);
@@ -122,8 +118,8 @@ package components {
 			addDataForCurrentFrame(frameIndex, _depth);
 		}
 		
-		public function isAtScene(_topParent : MovieClip, _nestedChild : MovieClip) : Boolean {
-			return scene.isAtScene(_topParent, _nestedChild, 0);
+		public function isAtScene(_nestedChild : MovieClip) : Boolean {
+			return scene.isAtScene(_nestedChild, 0);
 		}
 		
 		public function canRecord() : Boolean {
@@ -134,8 +130,20 @@ package components {
 			return scene;
 		}
 		
-		public function getDepths() : Array {
-			return depthsAtFrames.slice();
+		public function calculateDepth(_frameIndex : Number) : Number {
+			return depthsAtFrames[_frameIndex];
+		}
+		
+		public function calculateDepths() : Array {
+			var depths : Array = [];
+			for (var i : Number = 0; i < depthsAtFrames.length; i++) {
+				depths.push(calculateDepth(i));
+			}
+			return depths;
+		}
+		
+		public function getTotalRecordedDepths() : Number {
+			return depthsAtFrames.length;
 		}
 		
 		public function getStartFrame() : Number {

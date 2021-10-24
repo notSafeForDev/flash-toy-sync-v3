@@ -415,6 +415,7 @@ function transpileActionScript3To2(actionscript) {
     removeActionScriptLines(lines, ["import flash.display"]);
     removeActionScriptLines(lines, ["import flash.ui.Mouse"]);
     removeActionScriptLines(lines, ["import flash.net.SharedObject"]);
+    removeActionScriptLines(lines, ["import flash.utils.getTimer"]);
 
     removeActionScriptLines(lines, ["import flash.system.System"]);
 

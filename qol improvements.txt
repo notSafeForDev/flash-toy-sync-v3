@@ -1,0 +1,7 @@
+* Set start or end recording frame as the current frame
+
+* Snapping markers to samples
+
+* Skip to scene end
+
+* Display the first, current and last frame in a scene somewhere in the ui, when the scenes panel is closed, such on that titlebar

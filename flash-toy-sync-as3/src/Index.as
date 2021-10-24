@@ -5,11 +5,13 @@ package {
 	import core.HTTPRequest;
 	import flash.display.MovieClip;
 	import flash.ui.Mouse;
+	import flash.utils.getTimer;
 	import global.SceneScriptsState;
 	import global.ScenesState;
 	import global.ScriptingState;
 	import global.ToyState;
 	import ui.StageElementHighlighter;
+	import utils.Debug;
 	
 	import core.StateManager;
 	import core.stateTypes.StringState;
@@ -18,7 +20,6 @@ package {
 	import core.DisplayObjectUtil;
 	import core.TextElement;
 	import core.VersionUtil;
-	import core.Debug;
 	import core.MovieClipUtil;
 	import core.StageUtil;
 	import core.MovieClipEvents;
@@ -244,28 +245,40 @@ package {
 		}
 		
 		public function onEnterFrame() : void {
-			// var startTime : Number = Debug.getTime();
+			Debug.startMeasuringPerformance("Main Loop");
+			
 			if (animation != null) {
 				scenesController.onEnterFrame();
+				Debug.addMeasurementSample("Main Loop", "scenesController");
 				
 				if (EditorState.isEditor.value == true) {
+					hierarchyPanelController.onEnterFrame();
+					Debug.addMeasurementSample("Main Loop", "hierarchyPanelController");
 					stageChildSelectionController.onEnterFrame();
+					Debug.addMeasurementSample("Main Loop", "stageChildSelectionController");
 					scriptSampleMarkersController.onEnterFrame();
+					Debug.addMeasurementSample("Main Loop", "scriptSampleMarkersController");
 					scriptMarkersController.onEnterFrame();
+					Debug.addMeasurementSample("Main Loop", "scriptMarkersController");
 					scriptRecordingController.onEnterFrame();
+					Debug.addMeasurementSample("Main Loop", "scriptRecordingController");
 				}
 			}
 			
 			stateManager.notifyListeners();
 			
+			Debug.addMeasurementSample("Main Loop", "State Listeners");
+			
 			GlobalEvents.enterFrame.emit();
-			// var endTime : Number = Debug.getTime();
-			// trace(endTime - startTime);
+			
+			Debug.addMeasurementSample("Main Loop", "Global Enter Frame");
 			
 			// For animations that hides the cursor, make it always visible while in the editor
 			if (EditorState.isEditor.value == true) {
 				Mouse.show();
 			}
+			
+			Debug.logMeasurements("Main Loop", 5);
 		}
 		
 		private function onSWFError(_error : String) : void {

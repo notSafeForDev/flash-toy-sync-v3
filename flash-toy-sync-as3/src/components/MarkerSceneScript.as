@@ -135,7 +135,6 @@ package components {
 			var stimulation : Point = getMarkerPosition(ScriptingState.stimulationMarkerAttachedTo.value, ScriptingState.stimulationMarkerPoint.value);
 			var base : Point = getMarkerPosition(ScriptingState.baseMarkerAttachedTo.value, ScriptingState.baseMarkerPoint.value);
 			var tip : Point = getMarkerPosition(ScriptingState.tipMarkerAttachedTo.value, ScriptingState.tipMarkerPoint.value);
-			var depth : Number = calculateDepth(stimulation, base, tip);
 			
 			if (_index >= stimulationPositions.length) {
 				stimulationPositions.push(stimulation);
@@ -146,6 +145,8 @@ package components {
 				basePositions[_index] = base;
 				tipPositions[_index] = tip;
 			}
+			
+			var depth : Number = calculateDepthFromPositions(stimulation, base, tip);
 			
 			super.addDataForCurrentFrame(_index, depth);
 		}
@@ -165,17 +166,6 @@ package components {
 			];
 			
 			return ArrayUtil.indexOf(dependencies, null) < 0;
-		}
-		
-		public override function getDepths() : Array {
-			var depths : Array = [];
-			for (var i : Number = 0; i < stimulationPositions.length; i++) {
-				var stimulation : Point = getInterpolatedPosition(stimulationPositions, i);
-				var base : Point = getInterpolatedPosition(basePositions, i);
-				var tip : Point = getInterpolatedPosition(tipPositions, i);
-				depths.push(calculateDepth(stimulation, base, tip));
-			}
-			return depths;
 		}
 		
 		/**
@@ -226,7 +216,15 @@ package components {
 			return new Point(x, y);
 		}
 		
-		private function calculateDepth(_stimulation : Point, _base : Point, _tip : Point) : Number {
+		public override function calculateDepth(_frameIndex : Number) : Number {
+			var stimulation : Point = getInterpolatedPosition(stimulationPositions, _frameIndex);
+			var base : Point = getInterpolatedPosition(basePositions, _frameIndex);
+			var tip : Point = getInterpolatedPosition(tipPositions, _frameIndex);
+			
+			return calculateDepthFromPositions(stimulation, base, tip);
+		}
+		
+		private function calculateDepthFromPositions(_stimulation : Point, _base : Point, _tip : Point) : Number {
 			var angle : Number = MathUtil.angleBetween(_base, _tip);
 			
 			// We rotate the tip and stimulation points so that the tip is to the right of the base, at the same y position

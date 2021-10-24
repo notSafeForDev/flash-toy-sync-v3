@@ -11,8 +11,8 @@ package global {
 		public static var enterFrame : CustomEvent;
 		public static var animationManualResize : CustomEvent;
 		public static var childSelected : CustomEvent;
-		public static var stopAtSceneStart : CustomEvent;
-		public static var playFromSceneStart : CustomEvent;
+		public static var stopAtSceneFrames : CustomEvent;
+		public static var playFromSceneFrames : CustomEvent;
 		public static var splitScene : CustomEvent;
 		public static var scenesMerged : CustomEvent;
 		public static var sceneChanged : CustomEvent;
@@ -24,8 +24,8 @@ package global {
 			enterFrame = new CustomEvent();
 			animationManualResize = new CustomEvent();
 			childSelected = new CustomEvent();
-			stopAtSceneStart = new CustomEvent();
-			playFromSceneStart = new CustomEvent();
+			stopAtSceneFrames = new CustomEvent();
+			playFromSceneFrames = new CustomEvent();
 			splitScene = new CustomEvent;
 			scenesMerged = new CustomEvent();
 			sceneChanged = new CustomEvent();

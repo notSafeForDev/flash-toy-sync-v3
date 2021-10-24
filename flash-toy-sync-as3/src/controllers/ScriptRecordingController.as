@@ -33,6 +33,7 @@ package controllers {
 		private var isRecording : Boolean = false;
 		private var recordingScene : Scene = null;
 		private var nextFrameToRecord : Number = -1;
+		private var recordingStartSceneFrames : Array = null;
 		
 		private var currentSceneScript : SceneScript = null;
 		
@@ -44,6 +45,7 @@ package controllers {
 			animation = _animation;
 			
 			scriptingPanel.onStartRecording.listen(this, onScriptingPanelStartRecording);
+			scriptingPanel.onRecordFrame.listen(this, onScriptingPanelRecordFrame);
 		}
 		
 		public function onEnterFrame() : void {
@@ -54,18 +56,26 @@ package controllers {
 		
 		private function onScriptingPanelStartRecording() : void {
 			if (ScenesState.currentScene.value != null) {
-				startRecording();
+				startRecording(false);
 			}
 		}
 		
-		private function startRecording() : void {
+		private function onScriptingPanelRecordFrame() : void {
+			if (ScenesState.currentScene.value != null) {
+				startRecording(true);
+				finishRecording();
+			}
+		}
+		
+		private function startRecording(_recordFromCurrentFrame : Boolean) : void {
 			var existingSceneScript : SceneScript = getSceneScriptForCurrentScene();
 			
 			if (existingSceneScript != null) {
 				trace("Start recording existing scene");
 				currentSceneScript = existingSceneScript;
 				sceneScriptsState._currentScript.setValue(currentSceneScript);
-			} else {
+			} 
+			else {
 				trace("Start recording new scene");
 				trace("First frames of current scene: " + ScenesState.currentScene.value.getFirstFrames());
 				currentSceneScript = MarkerSceneScript.fromCurrentState(animation);
@@ -78,7 +88,14 @@ package controllers {
 			recordingScene = ScenesState.currentScene.value;
 			isRecording = true;
 			
-			GlobalEvents.playFromSceneStart.emit(recordingScene);
+			if (_recordFromCurrentFrame == true) {
+				recordingStartSceneFrames = ScenesState.currentScene.value.getCurrentHierarchyFrames(ScenesState.selectedChild.value);
+			} 
+			else {
+				recordingStartSceneFrames = ScenesState.currentScene.value.getFirstFrames();	
+			}
+			
+			GlobalEvents.playFromSceneFrames.emit(recordingScene, recordingStartSceneFrames);
 			
 			var startFrame : Number = parseInt(scriptingPanel.startFrameInputText.getText());
 			var endFrame : Number = parseInt(scriptingPanel.endFrameInputText.getText());
@@ -94,7 +111,7 @@ package controllers {
 			}
 			
 			trace("firstRecordingFrame: " + MovieClipUtil.getCurrentFrame(ScenesState.selectedChild.value));
-			currentSceneScript.startRecording(animation, -1);
+			currentSceneScript.updateRecording(animation, -1);
 			
 			if (endFrame > 0 && endFrame == startFrame) {
 				finishRecording();
@@ -116,7 +133,7 @@ package controllers {
 			
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 			
-			var isOutOfRange : Boolean = currentSceneScript.isAtScene(animation, selectedChild) == false;
+			var isOutOfRange : Boolean = currentSceneScript.isAtScene(selectedChild) == false;
 			if (isOutOfRange == true) {
 				trace("Got out of range of the scene during recording");
 				finishRecording();
@@ -161,7 +178,7 @@ package controllers {
 		private function finishRecording() : void {
 			trace("Finish recording");
 			
-			GlobalEvents.stopAtSceneStart.emit(recordingScene);
+			GlobalEvents.stopAtSceneFrames.emit(recordingScene, recordingStartSceneFrames);
 			GlobalEvents.finishedRecordingScript.emit();
 			
 			isRecording = false;

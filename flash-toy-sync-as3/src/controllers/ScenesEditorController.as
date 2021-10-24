@@ -42,7 +42,7 @@ package controllers {
 		}
 		
 		private function onScenesPanelSceneSelected(_scene : Scene) : void {
-			gotoSceneStart(_scene, true);
+			gotoSceneFrames(_scene, _scene.getFirstFrames(), true);
 			nextExpectedFrame = -1;
 		}
 		
@@ -74,6 +74,7 @@ package controllers {
 			
 			var isSelectedChildRecovered : Boolean = false;
 			var isRemovedFromDisplayList : Boolean = selectedChild == null || DisplayObjectUtil.getParents(selectedChild).length != selectedChildParentChainLength;
+			var selectedChildWasNull : Boolean = selectedChild == null;
 			
 			if (isRemovedFromDisplayList == true) {
 				var childFromPath : DisplayObject = DisplayObjectUtil.getChildFromPath(animation, selectedChildPath);
@@ -89,34 +90,50 @@ package controllers {
 				}
 			}
 			
+			// TODO: see if we also needed to include: selectedChildWasNull == false, to make it only auto select a scene as soon as it is lost
+			if (isRemovedFromDisplayList == true && isSelectedChildRecovered == false) {
+				var scenes : Array = ScenesState.scenes.value;
+				for (var i : Number = 0; i < scenes.length; i++) {
+					var scene : Scene = scenes[i];
+					var childFromScenePath : DisplayObject = DisplayObjectUtil.getChildFromPath(animation, scene.getPath());
+					if (childFromScenePath != null) {
+						selectedChild = MovieClipUtil.objectAsMovieClip(childFromScenePath);
+						setSelectedChild(selectedChild);
+						isSelectedChildRecovered = true;
+						break;
+					}
+				}
+			}
+			
 			if (selectedChild == null || ScenesState.isForceStopped.value == true) {
 				nextExpectedFrame = -1;
 				previousFrame = -1;
 				return;
 			}
 			
+			// Gather information about what is going on
 			var activeSceneForChild : Scene = getActiveSceneForChild(selectedChild);
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
 			var lastFrameInChild : Number = MovieClipUtil.getTotalFrames(selectedChild);
-			
 			var isAtSameScene : Boolean = currentScene != null && currentScene == activeSceneForChild;
+			var areDifferenceScenes : Boolean = currentScene != activeSceneForChild && currentScene != null && activeSceneForChild != null;
 			// We can't always read from currrentScene.isStopped, as we intentionally update the scene after, and it takes at most 2 frames to determine if it's stopped
 			var isStopped : Boolean = currentScene != null && (currentFrame == previousFrame || currentScene.isStopped(selectedChild));
 			var notAtExpectedFrame : Boolean = nextExpectedFrame >= 0 && currentFrame != nextExpectedFrame;
 			var isNextFrameStartOfCurrentScene : Boolean = currentScene != null && currentFrame == currentScene.getFirstFrame() - 1;
-			var didLoop : Boolean = isStopped == false && isAtSameScene == true && previousFrame > 0 && currentFrame < previousFrame;
+			// We also include isNextFrameStartOfCurrentScene to handle the edge case where a loop goes back 1 frame before it's start frame
+			var didLoop : Boolean = isStopped == false && previousFrame > 0 && currentFrame < previousFrame && (isAtSameScene == true || isNextFrameStartOfCurrentScene == true);
 			
-			var canSplitScene : Boolean = didLoop == true && notAtExpectedFrame == true && currentFrame > currentScene.getFirstFrame();
+			// Specify what we could do
+			var canMergeScenes : Boolean = areDifferenceScenes == true && activeSceneForChild.isTemporary == true;
 			var canEnterExistingScene : Boolean = activeSceneForChild != null && isAtSameScene == false;
-			var canCreateNewScene : Boolean = notAtExpectedFrame == true && activeSceneForChild == null && isAtSameScene == false
+			var canSplitScene : Boolean = didLoop == true && notAtExpectedFrame == true && currentFrame > currentScene.getFirstFrame();
 			
-			if (currentScene != activeSceneForChild && currentScene != null && activeSceneForChild != null) {
-				if (activeSceneForChild.isTemporary == true) {
-					merge(currentScene, activeSceneForChild);
-				}
+			// Act on the information we have/can potentially do
+			if (canMergeScenes == true) {
+				merge(currentScene, activeSceneForChild);
 			}
-			
-			if (canEnterExistingScene == true) {
+			else if (canEnterExistingScene == true) {
 				exitCurrentScene(selectedChild);
 				setCurrentScene(activeSceneForChild);
 				trace("Entered existing scene");
@@ -126,8 +143,9 @@ package controllers {
 				trace("Current: " + currentFrame + ", First: " + currentScene.getFirstFrame() + ", Last: " + currentScene.getLastFrame());
 				splitCurrentScene();
 			} 
-			else if (didLoop == true || (notAtExpectedFrame == true && activeSceneForChild != currentScene && isNextFrameStartOfCurrentScene == true)) {
+			else if (didLoop == true) {
 				GlobalEvents.sceneLooped.emit();
+				trace("Looped");
 			} 
 			else if (notAtExpectedFrame == true && activeSceneForChild == null && isAtSameScene == false) {
 				exitCurrentScene(selectedChild);
@@ -150,6 +168,9 @@ package controllers {
 		
 		protected override function onChildSelected(_child : MovieClip) : void {			
 			super.onChildSelected(_child);
+			
+			// TODO: Fix issue where the _child could have no parent, which happened when it's on the last frame in in a loop in brandy-2
+			// which is likely caused by the hierarchy panel being 1 frame off, 
 			
 			if (EditorState.isEditor.value == true && ScenesState.currentScene.value == null) {
 				trace("Created new scene at a potentially invalid starting point, total scenes: " + ScenesState.scenes.value.length);
@@ -211,13 +232,13 @@ package controllers {
 			var targetFrame : Number = MathUtil.clamp(currentFrame + _direction, min, max);
 			
 			currentScene.gotoAndStop(selectedChild, targetFrame);
+			
 			scenesState._isForceStopped.setValue(true);
 		}
 		
 		private function addNewScene(_selectedChild : MovieClip) : Scene {
 			var scenes : Array = ScenesState.scenes.value;
-			var scene : Scene = new Scene(animation);
-			scene.init(_selectedChild);
+			var scene : Scene = new Scene(animation, DisplayObjectUtil.getChildPath(animation, _selectedChild));
 			
 			scenes.push(scene);
 			sortScenes(scenes);
@@ -261,6 +282,7 @@ package controllers {
 			
 			_sceneToExpand.merge(_sceneToRemove);
 			scenes.splice(index, 1);
+			sortScenes(scenes);
 			scenesState._scenes.setValue(scenes);
 			GlobalEvents.scenesMerged.emit(_sceneToRemove, _sceneToExpand);
 			trace("Found scene to merge with");

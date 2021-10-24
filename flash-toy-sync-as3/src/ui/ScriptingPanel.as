@@ -33,11 +33,13 @@ package ui {
 		
 		public var onMouseSelectFilterChange : CustomEvent;
 		public var onStartRecording : CustomEvent;
+		public var onRecordFrame : CustomEvent;
 		
 		private var stimulationMarkerButton : UIButton;
 		private var baseMarkerButton : UIButton;
 		private var tipMarkerButton : UIButton;
 		private var recordButton : UIButton;
+		private var recordFrameButton : UIButton;
 		
 		private var filterInputText : TextElement;
 		public var startFrameInputText : TextElement;
@@ -55,6 +57,7 @@ package ui {
 			onDragTipMarker = new CustomEvent();
 			onMouseSelectFilterChange = new CustomEvent();
 			onStartRecording = new CustomEvent();
+			onRecordFrame = new CustomEvent();
 			
 			stimulationMarkerButton = addButton("Stimulation Marker");
 			baseMarkerButton = addButton("Base Marker");
@@ -86,6 +89,7 @@ package ui {
 			addElementToLayout(endFrameContainer, false);
 			
 			recordButton = addButton("Record Script");
+			recordFrameButton = addButton("Record Frame");
 			
 			stimulationMarkerButton.onMouseClick.listen(this, onMarkerButtonClick, onAttachStimulationMarker);
 			baseMarkerButton.onMouseClick.listen(this, onMarkerButtonClick, onAttachBaseMarker);
@@ -96,6 +100,7 @@ package ui {
 			tipMarkerButton.onStartDrag.listen(this, onMarkerButtonDrag, onDragTipMarker);
 			
 			recordButton.onMouseClick.listen(this, onStartRecordingButtonClick);
+			recordFrameButton.onMouseClick.listen(this, onRecordFrameButtonClick);
 			
 			ScriptingState.listen(this, onMarkerAttachStatesChange, [ScriptingState.baseMarkerAttachedTo, ScriptingState.stimulationMarkerAttachedTo, ScriptingState.tipMarkerAttachedTo]);
 			EditorState.listen(this, onClickedChildStateChange, [EditorState.clickedChild]);
@@ -131,6 +136,7 @@ package ui {
 			tipMarkerButton.setEnabled(canAttachMarkers);
 			
 			recordButton.setEnabled(canRecord());
+			recordFrameButton.setEnabled(canRecord());
 		}
 		
 		private function onMarkerButtonClick(_attachMarkerEvent : CustomEvent) : void {
@@ -145,6 +151,10 @@ package ui {
 		
 		private function onStartRecordingButtonClick() : void {
 			onStartRecording.emit();
+		}
+		
+		private function onRecordFrameButtonClick() : void {
+			onRecordFrame.emit();
 		}
 		
 		private function canRecord() : Boolean {
