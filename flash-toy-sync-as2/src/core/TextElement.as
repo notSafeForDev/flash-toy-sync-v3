@@ -79,6 +79,10 @@ class core.TextElement {
 		element._height = _value;
 	}
 	
+	public function setVisible(_value : Boolean) : Void {
+		element._visible = _value;
+	}
+	
 	public function setText(_value : String) : Void {
 		if (element.text == _value) {
 			return; // Important for performance when updating many texts frequently

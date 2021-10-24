@@ -50,16 +50,6 @@ package controllers {
 			if (isRecording == true) {
 				updateRecording();
 			}
-			
-			// TEMP: Only for debugging the depth of the current scripted scene
-			/* if (isRecording == false && currentSceneScript != null && ScenesState.selectedChild.value != null) {
-				var selectedChild : MovieClip = ScenesState.selectedChild.value;
-				var startFrame : Number = currentSceneScript.getStartFrame();
-				var currentFrame : Number = MovieClipUtil.getCurrentFrame(selectedChild);
-				var depths : Array = currentSceneScript.getDepths();
-				var depth : Number = depths[currentFrame - startFrame];
-				trace(depth.toString().substring(0, 4));
-			} */
 		}
 		
 		private function onScriptingPanelStartRecording() : void {

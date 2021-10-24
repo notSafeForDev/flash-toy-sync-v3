@@ -1,6 +1,7 @@
 package components {
 	
 	import flash.display.MovieClip;
+	
 	import global.ScenesState;
 	
 	import core.DisplayObjectUtil;
@@ -51,6 +52,38 @@ package components {
 			sceneScript.startRootFrame = _saveData.startRootFrame.slice();
 			
 			return sceneScript;
+		}
+		
+		public function clone() : SceneScript {
+			var cloned : SceneScript = new SceneScript(scene);
+			cloned.depthsAtFrames = depthsAtFrames.slice();
+			cloned.startRootFrame = startRootFrame;
+			
+			return cloned;
+		}
+		
+		public function setStartFrame(_frame : Number) : void {
+			if (_frame < startRootFrame) {
+				var amountToAdd : Number = startRootFrame - _frame;
+				for (var i : Number = 0; i < amountToAdd; i++) {
+					addBlankDataToBeginning();
+				}
+			} else if (_frame > startRootFrame + depthsAtFrames.length) {
+				removeDataFromBeginning(_frame - startRootFrame);
+			}
+			startRootFrame = _frame;
+		}
+		
+		public function setEndFrame(_frame : Number) : void {
+			var current : Number = startRootFrame + depthsAtFrames.length;
+			if (_frame < current) {
+				var amountToRemove : Number = current - _frame;
+				removeDataFromEnd(amountToRemove);
+			} else if (_frame > current) {
+				for (var i : Number = 0; i < _frame - current; i++) {
+					addBlankDataToEnd();
+				}
+			}
 		}
 		
 		public function getType() : String {
@@ -123,6 +156,14 @@ package components {
 		
 		protected function addBlankDataToEnd() : void {
 			depthsAtFrames.push(-1);
+		}
+		
+		protected function removeDataFromBeginning(_amount : Number) : void {
+			depthsAtFrames = depthsAtFrames.slice(_amount);
+		}
+		
+		protected function removeDataFromEnd(_amount : Number) : void {
+			depthsAtFrames.length = depthsAtFrames.length - _amount;
 		}
 		
 		protected function addDataForCurrentFrame(_index : Number, _depth : Number) : void {			

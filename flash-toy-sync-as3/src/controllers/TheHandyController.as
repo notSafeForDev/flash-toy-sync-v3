@@ -45,7 +45,7 @@ package controllers {
 			prepareScriptButton.onMouseClick.listen(this, onPrepareScriptButtonClick);
 			
 			theHandyAPI = new TheHandyAPI();
-			theHandyAPI.connectionKey = ToyState.theHandyConnectionKey.value;
+			theHandyAPI.setConnectionKey(ToyState.theHandyConnectionKey.value);
 			
 			GlobalEvents.sceneLooped.listen(this, onSceneLooped);
 			
@@ -53,17 +53,19 @@ package controllers {
 			ToyState.listen(this, onConnectionKeyStateChange, [ToyState.theHandyConnectionKey]);
 			ToyState.listen(this, onToyErrorStateChange, [ToyState.error]);
 			
-			if (EditorState.isEditor.value == false) {
-				prepareScriptForAllScenes();
+			if (EditorState.isEditor.value == false && SceneScriptsState.scripts.value.length > 0 && theHandyAPI.getConnectionKey() != "") {
+				prepareScript(SceneScriptsState.scripts.value);
 			}
 		}
 		
 		private function onPrepareScriptButtonClick() : void {
-			prepareScriptForAllScenes();
+			if (theHandyAPI.getConnectionKey() != "") {
+				prepareScript(SceneScriptsState.scripts.value);
+			}
 		}
 		
 		private function onConnectionKeyStateChange() : void {
-			theHandyAPI.connectionKey = ToyState.theHandyConnectionKey.value;
+			theHandyAPI.setConnectionKey(ToyState.theHandyConnectionKey.value);
 		}
 		
 		protected function onToyErrorStateChange() : void {
@@ -147,7 +149,8 @@ package controllers {
 		}
 		
 		protected function canPlay() : Boolean {
-			return theHandyAPI.connectionKey != "" && isScriptPrepared == true && currentSceneIndex >= 0 && ToyState.error.value == "";
+			var sceneScript : SceneScript = SceneScriptsState.currentScript.value;
+			return theHandyAPI.getConnectionKey() != "" && sceneScript != null && isScriptPrepared == true && currentSceneIndex >= 0 && ToyState.error.value == "";
 		}
 		
 		protected function getMinLoopCountForScene(_sceneScript : SceneScript) : Number {
@@ -164,31 +167,24 @@ package controllers {
 			return script;
 		}
 		
-		protected function prepareScript(_csv : String) : void {			
-			toyState._status.setValue("Preparing script...");
-			toyState._error.setValue("");
-			isScriptPrepared = false;
-			isPlaying = false;
-			
-			theHandyAPI.syncPrepareFromCSV(_csv, this, onSyncPrepareResponse);
-		}
-		
-		private function prepareScriptForAllScenes() : void {
-			var sceneScripts : Array = SceneScriptsState.scripts.value;
-			if (sceneScripts.length == 0) {
-				return;
-			}
-			
-			// We add an extra position at the start, to make the first loop in the script loop smoothly
-			var startTime : Number = 1000;
-			var combinedScript : Array = [{time: 0, position: 0}];
+		protected function prepareScript(_sceneScripts : Array) : void {
+			var allSceneScripts : Array = SceneScriptsState.scripts.value;
+			var startTime : Number = 0;
+			var combinedScript : Array = [];
 			var i : Number;
 			
 			sceneStartTimes = [];
 			sceneLoopCounts = [];
 			
-			for (i = 0; i < sceneScripts.length; i++) {
-				var sceneScript : SceneScript = sceneScripts[i];
+			for (i = 0; i < allSceneScripts.length; i++) {
+				var sceneScript : SceneScript = allSceneScripts[i];
+				
+				if (ArrayUtil.indexOf(_sceneScripts, sceneScript) < 0) {
+					sceneStartTimes.push(-1);
+					sceneLoopCounts.push( -1);
+					continue;
+				}
+				
 				var loopCount : Number = getMinLoopCountForScene(sceneScript);
 				var script : Array = generateScriptDataForScene(sceneScript, loopCount, startTime);
 				
@@ -203,7 +199,12 @@ package controllers {
 				csv += combinedScript[i].time + "," + combinedScript[i].position + "\n";
 			}
 			
-			prepareScript(csv);
+			toyState._status.setValue("Preparing script...");
+			toyState._error.setValue("");
+			isScriptPrepared = false;
+			isPlaying = false;
+			
+			theHandyAPI.syncPrepareFromCSV(csv, this, onSyncPrepareResponse);
 		}
 		
 		protected function playScript() : void {
@@ -220,9 +221,7 @@ package controllers {
 			var elapsedTime : Number = ScriptUtil.getMilisecondsAtFrame(currentFrame - startFrame);
 			var time : Number = startTime + elapsedTime;
 			
-			var shouldAdjustOffset : Boolean = true;
-			
-			theHandyAPI.syncPlay(time, shouldAdjustOffset, this, onSyncPlayResponse);
+			theHandyAPI.syncPlay(time, this, onSyncPlayResponse);
 		}
 		
 		protected function stopScript() : void {

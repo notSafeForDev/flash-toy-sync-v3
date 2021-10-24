@@ -75,6 +75,7 @@ package utils {
 			return output;
 		}
 		
+		// This one is not used
 		public static function  reducePostionsInScriptPart(_script : Array, _strength : Number) : Array {
 			var velocityChangeThreshold : Number = _strength;
 			var skipIndexes : Array = [];
@@ -116,9 +117,10 @@ package utils {
 			
 			var frameRate : Number = StageUtil.getFrameRate();
 			var scriptDuration : Number = _script[_script.length - 1].time - _script[0].time;
+			var loopPadding : Number = 1.5; // Used to make sync a bit better
 			
 			for (var i : Number = 0; i < _loopCount; i++) {
-				var startTime : Number = i * scriptDuration + Math.floor(i * (1000 / frameRate) * 0.8); // We add a bit less than a frame worth of padding to make it more in sync
+				var startTime : Number = i * scriptDuration + getMilisecondsAtFrame(i * loopPadding);
 				var loop : Array = offsetTimeInScript(_script, startTime);
 				if (i > 0) {
 					loop = loop.slice(1);
@@ -139,7 +141,6 @@ package utils {
 			return output;
 		}
 		
-		// This one is used
 		public static function reduceKeyframes(keyframes : Array) : Array {
 			if (keyframes.length == 0) {
 				return [];

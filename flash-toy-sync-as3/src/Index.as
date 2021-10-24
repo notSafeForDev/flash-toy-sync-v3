@@ -179,6 +179,11 @@ package {
 				StageUtil.setFrameRate(_fps);
 			}
 			
+			if (_width > 0 && _height > 0) {
+				animationInfoState._width.setValue(_width);
+				animationInfoState._height.setValue(_height);
+			}
+			
 			errorText.setText("");
 			DisplayObjectUtil.setVisible(startUpMenu.container, false);
 			

@@ -70,6 +70,10 @@ package core {
 			element.height = _value;
 		}
 		
+		public function setVisible(_value : Boolean) : void {
+			element.visible = _value;
+		}
+		
 		public function setText(_value : String) : void {
 			if (element.text == _value) {
 				return; // Important for performance when updating many texts frequently

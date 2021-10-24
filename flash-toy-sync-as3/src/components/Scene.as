@@ -31,6 +31,8 @@ package components {
 		private var topParent : MovieClip = null;
 		private var nestedChild : MovieClip = null;
 		
+		public var isTemporary : Boolean = false;
+		
 		/**
 		 * Requires init to be called as well
 		 * @param	_topParent	The external swf
@@ -107,6 +109,23 @@ package components {
 			}
 		}
 		
+		public function clone() : Scene {
+			var cloned : Scene = new Scene(topParent);
+			
+			cloned.path = path.slice();
+			cloned.firstStopFrames = firstStopFrames.slice();
+			cloned.lastPlayedFrames = lastPlayedFrames.slice();
+			cloned.frameRanges = [];
+			
+			for (var i : Number = 0; i < frameRanges.length; i++) {
+				cloned.frameRanges.push({min: frameRanges[i].min, max: frameRanges[i].max});
+			}
+			
+			cloned.isInitialized = true;
+			
+			return cloned;
+		}
+		
 		public function intersects(_scene : Scene) : Boolean {
 			if (path.join(",") != _scene.path.join(",")) {
 				return false;
@@ -174,6 +193,20 @@ package components {
 		public function isLoop() : Boolean {
 			var stoppedFrame : Number = firstStopFrames[firstStopFrames.length - 1];
 			return stoppedFrame < 0;
+		}
+		
+		public function setFirstFrame(_frame : Number) : void {
+			if (_frame > frameRanges[frameRanges.length - 1].max) {
+				throw new Error("Unable to set first frame, the frame number has to be less or equal to the last frame");
+			}
+			frameRanges[frameRanges.length - 1].min = _frame;
+		}
+		
+		public function setLastFrame(_frame : Number) : void {
+			if (_frame < frameRanges[frameRanges.length - 1].min) {
+				throw new Error("Unable to set last frame, the frame number has to be equal or greater than the first frame");
+			}
+			frameRanges[frameRanges.length - 1].max = _frame;
 		}
 		
 		public function getFirstFrame() : Number {

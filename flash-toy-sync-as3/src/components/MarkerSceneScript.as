@@ -23,9 +23,9 @@ package components {
 		
 		public static var sceneScriptType : String = "MARKER_SCENE_SCRIPT";
 		
-		public var stimulationPositions : Array;
-		public var basePositions : Array;
-		public var tipPositions : Array;
+		public var stimulationPositions : Array = null;
+		public var basePositions : Array = null;
+		public var tipPositions : Array = null;
 		
 		public function MarkerSceneScript(_scene : Scene) {
 			super(_scene);
@@ -67,16 +67,24 @@ package components {
 			return sceneScript;
 		}
 		
-		private static function parseSaveDataPositions(_saveDataPositions : Array) : Array {
-			var positions : Array = [];
-			for (var i : Number = 0; i < _saveDataPositions.length; i++) {
-				if (_saveDataPositions[i].x == undefined) {
-					positions.push(null);
-				} else {
-					positions.push(new Point(_saveDataPositions[i].x, _saveDataPositions[i].y));
-				}
+		public override function clone() : SceneScript {
+			var cloned : MarkerSceneScript = new MarkerSceneScript(scene);
+			cloned.depthsAtFrames = depthsAtFrames.slice();
+			cloned.startRootFrame = startRootFrame;
+			cloned.stimulationPositions = clonePointsArray(stimulationPositions);
+			cloned.basePositions = clonePointsArray(basePositions);
+			cloned.tipPositions = clonePointsArray(tipPositions);
+			
+			return cloned;
+		}
+		
+		private function clonePointsArray(_points : Array) : Array {
+			var clonedPoints : Array = [];
+			for (var i : Number = 0; i < _points.length; i++) {
+				var point : Point = _points[i];
+				clonedPoints.push(point.clone());
 			}
-			return positions;
+			return clonedPoints;
 		}
 		
 		public static function fromCurrentState(_topParent : MovieClip) : MarkerSceneScript {
@@ -96,17 +104,31 @@ package components {
 		}
 		
 		protected override function addBlankDataToBeginning() : void {
+			super.addBlankDataToBeginning();
 			stimulationPositions.unshift(null);
 			basePositions.unshift(null);
 			tipPositions.unshift(null);
-			super.addBlankDataToBeginning();
 		}
 		
 		protected override function addBlankDataToEnd() : void {
+			super.addBlankDataToEnd();
 			stimulationPositions.push(null);
 			basePositions.push(null);
 			tipPositions.push(null);
-			super.addBlankDataToEnd();
+		}
+		
+		protected override function removeDataFromBeginning(_amount : Number) : void {
+			super.removeDataFromBeginning(_amount);
+			stimulationPositions = stimulationPositions.slice(_amount);
+			basePositions = basePositions.slice(_amount);
+			tipPositions = tipPositions.slice(_amount);
+		}
+		
+		protected override function removeDataFromEnd(_amount : Number) : void {
+			super.removeDataFromEnd(_amount);
+			stimulationPositions.length = stimulationPositions.length - _amount;
+			basePositions.length = basePositions.length - _amount;
+			tipPositions.length = tipPositions.length - _amount;
 		}
 		
 		protected override function addDataForCurrentFrame(_index : Number, _depth : Number) : void {

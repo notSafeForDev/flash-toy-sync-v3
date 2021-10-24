@@ -19,12 +19,33 @@ package controllers {
 			sceneScriptsState = _sceneScriptsState;
 			
 			GlobalEvents.sceneChanged.listen(this, onSceneChanged);
+			GlobalEvents.splitScene.listen(this, onSplitScene);
 			GlobalEvents.scenesMerged.listen(this, onScenesMerged);
 			GlobalEvents.sceneDeleted.listen(this, onSceneDeleted);
 		}
 		
 		private function onSceneChanged() : void {
 			sceneScriptsState._currentScript.setValue(getSceneScriptForCurrentScene());
+		}
+		
+		private function onSplitScene(_existingScene : Scene, _newScene : Scene) : void {
+			var sceneScript : SceneScript = getSceneScriptForScene(_existingScene);
+			if (sceneScript == null) {
+				return;
+			}
+			
+			var newSceneScript : SceneScript = sceneScript.clone();
+			
+			sceneScript.setStartFrame(_existingScene.getFirstFrame());
+			sceneScript.setEndFrame(_existingScene.getLastFrame());
+			
+			newSceneScript.scene = _newScene;
+			newSceneScript.setStartFrame(_newScene.getFirstFrame());
+			newSceneScript.setEndFrame(_newScene.getLastFrame());
+			
+			var sceneScripts : Array = SceneScriptsState.scripts.value;
+			sceneScripts.push(newSceneScript);
+			sceneScriptsState._scripts.setValue(sceneScripts);
 		}
 		
 		private function onScenesMerged(_previousScene : Scene, _combinedScene : Scene) : void {
@@ -53,15 +74,15 @@ package controllers {
 		}
 		
 		protected function getSceneScriptForCurrentScene() : SceneScript {
-			if (ScenesState.currentScene.value == null) {
-				return null;
-			}
-			
+			return getSceneScriptForScene(ScenesState.currentScene.value);
+		}
+		
+		protected function getSceneScriptForScene(_scene : Scene) : SceneScript {
 			var sceneScripts : Array = SceneScriptsState.scripts.value;
 			for (var i : Number = 0; i < sceneScripts.length; i++) {
-				var existingSceneScript : SceneScript = sceneScripts[i];
-				if (existingSceneScript.getScene() == ScenesState.currentScene.value) {
-					return existingSceneScript;
+				var sceneScript : SceneScript = sceneScripts[i];
+				if (sceneScript.getScene() == _scene) {
+					return sceneScript;
 				}
 			}
 			

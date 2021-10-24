@@ -13,7 +13,7 @@ class core.UIScrollArea {
 	public var mask : MovieClip;
 	public var handle : MovieClip;
 	
-	public var handleAlphaWhenNotScrollable : Number = 1;
+	public var disabledHandleAlpha : Number = 1;
 	
 	public var progress : Number = 0;
 	
@@ -61,6 +61,24 @@ class core.UIScrollArea {
 		return maskBounds.intersects(childBounds);
 	}
 	
+	public function scrollTo(_child : MovieClip) : Void {
+		if (content._height <= mask._height) {
+			return;
+		}
+		
+		var yInsideMask : Number = _child._y + content._y;
+		var offset : Number = 0;
+		if (yInsideMask > mask._height - _child._height) {
+			offset = yInsideMask - mask._height + _child._height;
+		}
+		if (yInsideMask < 0) {
+			offset = yInsideMask;
+		}
+		var extraContentHeight : Number = (content._height - mask._height);
+		progress += offset / extraContentHeight;
+		content._y = -extraContentHeight * progress;
+	}
+	
 	private function onHandleMouseDown() {
 		mouseDragOffset = new Point(handle._root._xmouse, handle._root._ymouse);
 		handle._parent.globalToLocal(mouseDragOffset);
@@ -78,7 +96,7 @@ class core.UIScrollArea {
 		handle._height = mask._height * (mask._height / content._height);
 		handle._height = Math.min(handle._height, mask._height);
 		handle._y = getHandleYAtProgress();
-		handle._alpha = handle._height >= mask._height ? (handleAlphaWhenNotScrollable * 100) : 100;
+		handle._alpha = handle._height >= mask._height ? (disabledHandleAlpha * 100) : 100;
 		
 		if (isMouseDown == false) {
 			return;

@@ -18,7 +18,7 @@ package core {
 		public var mask : DisplayObject;
 		public var handle : MovieClip;
 		
-		public var handleAlphaWhenNotScrollable : Number = 1;
+		public var disabledHandleAlpha : Number = 1;
 		
 		public var progress : Number = 0;
 		
@@ -63,6 +63,28 @@ package core {
 			return maskBounds.intersects(childBounds);
 		}
 		
+		/**
+		 * Makes the scroll area snap to a child in order to make it visible
+		 * @param	_child
+		 */
+		public function scrollTo(_child : DisplayObject) : void {
+			if (content.height <= mask.height) {
+				return;
+			}
+			
+			var yInsideMask : Number = _child.y + content.y;
+			var offset : Number = 0;
+			if (yInsideMask > mask.height - _child.height) {
+				offset = yInsideMask - mask.height + _child.height;
+			}
+			if (yInsideMask < 0) {
+				offset = yInsideMask;
+			}
+			var extraContentHeight : Number = (content.height - mask.height);
+			progress += offset / extraContentHeight;
+			content.y = -extraContentHeight * progress;
+		}
+		
 		private function onHandleMouseDown(e : MouseEvent) : void {
 			mouseDragOffset = handle.parent.globalToLocal(new Point(e.stageX, e.stageY));
 			mouseDragOffset.x -= handle.x;
@@ -79,7 +101,7 @@ package core {
 			handle.height = mask.height * (mask.height / content.height);
 			handle.height = Math.min(handle.height, mask.height);
 			handle.y = getHandleYAtProgress();
-			handle.alpha = handle.height >= mask.height ? handleAlphaWhenNotScrollable : 1;
+			handle.alpha = handle.height >= mask.height ? disabledHandleAlpha : 1;
 			
 			if (isMouseDown == false) {
 				return;

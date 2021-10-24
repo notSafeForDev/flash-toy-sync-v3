@@ -13,6 +13,7 @@ package global {
 		public static var childSelected : CustomEvent;
 		public static var stopAtSceneStart : CustomEvent;
 		public static var playFromSceneStart : CustomEvent;
+		public static var splitScene : CustomEvent;
 		public static var scenesMerged : CustomEvent;
 		public static var sceneChanged : CustomEvent;
 		public static var sceneLooped : CustomEvent;
@@ -25,6 +26,7 @@ package global {
 			childSelected = new CustomEvent();
 			stopAtSceneStart = new CustomEvent();
 			playFromSceneStart = new CustomEvent();
+			splitScene = new CustomEvent;
 			scenesMerged = new CustomEvent();
 			sceneChanged = new CustomEvent();
 			sceneLooped = new CustomEvent();

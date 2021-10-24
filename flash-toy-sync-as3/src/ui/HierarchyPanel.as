@@ -79,13 +79,13 @@ package ui {
 			GraphicsUtil.drawRect(mask, 0, 0, contentWidth - scrollBarWidth, scrollContainerHeight);
 			
 			uiScrollArea = new UIScrollArea(scrollContent, mask, scrollBar);
-			uiScrollArea.handleAlphaWhenNotScrollable = 0.25;
+			uiScrollArea.disabledHandleAlpha = 0.25;
 			
 			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
 		private function onEnterFrame() : void {
-			update();
+			updateList();
 		}
 		
 		// Used to updated nestedChildren, which we use to determine which elements to display in the list
@@ -127,7 +127,7 @@ package ui {
 			return MovieClipUtil.ITERATE_SKIP_NESTED;
 		}
 		
-		private function update() : void {
+		private function updateList() : void {
 			nestedChildren.length = 0;
 			nestedChildren.push(animationContainer);
 			nestedChildrenDepths.length = 0;

@@ -13,11 +13,13 @@ package api {
 	 */
 	public class TheHandyAPI {
 		
-		public var connectionKey : String = "";
+		private var connectionKey : String = "";
 		
 		private var baseUrl : String = "https://www.handyfeeling.com/api/v1/"
 		private var serverTimeDelta : Number = 0;
 		private var isPlaying : Boolean = false;
+		private var syncPrepareStartTime : Number = -1;
+		private var syncPrepareDuration : Number = -1;
 		
 		private var totalApiCalls : Number = 0;
 		
@@ -25,16 +27,47 @@ package api {
 			
 		}
 		
+		public function getConnectionKey() : String {
+			return connectionKey;
+		}
+		
+		public function setConnectionKey(_key : String) : void {
+			if (connectionKey == _key) {
+				return;
+			}
+			
+			connectionKey = _key;
+			
+			HTTPRequest.send(baseUrl + _key + "/getServerTime", this, onGetServerTimeResponse);
+		}
+		
+		private function onGetServerTimeResponse(_response : Object) : void {
+			var date : Date = new Date();
+			serverTimeDelta = _response.serverTime - date.getTime();
+		}
+		
 		public function syncPrepare(_csvUrl : String, _scope : *, _responseHandler : Function) : void {
 			if (connectionKey == "") {
 				throw new Error("Unable to send syncPrepare request, no connection key have been set");
 			}
 			
+			var self : * = this;
+			var date : Date = new Date();
+			syncPrepareStartTime = Debug.getTime();
+			
 			// We add the number of total api calls to the timeout, in order to make it seem like a unique request each time,
 			// otherwise it will use an existing cached response if it has one, which will result in no request being made to the server
 			var url : String = baseUrl + connectionKey + "/syncPrepare?url=" + _csvUrl + "&timeout=" + (20000 + totalApiCalls);
-			HTTPRequest.send(url, _scope, _responseHandler);
+			HTTPRequest.send(url, this, function () : void {
+				self.onSyncPrepareResponse(_scope, _responseHandler);
+			});
 			totalApiCalls++;
+		}
+		
+		private function onSyncPrepareResponse(_scope : * , _responseHandler : Function) : void {
+			syncPrepareDuration = Debug.getTime() - syncPrepareStartTime;
+			
+			_responseHandler.apply(_scope);
 		}
 		
 		public function syncPrepareFromCSV(_csv : String, _scope : *, _responseHandler : Function) : void {
@@ -49,34 +82,28 @@ package api {
 			HTTPRequest.post(prepareUrl, _csv, contentType, _scope, _responseHandler);
 		}
 		
-		public function syncPlay(_time : Number, _adjustOffset : Boolean, _scope : *, _responseHandler : Function) : void {
+		public function syncPlay(_time : Number, _scope : *, _responseHandler : Function) : void {
 			if (connectionKey == "") {
 				throw new Error("Unable to send syncPlay request, no connection key have been set");
 			}
 			
-			var offset : Number = isPlaying && _adjustOffset ? serverTimeDelta : 0;
-			
 			isPlaying = true;
 			
 			var date : Date = new Date();
-			var serverTime : Number = date.getTime() + offset;
+			var serverTime : Number = date.getTime() + serverTimeDelta;
 			
 			var url : String = baseUrl + connectionKey + "/syncPlay?play=true&time=" + _time + "&serverTime=" + serverTime;
 			
-			HTTPRequest.send(url, _scope, onSyncPlayResponse, _adjustOffset, _scope, _responseHandler);
+			HTTPRequest.send(url, _scope, onSyncPlayResponse, _scope, _responseHandler);
 			totalApiCalls++;
 		}
 		
-		private function onSyncPlayResponse(_response : Object, _adjustOffset : Boolean, _scope : * , _responseHandler : Function) : void {
+		private function onSyncPlayResponse(_response : Object, _scope : * , _responseHandler : Function) : void {
 			if (_response.error != undefined) {
 				isPlaying = false;
 			}
-			serverTimeDelta = _response.serverTimeDelta;
 			if (_responseHandler != null) {
 				_responseHandler.apply(_scope, [_response]);
-			}
-			if (_adjustOffset == true) {
-				syncOffset(-serverTimeDelta, this, null);
 			}
 		}
 		

@@ -37,7 +37,6 @@ package components {
 		}
 		
 		public function update() : void {
-			var parents : Array = DisplayObjectUtil.getParents(object);
 			if (hasValidParent() == true) {
 				bounds = DisplayObjectUtil.getBounds(object, originalParent);
 			} else {
@@ -72,6 +71,10 @@ package components {
 		}
 		
 		private function hasValidParent() : Boolean {
+			if (object == null) {
+				return false;
+			}
+			
 			var parents : Array = DisplayObjectUtil.getParents(object);
 			return DisplayObjectUtil.getParent(object) != null && parents.length == depth;
 		}
@@ -90,11 +93,26 @@ package components {
 				}
 			}
 			
+			var replacement : DisplayObject = null;
+			var replacementBoundDifferences : Number = -1;
+			
 			for (var i : Number = 0; i < children.length; i++) {
 				var child : DisplayObject = children[i];
 				var childBounds : Rectangle = DisplayObjectUtil.getBounds(child, originalParent);
 				
-				var hasSimiliarWidth : Boolean = Math.abs(bounds.width - childBounds.width) <= bounds.width * sizeThreshold;
+				var boundDifferences : Number = 0;
+				boundDifferences += Math.abs(bounds.width - childBounds.width);
+				boundDifferences += Math.abs(bounds.height - childBounds.height);
+				boundDifferences += Math.abs(bounds.x - childBounds.x);
+				boundDifferences += Math.abs(bounds.y - childBounds.y);
+				
+				if (replacementBoundDifferences < 0 || boundDifferences < replacementBoundDifferences) {
+					replacement = child;
+					replacementBoundDifferences = boundDifferences;
+				}
+				
+				// OLD
+				/* var hasSimiliarWidth : Boolean = Math.abs(bounds.width - childBounds.width) <= bounds.width * sizeThreshold;
 				var hasSimiliarHeight : Boolean = Math.abs(bounds.height - childBounds.height) <= bounds.height * sizeThreshold;
 				var hasSimilarXPosition : Boolean = Math.abs(bounds.x - childBounds.x) <= positionThreshold
 				var hasSimilarYPosition : Boolean = Math.abs(bounds.y - childBounds.y) <= positionThreshold;
@@ -106,8 +124,17 @@ package components {
 						path = DisplayObjectUtil.getChildPath(topParent, object);
 					}
 					break;
+				} */
+				// ^ OLD
+			}
+			
+			if (replacement != null) {
+				object = replacement;
+				if (DisplayObjectUtil.isShape(replacement) == false && path == null) {
+					path = DisplayObjectUtil.getChildPath(topParent, object);
 				}
 			}
+			
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package ui {
 	
 	import flash.display.MovieClip;
+	import global.GlobalEvents;
 	
 	import core.DisplayObjectUtil;
 	import core.CustomEvent;
@@ -51,7 +52,7 @@ package ui {
 			GraphicsUtil.drawRect(mask, 0, 0, contentWidth - scrollBarWidth, scrollContainerHeight);
 			
 			uiScrollArea = new UIScrollArea(scrollContent, mask, scrollBar);
-			uiScrollArea.handleAlphaWhenNotScrollable = 0.25;
+			uiScrollArea.disabledHandleAlpha = 0.25;
 			
 			deleteButton = addButton("Delete");
 			// Since the scrollContainer isn't part of the layout, we have to manually move the button
@@ -61,13 +62,25 @@ package ui {
 			onSceneSelected = new CustomEvent();
 			onDelete = new CustomEvent();
 			
-			ScenesState.listen(this, onSceneStatesChange, [ScenesState.scenes, ScenesState.currentScene]);
+			ScenesState.listen(this, onCurrentSceneStateChange, [ScenesState.currentScene]);
+			
+			GlobalEvents.enterFrame.listen(this, onEnterFrame);
 		}
 		
-		private function onSceneStatesChange() : void {
+		private function onCurrentSceneStateChange() : void {
+			var scenes : Array = ScenesState.scenes.value;
+			for (var i : Number = 0; i < listItems.length; i++) {
+				var scene : Scene = scenes[i];
+				if (scene == ScenesState.currentScene.value) {
+					uiScrollArea.scrollTo(listItems[i].background);
+				}
+			}
+		}
+		
+		private function onEnterFrame() : void {
 			var scenes : Array = ScenesState.scenes.value;
 			var listItem : ListItem;
-			var i : Number;
+			var i : Number;	
 			
 			for (i = 0; i < scenes.length; i++) {
 				var scene : Scene = scenes[i];
@@ -80,7 +93,7 @@ package ui {
 					listItem = listItems[i];
 				}
 				
-				listItem.setPrimaryText("Scene: " + i + " | " + scene.getFirstFrames().join(","));
+				listItem.setPrimaryText("Scene: " + i + " | " + scene.getFirstFrames().join(",") + "-" + scene.getLastFrame());
 				
 				listItem.setVisible(true);
 				listItem.setHighlighted(scene == ScenesState.currentScene.value);

@@ -1,8 +1,11 @@
 package controllers {
 	
+	import core.DisplayObjectUtil;
+	import core.TextElement;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
+	import ui.TextStyles;
 	
 	import core.KeyboardManager;
 	import core.MovieClipUtil;
@@ -28,6 +31,8 @@ package controllers {
 		private var baseMarker : ScriptSampleMarkerElement;
 		private var tipMarker : ScriptSampleMarkerElement;
 		
+		private var depthText : TextElement;
+		
 		private var markers : Array;
 		private var selectedMarker : ScriptSampleMarkerElement;
 		
@@ -38,9 +43,9 @@ package controllers {
 			
 			var markersOverlay : MovieClip = MovieClipUtil.create(_overlayContainer, "scriptSampleMarkersContainer");
 			
-			stimulationMarker = new ScriptSampleMarkerElement(_overlayContainer, 0xFF0000, "S");
-			baseMarker = new ScriptSampleMarkerElement(_overlayContainer, 0xFF0000, "B");
-			tipMarker = new ScriptSampleMarkerElement(_overlayContainer, 0xFF0000, "T");
+			stimulationMarker = new ScriptSampleMarkerElement(markersOverlay, 0xFF0000, "S");
+			baseMarker = new ScriptSampleMarkerElement(markersOverlay, 0xFF0000, "B");
+			tipMarker = new ScriptSampleMarkerElement(markersOverlay, 0xFF0000, "T");
 			
 			markers = [stimulationMarker, baseMarker, tipMarker];
 			
@@ -51,6 +56,9 @@ package controllers {
 			stimulationMarker.onStopDrag.listen(this, onMarkerStopDrag, stimulationMarker);
 			baseMarker.onStopDrag.listen(this, onMarkerStopDrag, baseMarker);
 			tipMarker.onStopDrag.listen(this, onMarkerStopDrag, tipMarker);
+			
+			depthText = new TextElement(markersOverlay, "0");
+			TextStyles.applyMarkerStyle(depthText);
 			
 			var keyboardManager : KeyboardManager = new KeyboardManager(_overlayContainer);
 			
@@ -64,7 +72,7 @@ package controllers {
 		public function onEnterFrame() : void {
 			var frameIndex : Number = getFrameIndex();
 			
-			// TODO: Read from isRecording as well
+			// TODO: Perhaps also hide them while recording
 			if (currentSceneScript == null || frameIndex < 0) {
 				stimulationMarker.setVisible(false);
 				baseMarker.setVisible(false);
@@ -75,6 +83,24 @@ package controllers {
 			updateMarker(stimulationMarker, frameIndex);
 			updateMarker(baseMarker, frameIndex);
 			updateMarker(tipMarker, frameIndex);
+			
+			if (ScenesState.selectedChild.value == null || SceneScriptsState.currentScript.value == null) {
+				depthText.setVisible(false);
+				return;
+			}
+			
+			depthText.setVisible(true);
+			
+			var textX : Number = DisplayObjectUtil.getX(stimulationMarker.element) + 12;
+			var textY : Number = DisplayObjectUtil.getY(stimulationMarker.element) - 10;
+			
+			depthText.setX(textX);
+			depthText.setY(textY);
+			
+			var script : SceneScript = SceneScriptsState.currentScript.value;
+			var depths : Array = script.getDepths();
+			
+			depthText.setText("" + depths[frameIndex]);
 		}
 		
 		private function updateMarker(_marker : ScriptSampleMarkerElement, _frameIndex : Number) : void {

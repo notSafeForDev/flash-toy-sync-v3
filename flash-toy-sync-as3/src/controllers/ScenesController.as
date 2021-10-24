@@ -3,8 +3,6 @@ package controllers {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.ui.Keyboard;
-	import global.EditorState;
-	import global.ScenesState;
 	
 	import core.ArrayUtil;
 	import core.DisplayObjectUtil;
@@ -13,6 +11,8 @@ package controllers {
 	import core.MovieClipUtil;
 	
 	import global.GlobalEvents;
+	import global.EditorState;
+	import global.ScenesState;
 	
 	import components.Scene;
 	
@@ -138,6 +138,8 @@ package controllers {
 				setSelectedChild(selectedChild);
 			}
 			
+			trace("went to scene start, frame: " + MovieClipUtil.getCurrentFrame(ScenesState.selectedChild.value));
+			
 			if (_shouldPlay == true) {
 				nextExpectedFrame = MovieClipUtil.getCurrentFrame(ScenesState.selectedChild.value) + 1;
 			} else {
@@ -172,6 +174,7 @@ package controllers {
 		}
 		
 		protected function setCurrentScene(_scene : Scene) : void {
+			trace("Current scene set to: " + _scene);
 			currentScene = _scene;
 			scenesState._currentScene.setValue(_scene);
 			

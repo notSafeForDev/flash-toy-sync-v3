@@ -68,6 +68,7 @@ package controllers {
 		private function save() : void {
 			// data is read only, so we can't assign it directly
 			updateSaveData(sharedObject.data);
+			saveDataPanel.setSaveData(JSON.stringify(sharedObject.data, null));
 		}
 		
 		private function load(_data : Object) : Boolean {
@@ -103,8 +104,8 @@ package controllers {
 			// There also should be some kind of validation, to ensure that we don't override valid data with invalid data
 			
 			_target.formatVersion = 1;
-			_target.animationWidth = AnimationInfoState.width;
-			_target.animationHeight =  AnimationInfoState.height;
+			_target.animationWidth = AnimationInfoState.width.value;
+			_target.animationHeight = AnimationInfoState.height.value;
 			_target.scenes = [];
 			_target.sceneScripts = [];
 			
