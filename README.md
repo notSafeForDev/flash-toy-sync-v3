@@ -59,6 +59,11 @@ For VSCode there is the [Actionscript & MXML](https://github.com/BowlerHatLLC/vs
   Click the stop button near the test button.
 </details>
 
+<details>
+  <summary>Logs doesn't appear in the output panel:</summary>
+  Make sure that you have changed it from Release to Debug mode, at the top
+</details>
+
 &nbsp;
 
 ## License
