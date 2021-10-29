@@ -12,6 +12,7 @@
 var fs = require('fs');
 var path = require('path');
 
+const ANY_CHARACTERS = "***";
 const MUST_END_WITH_NO_CHARACTER = 0;
 const MUST_END_WITH_ANY_CHARACTER = 1;
 const MUST_END_WITH_VALID_VARIABLE_CHARACTER = 2;
@@ -88,14 +89,18 @@ function isOnlySpaces(text) {
 function getCodeThatMatches(line, words, mustEndWith = -1) {
     let startIndex = 0;
 
+    if (words[0] === ANY_CHARACTERS || words[words.length - 1] == ANY_CHARACTERS) {
+        throw new Error("Unable to get code that matches a certain pattern, the words can't start or end with ANY_CHARACTERS");
+    }
+
     // Keep iterating until we find a complete match or no match at all
     while (line.indexOf(words[0], startIndex) >= 0) {
-        startIndex = line.indexOf(words[0], startIndex);
+        startIndex = words[0] === ANY_CHARACTERS ? 0 : line.indexOf(words[0], startIndex);
 
         let lastFoundCharacterIndex = -1;
 
         for (let i = 0; i < words.length; i++) {
-            let characterIndex = line.indexOf(words[i], startIndex);
+            let characterIndex = words[i] === ANY_CHARACTERS ? startIndex : line.indexOf(words[i], startIndex);
             if (characterIndex < 0) {
                 break;
             }
@@ -106,7 +111,7 @@ function getCodeThatMatches(line, words, mustEndWith = -1) {
                 let lastWord = words[i - 1];
                 let start = lastFoundCharacterIndex + lastWord.length;
                 let textBetween = line.substring(start, characterIndex);
-                if (textBetween.length > 0 && isOnlySpaces(textBetween) === false) {
+                if (words[i] != ANY_CHARACTERS && words[i - 1] != ANY_CHARACTERS && textBetween.length > 0 && isOnlySpaces(textBetween) === false) {
                     break;
                 }
             }
@@ -283,16 +288,18 @@ function removeActionScriptLines(lines, words) {
  * @param {string} replaceWith
  */
 function replaceInActionScriptLines(lines, words, replaceWith, mustEndWith = -1) {
-    const lineInfos = findActionScriptLines(lines, words, mustEndWith);
-    for (let info of lineInfos) {
-        lines[info.lineIndex] = lines[info.lineIndex].replace(info.match, replaceWith);
+    while (true) {
+        const lineInfos = findActionScriptLines(lines, words, mustEndWith);
+        for (let info of lineInfos) {
+            lines[info.lineIndex] = lines[info.lineIndex].replace(info.match, replaceWith);
+        }
+        if (lineInfos.length === 0) {
+            break;
+        }
     }
 }
 
 function getStringBetween(string, leftPart, rightPart) {
-    if (string === undefined) {
-        console.log(leftPart, rightPart);
-    }
     return string.substring(string.indexOf(leftPart) + leftPart.length, string.indexOf(rightPart));
 }
 
@@ -314,7 +321,7 @@ function validateActionscript3ForTranspilation(actionscript) {
         }
     }
 
-    const unsupportedDataTypes = ["int", "Class", "Event"];
+    const unsupportedDataTypes = ["int", "Event"];
     for (let unsupportedDataType of unsupportedDataTypes) {
         const dataTypelines = findActionScriptLines(lines, [":", unsupportedDataType], MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
         for (let line of dataTypelines) {
@@ -413,6 +420,7 @@ function transpileActionScript3To2(actionscript) {
 
     // Remove imports for classes that are intrinsic to AS2
     removeActionScriptLines(lines, ["import flash.display"]);
+    removeActionScriptLines(lines, ["import flash.text"]);
     removeActionScriptLines(lines, ["import flash.ui.Mouse"]);
     removeActionScriptLines(lines, ["import flash.net.SharedObject"]);
     removeActionScriptLines(lines, ["import flash.utils.getTimer"]);
@@ -452,6 +460,20 @@ function transpileActionScript3To2(actionscript) {
     // Repace : Bitmap with "any"
     replaceInActionScriptLines(lines, [":", "Bitmap"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
+    // Repace : Class with "any"
+    replaceInActionScriptLines(lines, [":", "Class"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
+
+    // throw new error doesn't stop the application or appear in the console, so we trace and return instead
+    var throwIndexes = findActionScriptLineIndexes(lines, ["throw new Error("]);
+    replaceInActionScriptLines(lines, ["throw new Error("], 'var returnValue; trace("Error: " + ');
+    for (let i = 0; i < throwIndexes.length; i++) {
+        lines[throwIndexes[i]] += " return returnValue;";
+    }
+    
+    // Replace Vector with Array
+    replaceInActionScriptLines(lines, ["new Vector.<", ANY_CHARACTERS, ">()"], "[]");
+    replaceInActionScriptLines(lines, ["Vector.<", ANY_CHARACTERS, ">"], "Array");
+
     // TODO: Fix (var child : DisplayObject) // Without semi-colon
     // TODO: In trace, replace comma outside of strings with: + ", " + 
 
@@ -469,11 +491,8 @@ function transpileActionScriptFiles(target, ignoreFolders = [], ignoreFiles = []
     let isAborted = false;
 
     files = fs.readdirSync(target);
-    files.forEach(file => {
-        if (isAborted) {
-            return;
-        }
 
+    for (let file of files) {
         const filePath = path.join(target, file);
         if (fs.lstatSync(filePath).isDirectory() === true && ignoreFolders.includes(filePath) === false) {
             transpileActionScriptFiles(filePath);
@@ -495,10 +514,17 @@ function transpileActionScriptFiles(target, ignoreFolders = [], ignoreFiles = []
                 });
             });
         }
-    });
+
+        if (isAborted === true) {
+            break;
+        }
+    }
 }
 
 console.log("--------------------------------------------------------------------------------");
 copyFolderRecursiveSync("flash-toy-sync-as3\\src", "flash-toy-sync-as2\\src", ["flash-toy-sync-as3\\src\\core"], ["flash-toy-sync-as3\\src\\Main.as"]);
 transpileActionScriptFiles("flash-toy-sync-as2\\src", ["flash-toy-sync-as2\\src\\core"], ["flash-toy-sync-as2\\src\\Main.as"]);
+console.log("--------------------------------------------------------------------------------");
+copyFolderRecursiveSync("flash-toy-sync-as3-overhaul\\src", "flash-toy-sync-as2-overhaul\\src", ["flash-toy-sync-as3-overhaul\\src\\core"], ["flash-toy-sync-as3-overhaul\\src\\Main.as"]);
+transpileActionScriptFiles("flash-toy-sync-as2-overhaul\\src", ["flash-toy-sync-as2-overhaul\\src\\core"], ["flash-toy-sync-as2-overhaul\\src\\Main.as"]);
 console.log("--------------------------------------------------------------------------------");
