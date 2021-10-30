@@ -37,7 +37,7 @@ package utils {
 				throw new Error("Unable to calculate wrapped value, min must be greater or equal to max");
 			}
 			
-			var range = _max - _min;
+			var range : Number = _max - _min;
 			
 			while (_value > _max) {
 				_value -= range;
@@ -82,10 +82,10 @@ package utils {
 		 * Get a point which have been rotated around an origin point, without modifying the original point
 		 * @param	_point		The point to rate
 		 * @param	_angle		The angle in degrees
-		 * @param	_origin		The point to rotate around, if left as null, it will use 0,0
+		 * @param	_origin		The point to rotate around, if null is passed, it will use 0,0
 		 * @return	A new rotated point
 		 */
-		public static function rotatePoint(_point : Point, _angle : Number, _origin : Point = null) : Point {
+		public static function rotatePoint(_point : Point, _angle : Number, _origin : Point) : Point {
 			_origin = _origin != null ? _origin : new Point();
 			var radians : Number = _angle * (Math.PI / 180);
 			var rotatedX : Number = Math.cos(radians) * (_point.x - _origin.x) - Math.sin(radians) * (_point.y - _origin.y) + _origin.x;

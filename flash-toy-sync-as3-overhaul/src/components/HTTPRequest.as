@@ -1,5 +1,5 @@
 package components {
-	import core.TranspiledHTTPRequestFunctions;
+	import core.HTTPRequestUtil;
 	
 	/**
 	 * ...
@@ -19,7 +19,7 @@ package components {
 		 * @param	...rest				Any values to pass as arguments to the callback
 		 */
 		public static function send(_url : String, _scope : *, _responseHandler : Function, _errorHandler : Function, ...rest) : void {
-			TranspiledHTTPRequestFunctions.send(_url, _scope, _responseHandler, _errorHandler, rest);
+			HTTPRequestUtil.send(_url, _scope, _responseHandler, _errorHandler, rest);
 		}
 		
 		/**
@@ -33,7 +33,7 @@ package components {
 		 * @param	...rest				Any values to pass as arguments to the callback
 		 */
 		public static function post(_url : String, _contentType : String, _body : String, _scope : *, _responseHandler : Function, _errorHandler : Function, ...rest) : void {
-			TranspiledHTTPRequestFunctions.post(_url, _body, _contentType, _scope, _responseHandler, _errorHandler, rest);
+			HTTPRequestUtil.post(_url, _body, _contentType, _scope, _responseHandler, _errorHandler, rest);
 		}
 	}
 }

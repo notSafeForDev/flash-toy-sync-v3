@@ -1,7 +1,8 @@
 package ui {
 	
-	import core.TranspiledDisplayObject;
-	import core.TranspiledTextField;
+	import core.TPDisplayObject;
+	import core.TPMovieClip;
+	import core.TPTextField;
 	import flash.display.MovieClip;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
@@ -22,18 +23,19 @@ package ui {
 		public static var ALIGN_CENTER : String = "center";
 		public static var ALIGN_JUSTIFY : String = "justify";
 		
-		public var element : TranspiledDisplayObject;
+		public var element : TPDisplayObject;
 		public var textFormat : TextFormat;
 		
 		public var sourceTextField : TextField;
 		
-		public function TextElement(_parent : MovieClip) {
-			sourceTextField = TranspiledTextField.create(_parent);
+		public function TextElement(_parent : TPMovieClip, _text : String) {
+			sourceTextField = TPTextField.create(_parent);
 			
 			sourceTextField.selectable = false;
 			sourceTextField.mouseEnabled = false;
+			sourceTextField.text = _text;
 			
-			element = new TranspiledDisplayObject(sourceTextField);
+			element = new TPDisplayObject(sourceTextField);
 			textFormat = new TextFormat();
 		}
 		
@@ -61,6 +63,11 @@ package ui {
 		 */
 		public function getTextFormat() : TextFormat {
 			return textFormat;
+		}
+		
+		public function convertToInputField(_scope : *, _onChangeHandler : Function) : void {
+			sourceTextField.type = "input";
+			TPTextField.addOnChangeListener(sourceTextField, _scope, _onChangeHandler);
 		}
 	}
 }

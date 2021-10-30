@@ -1,6 +1,6 @@
 package components {
 	import flash.display.DisplayObject;
-	import core.TranspiledKeyboardInput;
+	import core.TPKeyboardInput;
 	
 	/**
 	 * ...
@@ -8,12 +8,12 @@ package components {
 	 */
 	public class KeyboardInput {
 		
-		private static var transpiledKeyboardInput : TranspiledKeyboardInput;
+		private static var transpiledKeyboardInput : TPKeyboardInput;
 		
 		private static var shortcuts : Vector.<KeyboardShortcut>;
 		
 		public static function init(_object : DisplayObject) : void {
-			transpiledKeyboardInput = new TranspiledKeyboardInput(_object, KeyboardInput.onKeyDown, null);
+			transpiledKeyboardInput = new TPKeyboardInput(_object, KeyboardInput.onKeyDown, null);
 			
 			shortcuts = new Vector.<KeyboardShortcut>();
 		}

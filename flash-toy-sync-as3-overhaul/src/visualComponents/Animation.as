@@ -1,11 +1,10 @@
 package visualComponents {
 	
 	import core.CustomEvent;
-	import core.TranspiledMovieClipFunctions;
-	import core.TranspiledStage;
+	import core.TPStage;
 	import flash.display.MovieClip;
-	import core.TranspiledMovieClip;
-	import core.TranspiledSWFLoaderFunctions;
+	import core.TPMovieClip;
+	import core.SWFLoaderUtil;
 	import states.AnimationSizeStates;
 	
 	/**
@@ -17,10 +16,10 @@ package visualComponents {
 		public var loadedEvent : CustomEvent;
 		public var loadErrorEvent : CustomEvent;
 		
-		private var container : TranspiledMovieClip;
+		private var container : TPMovieClip;
 		
-		public function Animation(_container : MovieClip) {
-			container = TranspiledMovieClip.create(_container, "animationContainer");
+		public function Animation(_container : TPMovieClip) {
+			container = TPMovieClip.create(_container, "animationContainer");
 			
 			loadedEvent = new CustomEvent();
 			loadErrorEvent = new CustomEvent();
@@ -29,7 +28,7 @@ package visualComponents {
 		}
 		
 		public function browse(_scope : *, _onSelectHandler : Function) : void {
-			TranspiledSWFLoaderFunctions.browse(_scope, _onSelectHandler, "swf (in animations folder)");
+			SWFLoaderUtil.browse(_scope, _onSelectHandler, "swf (in animations folder)");
 		}
 		
 		/**
@@ -39,7 +38,7 @@ package visualComponents {
 		public function load(_name : String) : void {
 			var path : String = "animations/" + _name;
 			
-			TranspiledSWFLoaderFunctions.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
+			SWFLoaderUtil.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
 		}
 		
 		/**
@@ -49,7 +48,7 @@ package visualComponents {
 		public function loadStandalone(_name : String) : void {
 			var path : String = _name;
 			
-			TranspiledSWFLoaderFunctions.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
+			SWFLoaderUtil.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
 		}
 		
 		private function onLoaded(_swf : MovieClip, _stageWidth : Number, _stageHeight : Number, _frameRate : Number) : void {
@@ -65,15 +64,15 @@ package visualComponents {
 			var height : Number = AnimationSizeStates.height.value;
 			var scale : Number = getTargetScale();
 			
-			container.x = (TranspiledStage.stageWidth - (width * scale)) / 2;
-			container.y = (TranspiledStage.stageHeight - (height * scale)) / 2;
+			container.x = (TPStage.stageWidth - (width * scale)) / 2;
+			container.y = (TPStage.stageHeight - (height * scale)) / 2;
 			container.scaleX = scale;
 			container.scaleY = scale;
 		}
 		
 		private function getTargetScale() : Number {
-			var scaleX : Number = TranspiledStage.stageWidth / AnimationSizeStates.width.value;
-			var scaleY : Number = TranspiledStage.stageHeight / AnimationSizeStates.height.value;
+			var scaleX : Number = TPStage.stageWidth / AnimationSizeStates.width.value;
+			var scaleY : Number = TPStage.stageHeight / AnimationSizeStates.height.value;
 			
 			return Math.min(scaleX, scaleY);
 		}

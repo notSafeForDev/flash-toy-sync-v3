@@ -1,6 +1,6 @@
 package ui {
 	
-	import core.TranspiledMovieClip;
+	import core.TPMovieClip;
 	import core.MouseEvents;
 	import core.CustomEvent;
 	import flash.display.MovieClip;
@@ -8,7 +8,7 @@ package ui {
 	
 	public class UIButton {
 		
-		public var element : TranspiledMovieClip;
+		public var element : TPMovieClip;
 		
 		/** Gets emitted when the user presses their mouse button */
 		public var mouseDownEvent : CustomEvent;
@@ -25,19 +25,16 @@ package ui {
 		
 		public var disabledAlpha : Number = 0.5;
 		
-		private var movieClip : MovieClip;
-		
 		private var defaultColorTransform : ColorTransform;
 		private var overColorTransform : ColorTransform;
 		private var downColorTransform : ColorTransform;
 		private var disabledColorTransform : ColorTransform;
 		
-		function UIButton(_button : MovieClip) {
-			movieClip = _button;
-			element = new TranspiledMovieClip(_button);
+		function UIButton(_button : TPMovieClip) {
+			element = _button;
 			
-			movieClip.buttonMode = true;
-			movieClip.mouseEnabled = true;
+			element.buttonMode = true;
+			element.sourceMovieClip.mouseEnabled = true;
 			
 			defaultColorTransform = new ColorTransform();
 			overColorTransform = new ColorTransform();
@@ -56,11 +53,11 @@ package ui {
 			mouseClickEvent = new CustomEvent();
 			startDragEvent = new CustomEvent();
 			
-			MouseEvents.addOnMouseOver(this, _button, _onMouseOver);
-			MouseEvents.addOnMouseOut(this, _button, _onMouseOut);
-			MouseEvents.addOnMouseDown(this, _button, _onMouseDown);
-			MouseEvents.addOnMouseUp(this, _button, _onMouseUp);
-			MouseEvents.addOnMouseMove(this, _button, _onMouseMove);
+			MouseEvents.addOnMouseOver(this, _button.sourceMovieClip, _onMouseOver);
+			MouseEvents.addOnMouseOut(this, _button.sourceMovieClip, _onMouseOut);
+			MouseEvents.addOnMouseDown(this, _button.sourceMovieClip, _onMouseDown);
+			MouseEvents.addOnMouseUp(this, _button.sourceMovieClip, _onMouseUp);
+			MouseEvents.addOnMouseMove(this, _button.sourceMovieClip, _onMouseMove);
 		}
 		
 		private function _onMouseOver() : void {
@@ -129,7 +126,7 @@ package ui {
 		
 		public function enable() : void {
 			element.buttonMode = true;
-			movieClip.mouseEnabled = true;
+			element.sourceMovieClip.mouseEnabled = true;
 			
 			if (isMouseOver) {
 				element.colorTransform = overColorTransform;
@@ -140,7 +137,7 @@ package ui {
 		
 		public function disable() : void {
 			element.buttonMode = false;
-			movieClip.mouseEnabled = false;
+			element.sourceMovieClip.mouseEnabled = false;
 			
 			element.colorTransform = disabledColorTransform;
 		}

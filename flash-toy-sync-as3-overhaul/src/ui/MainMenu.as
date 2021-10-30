@@ -1,8 +1,8 @@
 package ui {
 	
-	import core.TranspiledDisplayObject;
-	import core.TranspiledMovieClip;
-	import core.TranspiledStage;
+	import core.TPDisplayObject;
+	import core.TPMovieClip;
+	import core.TPStage;
 	import core.CustomEvent;
 	import flash.display.MovieClip;
 	import states.AnimationInfoStates;
@@ -17,7 +17,7 @@ package ui {
 		public var playAnimationEvent : CustomEvent;
 		public var editAnimationEvent : CustomEvent;
 		
-		private var menuContainer : TranspiledMovieClip;
+		private var menuContainer : TPMovieClip;
 		
 		private var menuWidth : Number = 300;
 		
@@ -27,14 +27,14 @@ package ui {
 		private var playButton : UIButton;
 		private var editButton : UIButton;
 		
-		public function MainMenu(_container : MovieClip) {
-			menuContainer = TranspiledMovieClip.create(_container, "mainMenu");
+		public function MainMenu(_container : TPMovieClip) {
+			menuContainer = TPMovieClip.create(_container, "mainMenu");
 			
 			browseAnimationEvent = new CustomEvent();
 			playAnimationEvent = new CustomEvent();
 			editAnimationEvent = new CustomEvent();
 			
-			selectedAnimationText = new TextElement(menuContainer.sourceMovieClip);
+			selectedAnimationText = new TextElement(menuContainer, "");
 			TextStyles.applyListItemStyle(selectedAnimationText);
 			
 			browseButton = createButton(menuWidth, "Browse", browseAnimationEvent);
@@ -49,8 +49,8 @@ package ui {
 			editButton.element.y = 80;
 			editButton.element.x = menuWidth / 2 + 5;
 			
-			menuContainer.x = (TranspiledStage.stageWidth - menuWidth) / 2;
-			menuContainer.y = (TranspiledStage.stageHeight - menuContainer.height) / 2;
+			menuContainer.x = (TPStage.stageWidth - menuWidth) / 2;
+			menuContainer.y = (TPStage.stageHeight - menuContainer.height) / 2;
 			
 			AnimationInfoStates.listen(this, onAnimationInfoStatesChange, [AnimationInfoStates.name, AnimationInfoStates.isLoaded]);
 		}
@@ -74,19 +74,18 @@ package ui {
 		}
 		
 		private function createButton(_width : Number, _text : String, _event : CustomEvent) : UIButton {
-			var buttonElement : TranspiledMovieClip = TranspiledMovieClip.create(menuContainer.sourceMovieClip, "button");
+			var buttonElement : TPMovieClip = TPMovieClip.create(menuContainer, "button");
 			
 			buttonElement.graphics.beginFill(0xFFFFFF);
 			buttonElement.graphics.drawRoundedRect(0, 0, _width, 30, 10);
 			
-			var textElement : TextElement = new TextElement(buttonElement.sourceMovieClip);
+			var textElement : TextElement = new TextElement(buttonElement, _text);
 			TextStyles.applyMainMenuButtonStyle(textElement);
 			textElement.element.width = _width;
 			textElement.element.height = 20;
 			textElement.element.y = 4;
-			textElement.text = _text;
 			
-			var button : UIButton = new UIButton(buttonElement.sourceMovieClip);
+			var button : UIButton = new UIButton(buttonElement);
 			button.mouseClickEvent.listen(_event, _event.emit);
 			
 			return button;

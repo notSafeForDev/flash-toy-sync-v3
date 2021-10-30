@@ -1,7 +1,7 @@
 package stateTypes {
 	
 	import stateTypes.DisplayObjectTranspilerState;
-	import core.TranspiledDisplayObject;
+	import core.TPDisplayObject;
 	
 	/**
 	 * ...
@@ -16,7 +16,7 @@ package stateTypes {
 			state = _state;
 		}
 		
-		public function get value() : TranspiledDisplayObject {
+		public function get value() : TPDisplayObject {
 			return state.getValue();
 		}
 	}

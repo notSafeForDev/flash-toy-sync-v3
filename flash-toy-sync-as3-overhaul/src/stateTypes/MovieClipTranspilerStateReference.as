@@ -1,7 +1,7 @@
 package stateTypes {
 	
 	import stateTypes.MovieClipTranspilerState;
-	import core.TranspiledMovieClip;
+	import core.TPMovieClip;
 	
 	/**
 	 * ...
@@ -16,7 +16,7 @@ package stateTypes {
 			state = _state;
 		}
 		
-		public function get value() : TranspiledMovieClip {
+		public function get value() : TPMovieClip {
 			return state.getValue();
 		}
 	}

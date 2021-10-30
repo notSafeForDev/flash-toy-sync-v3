@@ -1,5 +1,5 @@
 import core.ArrayUtil;
-import core.TranspiledArrayFunctions;
+import core.TPArrayUtil;
 
 class core.CustomEvent {
 	
@@ -36,7 +36,7 @@ class core.CustomEvent {
 	}
 	
 	function stopListening(_listener : Object) : Boolean {
-		var index : Number = TranspiledArrayFunctions.indexOf(listeners, _listener);
+		var index : Number = TPArrayUtil.indexOf(listeners, _listener);
 		if (index >= 0) {
 			listeners.splice(index, 1);
 			return true;

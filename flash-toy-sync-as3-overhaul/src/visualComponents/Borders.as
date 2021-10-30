@@ -1,12 +1,11 @@
 package visualComponents {
 	
-	import core.TranspiledMovieClip;
-	import core.TranspiledMovieClipFunctions;
+	import core.TPMovieClip;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import states.AnimationSizeStates;
-	import core.TranspiledStage;
+	import core.TPStage;
 	
 	/**
 	 * ...
@@ -14,7 +13,7 @@ package visualComponents {
 	 */
 	public class Borders {
 		
-		private var element : TranspiledMovieClip;
+		private var element : TPMovieClip;
 		
 		private var color : Number;
 		private var currentColor : Number;
@@ -24,14 +23,14 @@ package visualComponents {
 		private var containerAspectRatio : Number;
 		private var containerMaxDimension : Number;
 		
-		public function Borders(_parent : MovieClip, _color : Number) {
-			element = TranspiledMovieClip.create(_parent, "borders");
+		public function Borders(_parent : TPMovieClip, _color : Number) {
+			element = TPMovieClip.create(_parent, "borders");
 			
 			color = _color;
 			currentColor = _color;
 			
-			containerWidth = TranspiledStage.stageWidth;
-			containerHeight = TranspiledStage.stageHeight;
+			containerWidth = TPStage.stageWidth;
+			containerHeight = TPStage.stageHeight;
 			containerAspectRatio = containerWidth / containerHeight;
 			containerMaxDimension = Math.max(containerWidth, containerHeight);
 			

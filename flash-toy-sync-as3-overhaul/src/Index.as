@@ -10,17 +10,18 @@ package {
 	import controllers.ScriptTrackerMarkersEditorController;
 	import controllers.StrokerToyController;
 	import controllers.StrokerToyEditorController;
-	import flash.display.DisplayObjectContainer;
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.text.TextFormat;
+	import flash.utils.getTimer;
 	import states.AnimationInfoStates;
 	import states.AnimationPlaybackStates;
 	import states.AnimationSizeStates;
 	import states.EditorStates;
 	import states.ScriptStates;
-	import core.TranspiledDisplayObjectEventFunctions;
-	import core.TranspiledMovieClip;
-	import core.TranspiledStage;
+	import core.TPMovieClip;
+	import core.TPStage;
+	import ui.HierarchyPanel;
 	import ui.MainMenu;
 	import ui.TextElement;
 	import ui.TextStyles;
@@ -50,27 +51,41 @@ package {
 		private var strokerToyController : StrokerToyController;
 		private var strokerToyEditorController : StrokerToyEditorController;
 		
-		private var container : TranspiledMovieClip;
+		private var container : TPMovieClip;
 		private var mainMenu : MainMenu;
 		private var borders : Borders;
 		private var animation : Animation;
 		private var errorText : TextElement;
+		private var fpsText : TextElement;
+		
+		private var swf : MovieClip;
+		
+		private var hierarchyPanel : HierarchyPanel;
+		
+		private var previousFrameRates : Vector.<Number>;
 		
 		public function Index(_container : MovieClip) {
 			stateManager = new StateManager();
 			
-			container = new TranspiledMovieClip(_container);
+			container = new TPMovieClip(_container);
 			
-			TranspiledStage.init(_container, 30);
+			previousFrameRates = new Vector.<Number>();
+			
+			TPStage.init(_container, 30);
 			KeyboardInput.init(_container);
 			
 			initializeStates();
+			
+			addAnimation(container);
+			addBorders(container);
+			addPanels(container);
+			addMainMenu(container);
+			addErrorText(container);
+			addFPSText(container);
+			
 			initializeControllers();
-			addVisualComponents();
 			
-			errorText.text = "A test error to see if the text works";
-			
-			TranspiledDisplayObjectEventFunctions.addEnterFrameEventListener(_container, this, onEnterFrame, null);
+			container.addOnEnterFrameListener(this, onEnterFrame);
 		}
 		
 		private function onAnimationSelected(_name : String) : void {
@@ -83,6 +98,7 @@ package {
 				animationSizeStates._height.setValue(_stageHeight);
 			}
 			
+			animationInfoStates._movieClip.setValue(new TPMovieClip(_swf));
 			animationInfoStates._isLoaded.setValue(true);
 		}
 		
@@ -100,40 +116,45 @@ package {
 			animation.load(AnimationInfoStates.name.value);
 		}
 		
-		private function addVisualComponents() : void {
-			addAnimation();
-			addBorders();
-			addMainMenu();
-			addErrorText();
-		}
-		
-		private function addAnimation() : void {
-			animation = new Animation(container.sourceMovieClip);
+		private function addAnimation(_parent : TPMovieClip) : void {
+			animation = new Animation(_parent);
 			
 			animation.loadedEvent.listen(this, onAnimationLoaded);
 		}
 		
-		private function addBorders() : void {
-			borders = new Borders(container.sourceMovieClip, 0xFF0000);
+		private function addBorders(_parent : TPMovieClip) : void {
+			borders = new Borders(_parent, 0xFF0000);
 		}
 		
-		private function addMainMenu() : void {
-			mainMenu = new MainMenu(container.sourceMovieClip);
+		private function addPanels(_parent : TPMovieClip) : void {
+			var panelsContainer : TPMovieClip = TPMovieClip.create(container, "panelsContainer");
+			
+			hierarchyPanel = new HierarchyPanel(panelsContainer);
+		}
+		
+		private function addMainMenu(_parent : TPMovieClip) : void {
+			mainMenu = new MainMenu(_parent);
 			
 			mainMenu.browseAnimationEvent.listen(this, onMainMenuBrowseAnimation);
 			mainMenu.playAnimationEvent.listen(this, onMainMenuPlayAnimation);
 		}
 		
-		private function addErrorText() : void {
-			errorText = new TextElement(container.sourceMovieClip);
+		private function addErrorText(_parent : TPMovieClip) : void {
+			errorText = new TextElement(_parent, "");
 			TextStyles.applyErrorStyle(errorText);
 			
-			var errorTextTextFormat : TextFormat = errorText.getTextFormat();
-			errorTextTextFormat.align = TextElement.ALIGN_CENTER;
-			errorText.setTextFormat(errorTextTextFormat);
+			var textFormat : TextFormat = errorText.getTextFormat();
+			textFormat.align = TextElement.ALIGN_CENTER;
+			errorText.setTextFormat(textFormat);
 			
-			errorText.element.y = TranspiledStage.stageHeight - 80;
-			errorText.element.width = TranspiledStage.stageWidth;
+			errorText.element.y = TPStage.stageHeight - 80;
+			errorText.element.width = TPStage.stageWidth;
+		}
+		
+		private function addFPSText(_parent : TPMovieClip) : void {
+			fpsText = new TextElement(_parent, "");
+			TextStyles.applyErrorStyle(fpsText);
+			fpsText.element.width = 200;
 		}
 		
 		private function initializeStates() : void {
@@ -147,11 +168,28 @@ package {
 		private function initializeControllers() : void {
 			animationPlaybackController = new AnimationPlaybackController(animationPlaybackStates);
 			animationSizeController = new AnimationSizeController(animationSizeStates);
+			hierarchyPanelController = new HierarchyPanelController(hierarchyPanel);
 		}
 		
 		private function updateControllers() : void {
+			var startTime : Number = getTimer();
+			
 			animationPlaybackController.update();
 			animationSizeController.update();
+			hierarchyPanelController.update();
+			
+			previousFrameRates.push(getTimer() - startTime);
+			if (previousFrameRates.length > 30) {
+				previousFrameRates.shift();
+			}
+			
+			var total : Number = 0; 
+			for (var i : Number = 0; i < previousFrameRates.length; i++) {
+				total += previousFrameRates[i];
+			}
+			var average : Number = Math.floor((total / previousFrameRates.length) * 10) / 10;
+			
+			fpsText.text = "avg: " + average + "ms";
 		}
 	}
 }

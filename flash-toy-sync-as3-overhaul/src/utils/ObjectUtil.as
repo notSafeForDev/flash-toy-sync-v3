@@ -1,6 +1,6 @@
 package utils {
 	
-	import core.TranspiledObjectFunctions;
+	import core.TPObjectUtil;
 	
 	/**
 	 * ...
@@ -9,7 +9,7 @@ package utils {
 	public class ObjectUtil {
 		
 		public static function hasOwnProperty(_object : Object, _propertyName : String) : Boolean {
-			return TranspiledObjectFunctions.hasOwnProperty(_object, _propertyName);
+			return TPObjectUtil.hasOwnProperty(_object, _propertyName);
 		}
 	}
 }

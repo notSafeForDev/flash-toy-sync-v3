@@ -1,6 +1,6 @@
 package stateTypes {
 	
-	import core.TranspiledDisplayObject;
+	import core.TPDisplayObject;
 	
 	/**
 	 * ...
@@ -8,15 +8,15 @@ package stateTypes {
 	 */
 	public class DisplayObjectTranspilerState extends State {
 		
-		public function DisplayObjectTranspilerState(_defaultValue : TranspiledDisplayObject) {
+		public function DisplayObjectTranspilerState(_defaultValue : TPDisplayObject) {
 			super(_defaultValue, DisplayObjectTranspilerStateReference);
 		}
 		
-		public function getValue() : TranspiledDisplayObject {
+		public function getValue() : TPDisplayObject {
 			return value;
 		}
 		
-		public function setValue(_value : TranspiledDisplayObject) : void {
+		public function setValue(_value : TPDisplayObject) : void {
 			value = _value;
 		}
 	}

@@ -1,6 +1,6 @@
 package utils {
 	
-	import core.TranspiledArrayFunctions;
+	import core.TPArrayUtil;
 	
 	/**
 	 * ...
@@ -15,7 +15,7 @@ package utils {
 		 * @return
 		 */
 		public static function indexOf(_array : *, _searchElement : *) : Number {
-			return TranspiledArrayFunctions.indexOf(_array, _searchElement);
+			return TPArrayUtil.indexOf(_array, _searchElement);
 		}
 		
 		/**
@@ -25,7 +25,7 @@ package utils {
 		 * @return
 		 */
 		public static function lastIndexOf(_array : *, _searchElement : *) : Number {
-			return TranspiledArrayFunctions.lastIndexOf(_array, _searchElement);
+			return TPArrayUtil.lastIndexOf(_array, _searchElement);
 		}
 		
 		/**
@@ -35,7 +35,7 @@ package utils {
 		 * @return
 		 */
 		public static function includes(_array : *, _searchElement : * ) : Boolean {
-			return TranspiledArrayFunctions.indexOf(_array, _searchElement) >= 0;
+			return TPArrayUtil.indexOf(_array, _searchElement) >= 0;
 		}
 		
 		/**
@@ -45,7 +45,7 @@ package utils {
 		 * @return	Wether the element could be found and removed
 		 */
 		public static function remove(_array : *, _searchElement : *) : Boolean {
-			var index : Number = TranspiledArrayFunctions.indexOf(_array, _searchElement);
+			var index : Number = TPArrayUtil.indexOf(_array, _searchElement);
 			if (index >= 0) {
 				_array.splice(index, 1);
 				return true;

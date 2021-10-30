@@ -4,7 +4,7 @@ package components {
 	// import flash.utils.getQualifiedClassName;
 	import stateTypes.State;
 	import stateTypes.StateReference;
-	import core.TranspiledObjectFunctions;
+	import core.TPObjectUtil;
 	import utils.ArrayUtil;
 	import utils.ObjectUtil;
 	
@@ -49,7 +49,7 @@ package components {
 			// The setValue method can not be part of the base class, as it's argument type would have to be * (any),
 			// which could not be overriden, so it's required that setValue is added to each class that extends State,
 			// in order to ensure that the state can not be assigned a different type than intended
-			if (ObjectUtil.hasOwnProperty(state, "setValue") == false) {
+			if (TPObjectUtil.hasOwnProperty(state, "setValue") == false) {
 				throw new Error("Unable to add state, the provided state class does not have a setValue method");
 			}
 			
