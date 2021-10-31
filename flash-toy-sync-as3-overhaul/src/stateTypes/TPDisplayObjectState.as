@@ -6,10 +6,10 @@ package stateTypes {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class DisplayObjectTranspilerState extends State {
+	public class TPDisplayObjectState extends State {
 		
-		public function DisplayObjectTranspilerState(_defaultValue : TPDisplayObject) {
-			super(_defaultValue, DisplayObjectTranspilerStateReference);
+		public function TPDisplayObjectState(_defaultValue : TPDisplayObject) {
+			super(_defaultValue, TPDisplayObjectStateReference);
 		}
 		
 		public function getValue() : TPDisplayObject {
@@ -17,7 +17,7 @@ package stateTypes {
 		}
 		
 		public function setValue(_value : TPDisplayObject) : void {
-			value = _value;
+			changeValue(_value);
 		}
 	}
 }

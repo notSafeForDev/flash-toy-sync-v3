@@ -16,14 +16,15 @@ package ui {
 	 */
 	public class Panel {
 		
-		public var container : TPMovieClip;
-		public var content : TPMovieClip;
+		private var container : TPMovieClip;
 		
 		private var titleBarHeight : Number = 24;
 		
 		private var background : TPMovieClip;
 		private var titleBar : TPMovieClip;
 		private var titleText : TextElement;
+		
+		protected var content : TPMovieClip;
 		
 		protected var contentWidth : Number;
 		protected var contentHeight : Number;
@@ -57,8 +58,21 @@ package ui {
 			updateBackground();
 		}
 		
+		public function setPosition(_x : Number, _y : Number) : void {
+			container.x = _x;
+			container.y = _y;
+		}
+		
 		public function isMinimized() : Boolean {
 			return background.visible == false;
+		}
+		
+		public function hide() : void {
+			container.visible = false;
+		}
+		
+		public function show() : void {
+			container.visible = true;
 		}
 		
 		private function addTitleBar(_parent : TPMovieClip) : TPMovieClip {

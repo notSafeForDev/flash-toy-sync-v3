@@ -17,7 +17,7 @@ package stateTypes {
 		}
 		
 		public function setValue(_value : Vector.<SceneModel>) : void {
-			value = _value;
+			changeValue(_value);
 		}
 	}
 }

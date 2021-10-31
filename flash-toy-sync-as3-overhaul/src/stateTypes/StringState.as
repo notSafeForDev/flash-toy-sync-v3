@@ -16,7 +16,7 @@ package stateTypes {
 		}
 		
 		public function setValue(_value : String) : void {
-			value = _value;
+			changeValue(_value);
 		}
 	}
 }

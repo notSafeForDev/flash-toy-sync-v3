@@ -3,6 +3,7 @@ package {
 	import components.KeyboardInput;
 	import components.StateManager;
 	import controllers.AnimationPlaybackController;
+	import controllers.AnimationPlaybackEditorController;
 	import controllers.AnimationSizeController;
 	import controllers.HierarchyPanelController;
 	import controllers.SaveDataController;
@@ -13,16 +14,19 @@ package {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.text.TextFormat;
+	import flash.ui.Mouse;
 	import flash.utils.getTimer;
 	import states.AnimationInfoStates;
 	import states.AnimationPlaybackStates;
 	import states.AnimationSizeStates;
 	import states.EditorStates;
+	import states.HierarchyStates;
 	import states.ScriptStates;
 	import core.TPMovieClip;
 	import core.TPStage;
 	import ui.HierarchyPanel;
 	import ui.MainMenu;
+	import ui.ScenesPanel;
 	import ui.TextElement;
 	import ui.TextStyles;
 	import visualComponents.Animation;
@@ -37,6 +41,7 @@ package {
 		private var stateManager : StateManager;
 		
 		private var animationInfoStates : AnimationInfoStates;
+		private var hierarchyStates : HierarchyStates;
 		private var animationPlaybackStates : AnimationPlaybackStates;
 		private var animationSizeStates : AnimationSizeStates;
 		private var editorStates : EditorStates;
@@ -58,9 +63,8 @@ package {
 		private var errorText : TextElement;
 		private var fpsText : TextElement;
 		
-		private var swf : MovieClip;
-		
 		private var hierarchyPanel : HierarchyPanel;
+		private var scenesPanel : ScenesPanel;
 		
 		private var previousFrameRates : Vector.<Number>;
 		
@@ -76,14 +80,12 @@ package {
 			
 			initializeStates();
 			
-			addAnimation(container);
-			addBorders(container);
-			addPanels(container);
-			addMainMenu(container);
-			addErrorText(container);
-			addFPSText(container);
-			
-			initializeControllers();
+			addAnimation();
+			addBorders();
+			addPanels();
+			addMainMenu();
+			addErrorText();
+			addFPSText();
 			
 			container.addOnEnterFrameListener(this, onEnterFrame);
 		}
@@ -98,14 +100,22 @@ package {
 				animationSizeStates._height.setValue(_stageHeight);
 			}
 			
-			animationInfoStates._movieClip.setValue(new TPMovieClip(_swf));
+			animationInfoStates._animationRoot.setValue(new TPMovieClip(_swf));
 			animationInfoStates._isLoaded.setValue(true);
+			
+			initializeControllers();
 		}
 		
 		private function onEnterFrame() : void {
-			updateControllers();
+			if (AnimationInfoStates.isLoaded.value == true) {
+				updateControllers();
+			}
 			
 			stateManager.notifyListeners();
+			
+			if (EditorStates.isEditor.value == true) {
+				Mouse.show();
+			}
 		}
 		
 		private function onMainMenuBrowseAnimation() : void {
@@ -116,31 +126,47 @@ package {
 			animation.load(AnimationInfoStates.name.value);
 		}
 		
-		private function addAnimation(_parent : TPMovieClip) : void {
-			animation = new Animation(_parent);
+		private function onMainMenuEditAnimation() : void {
+			animation.load(AnimationInfoStates.name.value);
+			
+			hierarchyPanel.show();
+			scenesPanel.show();
+			
+			editorStates._isEditor.setValue(true);
+		}
+		
+		private function addAnimation() : void {
+			animation = new Animation(container);
 			
 			animation.loadedEvent.listen(this, onAnimationLoaded);
 		}
 		
-		private function addBorders(_parent : TPMovieClip) : void {
-			borders = new Borders(_parent, 0xFF0000);
+		private function addBorders() : void {
+			borders = new Borders(container, 0xFF0000);
 		}
 		
-		private function addPanels(_parent : TPMovieClip) : void {
+		private function addPanels() : void {
 			var panelsContainer : TPMovieClip = TPMovieClip.create(container, "panelsContainer");
 			
-			hierarchyPanel = new HierarchyPanel(panelsContainer);
+			hierarchyPanel = new HierarchyPanel(panelsContainer, 250, 250);
+			
+			scenesPanel = new ScenesPanel(panelsContainer, 250, 150);
+			scenesPanel.setPosition(0, 300);
+			
+			hierarchyPanel.hide();
+			scenesPanel.hide();
 		}
 		
-		private function addMainMenu(_parent : TPMovieClip) : void {
-			mainMenu = new MainMenu(_parent);
+		private function addMainMenu() : void {
+			mainMenu = new MainMenu(container);
 			
 			mainMenu.browseAnimationEvent.listen(this, onMainMenuBrowseAnimation);
 			mainMenu.playAnimationEvent.listen(this, onMainMenuPlayAnimation);
+			mainMenu.editAnimationEvent.listen(this, onMainMenuEditAnimation);
 		}
 		
-		private function addErrorText(_parent : TPMovieClip) : void {
-			errorText = new TextElement(_parent, "");
+		private function addErrorText() : void {
+			errorText = new TextElement(container, "");
 			TextStyles.applyErrorStyle(errorText);
 			
 			var textFormat : TextFormat = errorText.getTextFormat();
@@ -151,14 +177,15 @@ package {
 			errorText.element.width = TPStage.stageWidth;
 		}
 		
-		private function addFPSText(_parent : TPMovieClip) : void {
-			fpsText = new TextElement(_parent, "");
+		private function addFPSText() : void {
+			fpsText = new TextElement(container, "");
 			TextStyles.applyErrorStyle(fpsText);
 			fpsText.element.width = 200;
 		}
 		
 		private function initializeStates() : void {
 			animationInfoStates = new AnimationInfoStates(stateManager);
+			hierarchyStates = new HierarchyStates(stateManager);
 			animationPlaybackStates = new AnimationPlaybackStates(stateManager);
 			animationSizeStates = new AnimationSizeStates(stateManager);
 			editorStates = new EditorStates(stateManager);
@@ -166,17 +193,22 @@ package {
 		}
 		
 		private function initializeControllers() : void {
-			animationPlaybackController = new AnimationPlaybackController(animationPlaybackStates);
+			if (EditorStates.isEditor.value == true) {
+				animationPlaybackController = new AnimationPlaybackEditorController(animationPlaybackStates, scenesPanel);
+			} else {
+				animationPlaybackController = new AnimationPlaybackController(animationPlaybackStates);
+			}
+			
+			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
 			animationSizeController = new AnimationSizeController(animationSizeStates);
-			hierarchyPanelController = new HierarchyPanelController(hierarchyPanel);
 		}
 		
 		private function updateControllers() : void {
 			var startTime : Number = getTimer();
 			
-			animationPlaybackController.update();
-			animationSizeController.update();
 			hierarchyPanelController.update();
+			animationSizeController.update();
+			animationPlaybackController.update();
 			
 			previousFrameRates.push(getTimer() - startTime);
 			if (previousFrameRates.length > 30) {

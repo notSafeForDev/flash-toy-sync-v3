@@ -75,6 +75,27 @@ package core {
 			return new TPMovieClip(movieClip);
 		}
 		
+		public static function getParents(_object : MovieClip) : Vector.<MovieClip> {
+			if (_object.parent == null) {
+				return null;
+			}
+			
+			var parents : Vector.<MovieClip> = new Vector.<MovieClip>();
+			var child : DisplayObject = _object;
+			
+			while (true) {
+				var currentParent : DisplayObjectContainer = TPDisplayObject.getParent(child);
+				if (TPMovieClip.isMovieClip(currentParent) == true) {
+					child = currentParent;
+					parents.push(TPMovieClip.asMovieClip(currentParent));
+				} else {
+					break;
+				}
+			}
+			
+			return parents;
+		}
+		
 		/** Return this from the iterateOverChildren handler in order to keep iterating over children */
 		public static var ITERATE_CONTINUE : Number = 0;
 		/** Return this from the iterateOverChildren handler in order to skip the nested children of the current child */

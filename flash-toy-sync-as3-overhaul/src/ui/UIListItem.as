@@ -1,8 +1,10 @@
 package ui {
 	
 	import core.CustomEvent;
+	import core.MouseEvents;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
+	import flash.geom.ColorTransform;
 	import flash.text.TextFormat;
 	
 	/**
@@ -20,12 +22,22 @@ package ui {
 		
 		protected var index : Number;
 		
+		private var defaultColorTransform : ColorTransform;
+		private var highlightColorTransform : ColorTransform;
+		
 		private var height : Number = 20;
 		
 		public function UIListItem(_parent : TPMovieClip, _width : Number, _index : Number) {
 			index = _index;
 			
 			clickEvent = new CustomEvent();
+			
+			defaultColorTransform = new ColorTransform();
+			highlightColorTransform = new ColorTransform();
+			
+			highlightColorTransform.redOffset = 100;
+			highlightColorTransform.greenOffset = 100;
+			highlightColorTransform.blueOffset = 100;
 			
 			background = TPMovieClip.create(_parent, "listItem" + _index);
 			background.graphics.beginFill(0x000000, 0.5);
@@ -46,8 +58,8 @@ package ui {
 			secondaryTextFormat.align = TextElement.ALIGN_RIGHT;
 			secondaryText.setTextFormat(secondaryTextFormat);
 			
-			var button : UIButton = new UIButton(background);
-			button.mouseDownEvent.listen(this, onMouseDown);
+			background.buttonMode = true;
+			MouseEvents.addOnMouseDown(this, background.sourceDisplayObject, onMouseDown);
 		}
 		
 		protected function onMouseDown() : void {
@@ -68,6 +80,14 @@ package ui {
 		
 		public function setSecondaryText(_text : String) : void {
 			secondaryText.text = _text;
+		}
+		
+		public function highlight() : void {
+			background.colorTransform = highlightColorTransform;
+		}
+		
+		public function clearHighlight() : void {
+			background.colorTransform = defaultColorTransform;
 		}
 		
 		public function hide() : void {

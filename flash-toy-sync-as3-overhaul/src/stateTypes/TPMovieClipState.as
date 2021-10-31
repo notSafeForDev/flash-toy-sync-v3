@@ -6,10 +6,10 @@ package stateTypes {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class MovieClipTranspilerState extends State {
+	public class TPMovieClipState extends State {
 		
-		public function MovieClipTranspilerState(_defaultValue : TPMovieClip) {
-			super(_defaultValue, MovieClipTranspilerStateReference);
+		public function TPMovieClipState(_defaultValue : TPMovieClip) {
+			super(_defaultValue, TPMovieClipStateReference);
 		}
 		
 		public function getValue() : TPMovieClip {
@@ -17,7 +17,7 @@ package stateTypes {
 		}
 		
 		public function setValue(_value : TPMovieClip) : void {
-			value = _value;
+			changeValue(_value);
 		}
 	}
 }

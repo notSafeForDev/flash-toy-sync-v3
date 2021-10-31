@@ -3,8 +3,8 @@ package states {
 	import components.StateManager;
 	import stateTypes.BooleanState;
 	import stateTypes.BooleanStateReference;
-	import stateTypes.MovieClipTranspilerState;
-	import stateTypes.MovieClipTranspilerStateReference;
+	import stateTypes.TPMovieClipState;
+	import stateTypes.TPMovieClipStateReference;
 	import stateTypes.StringState;
 	import stateTypes.StringStateReference;
 	
@@ -16,8 +16,8 @@ package states {
 		
 		private static var stateManager : StateManager;
 		
-		public var _movieClip : MovieClipTranspilerState;
-		public static var movieClip : MovieClipTranspilerStateReference;
+		public var _animationRoot : TPMovieClipState;
+		public static var animationRoot : TPMovieClipStateReference;
 		
 		public var _name : StringState;
 		public static var name : StringStateReference;
@@ -30,8 +30,8 @@ package states {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}
 			
-			_movieClip = _stateManager.addState(MovieClipTranspilerState, null);
-			movieClip = _movieClip.reference;
+			_animationRoot = _stateManager.addState(TPMovieClipState, null);
+			animationRoot = _animationRoot.reference;
 			
 			_name = _stateManager.addState(StringState, "");
 			name = _name.reference;

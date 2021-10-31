@@ -28,12 +28,7 @@ package utils {
 				return _name;
 			}
 			
-			var hashes : String = "";
-			while (hashes.length < _depth) {
-				hashes += "#";
-			}
-			
-			return hashes + _childIndex;
+			return "#" + _childIndex;
 		}
 		
 		/**
@@ -75,10 +70,10 @@ package utils {
 		}
 		
 		/**
-		 * Get a nested child from list of identifiers, used in conjunction with getChildPath
+		 * Get a nested child from list of identifiers
 		 * @param	_topParent	The Object that is parent to the first child in the path
 		 * @param	_path		An array of identifiers representing the path to a nested child
-		 * @return 	The child at the end of the path, or null if a child can't be found
+		 * @return 	The child as a displayObject at the end of the path, or null if a child can't be found
 		 */
 		public static function getChildFromPath(_topParent : TPMovieClip, _path : Vector.<String>) : TPDisplayObject {
 			var child : DisplayObject = _topParent.sourceDisplayObject;
@@ -88,10 +83,65 @@ package utils {
 					return null;
 				}
 				
+				var isValidInstanceName : Boolean = _path[i].indexOf("#") != 0;
+				if (isValidInstanceName == true) {
+					child = child[_path[i]];
+					continue;
+				}
+				
+				if (TPDisplayObject.isDisplayObjectContainer(child) == false) {
+					return null;
+				}
+				
+				var numberAfterHash : String = _path[i].substring(1);
+				var childIndex : Number = parseInt(numberAfterHash);
+				
+				var childAsParent : DisplayObjectContainer = TPDisplayObject.asDisplayObjectContainer(child);
+				
+				child = TPDisplayObject.getChildAtIndex(childAsParent, childIndex);
+			}
+			
+			return new TPDisplayObject(child);
+		}
+		
+		/**
+		 * Get a nested child from list of identifiers
+		 * @param	_topParent	The Object that is parent to the first child in the path
+		 * @param	_path		An array of identifiers representing the path to a nested child
+		 * @return 	The child as a movieClip at the end of the path, or null if a child can't be found
+		 */
+		public static function getMovieClipFromPath(_topParent : TPMovieClip, _path : Vector.<String>) : TPMovieClip {
+			var child : TPDisplayObject = getChildFromPath(_topParent, _path);
+			
+			if (child != null && TPMovieClip.isMovieClip(child.sourceDisplayObject) == true) {
+				return new TPMovieClip(TPMovieClip.asMovieClip(child.sourceDisplayObject));
+			}
+			
+			return null;
+		}
+		
+		/**
+		 * Get nested children as displayObjects from list of identifiers
+		 * @param	_topParent	The Object that is parent to the first child in the path
+		 * @param	_path		An array of identifiers representing the path to a nested child
+		 * @return 	The children in the path, including the top parent, as displayObjects, or null if the children can't be found
+		 */
+		public static function getDisplayObjectsFromPath(_topParent : TPMovieClip, _path : Vector.<String>) : Vector.<TPDisplayObject> {
+			var objects : Vector.<TPDisplayObject> = new Vector.<TPDisplayObject>();
+			objects.push(_topParent);
+			
+			var child : DisplayObject = _topParent.sourceDisplayObject;
+			
+			for (var i : Number = 0; i < _path.length; i++) {
+				if (child == null) {
+					return null;
+				}
+				
 				var lastHashIndex : Number = _path[i].lastIndexOf("#");
 				
 				if (lastHashIndex < 0) {
 					child = child[_path[i]];
+					objects.push(new TPDisplayObject(child));
 					continue;
 				}
 				
@@ -102,9 +152,31 @@ package utils {
 				var childAsParent : DisplayObjectContainer = TPDisplayObject.asDisplayObjectContainer(child);
 				var childIndex : Number = parseInt(_path[i].substr(lastHashIndex + 1));
 				child = TPDisplayObject.getChildAtIndex(childAsParent, childIndex);
+				objects.push(new TPDisplayObject(child));
 			}
 			
-			return new TPDisplayObject(child);
+			return objects;
+		}
+		
+		/**
+		 * Get nested children as movieClips from list of identifiers
+		 * @param	_topParent	The Object that is parent to the first child in the path
+		 * @param	_path		An array of identifiers representing the path to a nested child
+		 * @return 	The children in the path, including the top parent, as movieClips, or null if the children can't be found
+		 */
+		public static function getMovieClipsFromPath(_topParent : TPMovieClip, _path : Vector.<String>) : Vector.<TPMovieClip> {
+			var objects : Vector.<TPDisplayObject> = getDisplayObjectsFromPath(_topParent, _path);
+			if (objects == null) {
+				return null;
+			}
+			
+			var movieClips : Vector.<TPMovieClip> = new Vector.<core.TPMovieClip>();
+			for (var i : Number = 0; i < objects.length; i++) {
+				var movieClip : MovieClip = TPMovieClip.asMovieClip(objects[i].sourceDisplayObject);
+				movieClips.push(new TPMovieClip(movieClip));
+			}
+			
+			return movieClips;
 		}
 	}
 }

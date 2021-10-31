@@ -18,5 +18,15 @@ package stateTypes {
 		public function getRawValue() : * {
 			return value;
 		}
+		
+		protected function changeValue(_value : * ) : void {
+			var isDifferent : Boolean = value != _value;
+			if (isDifferent == true) {
+				value = _value;
+				for (var i : Number = 0; i < reference.listeners.length; i++) {
+					reference.listeners[i]();
+				}
+			}
+		}
 	}
 }

@@ -2,8 +2,8 @@ package states {
 	
 	import components.StateManager;
 	import flash.geom.Point;
-	import stateTypes.DisplayObjectTranspilerState;
-	import stateTypes.DisplayObjectTranspilerStateReference;
+	import stateTypes.TPDisplayObjectState;
+	import stateTypes.TPDisplayObjectStateReference;
 	import stateTypes.PointState;
 	import stateTypes.PointStateReference;
 	
@@ -24,14 +24,14 @@ package states {
 		public var _stimTrackerPoint : PointState;
 		public static var stimTrackerPoint : PointStateReference;
 		
-		public var _baseTrackerAttachedTo : DisplayObjectTranspilerState;
-		public static var baseTrackerAttachedTo : DisplayObjectTranspilerStateReference;
+		public var _baseTrackerAttachedTo : TPDisplayObjectState;
+		public static var baseTrackerAttachedTo : TPDisplayObjectStateReference;
 		
-		public var _tipTrackerAttachedTo : DisplayObjectTranspilerState;
-		public static var tipTrackerAttachedTo : DisplayObjectTranspilerStateReference;
+		public var _tipTrackerAttachedTo : TPDisplayObjectState;
+		public static var tipTrackerAttachedTo : TPDisplayObjectStateReference;
 		
-		public var _stimTrackerAttachedTo : DisplayObjectTranspilerState;
-		public static var stimTrackerAttachedTo : DisplayObjectTranspilerStateReference;
+		public var _stimTrackerAttachedTo : TPDisplayObjectState;
+		public static var stimTrackerAttachedTo : TPDisplayObjectStateReference;
 		
 		public function ScriptStates(_stateManager : StateManager) {
 			if (stateManager != null) {
@@ -47,13 +47,13 @@ package states {
 			_stimTrackerPoint = _stateManager.addState(PointState, null);
 			stimTrackerPoint = _stimTrackerPoint.reference;
 			
-			_baseTrackerAttachedTo = _stateManager.addState(DisplayObjectTranspilerState, null);
+			_baseTrackerAttachedTo = _stateManager.addState(TPDisplayObjectState, null);
 			baseTrackerAttachedTo = _baseTrackerAttachedTo.reference;
 			
-			_tipTrackerAttachedTo = _stateManager.addState(DisplayObjectTranspilerState, null);
+			_tipTrackerAttachedTo = _stateManager.addState(TPDisplayObjectState, null);
 			tipTrackerAttachedTo = _tipTrackerAttachedTo.reference;
 			
-			_stimTrackerAttachedTo = _stateManager.addState(DisplayObjectTranspilerState, null);
+			_stimTrackerAttachedTo = _stateManager.addState(TPDisplayObjectState, null);
 			stimTrackerAttachedTo = _stimTrackerAttachedTo.reference;
 			
 			stateManager = _stateManager;

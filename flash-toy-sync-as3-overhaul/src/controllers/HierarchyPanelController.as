@@ -7,6 +7,7 @@ package controllers {
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import states.AnimationInfoStates;
+	import states.HierarchyStates;
 	import ui.HierarchyPanel;
 	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
@@ -17,13 +18,19 @@ package controllers {
 	 */
 	public class HierarchyPanelController {
 		
+		private var hierarchyStates : HierarchyStates;
+		
 		private var hierarchyPanel : HierarchyPanel;
 		
 		private var expandedChildren : Vector.<DisplayObject>;
 		
-		public function HierarchyPanelController(_hierarchyPanel : HierarchyPanel) {
-			hierarchyPanel = _hierarchyPanel;
+		private var selectedChildPath : Vector.<String> = null;
+		private var selectedChildParentChainLength : Number = -1;
+		
+		public function HierarchyPanelController(_hierarchyStates : HierarchyStates, _hierarchyPanel : HierarchyPanel) {
+			hierarchyStates = _hierarchyStates;
 			
+			hierarchyPanel = _hierarchyPanel;
 			hierarchyPanel.toggleExpandEvent.listen(this, onToggleExpand);
 			hierarchyPanel.selectEvent.listen(this, onSelect);
 			
@@ -33,6 +40,23 @@ package controllers {
 		public function update() : void {
 			if (AnimationInfoStates.isLoaded.value == false) {
 				return;
+			}
+			
+			var selectedChild : TPMovieClip = HierarchyStates.selectedChild.value;
+			
+			if (selectedChild != null) {
+				var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(selectedChild.sourceMovieClip);
+				
+				if (parents.length != selectedChildParentChainLength) {
+					selectedChild = null;
+					hierarchyStates._selectedChild.setValue(null);
+				}
+			}
+			
+			if (selectedChild == null && selectedChildPath != null) {
+				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
+				var childFromPath : TPMovieClip = HierarchyUtil.getMovieClipFromPath(root, selectedChildPath);
+				hierarchyStates._selectedChild.setValue(childFromPath);
 			}
 			
 			hierarchyPanel.update(getInfoForActiveChildren());
@@ -50,10 +74,20 @@ package controllers {
 		}
 		
 		private function onSelect(_child : TPDisplayObject) : void {
-			var root : TPMovieClip = AnimationInfoStates.movieClip.value;
-			var path : Vector.<String> = HierarchyUtil.getChildPath(root, _child);
+			if (TPMovieClip.isMovieClip(_child.sourceDisplayObject) == false) {
+				return;
+			}
 			
-			var childFromPath : TPDisplayObject = HierarchyUtil.getChildFromPath(root, path);
+			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
+			var path : Vector.<String> = HierarchyUtil.getChildPath(root, _child);
+			var movieClip : MovieClip = TPMovieClip.asMovieClip(_child.sourceDisplayObject);
+			var tpMovieClip : TPMovieClip = new TPMovieClip(movieClip);
+			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(movieClip);
+			
+			hierarchyStates._selectedChild.setValue(tpMovieClip);
+			
+			selectedChildParentChainLength = parents.length;
+			selectedChildPath = path;
 		}
 		
 		private function onToggleExpand(_child : TPDisplayObject) : void {
@@ -78,7 +112,7 @@ package controllers {
 		}
 		
 		private function getInfoForActiveChildren() : Vector.<HierarchyChildInfo> {
-			var root : TPMovieClip = AnimationInfoStates.movieClip.value;
+			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
 			var rootInfo : HierarchyChildInfo = createInitialChildInfo(root, 0, 0);
 			
 			var infoList : Vector.<HierarchyChildInfo> = new Vector.<HierarchyChildInfo>();

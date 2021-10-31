@@ -15,7 +15,7 @@ package stateTypes {
 		}
 		
 		public function setValue(_value : Array) : void {
-			value = _value.slice();
+			changeValue(_value.slice());
 		}
 	}
 }

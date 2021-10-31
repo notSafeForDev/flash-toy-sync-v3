@@ -5,6 +5,8 @@ package states {
 	import stateTypes.ArrayStateReference;
 	import stateTypes.BooleanState;
 	import stateTypes.BooleanStateReference;
+	import stateTypes.TPMovieClipState;
+	import stateTypes.TPMovieClipStateReference;
 	import stateTypes.SceneState;
 	import stateTypes.SceneStateReference;
 	
@@ -15,6 +17,9 @@ package states {
 	public class AnimationPlaybackStates {
 		
 		private static var stateManager : StateManager;
+		
+		public var _activeChild : TPMovieClipState;
+		public static var activeChild : TPMovieClipStateReference;
 		
 		public var _isForceStopped : BooleanState;
 		public static var isForceStopped : BooleanStateReference;
@@ -30,11 +35,17 @@ package states {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}
 			
+			_activeChild = _stateManager.addState(TPMovieClipState, null);
+			activeChild = _activeChild.reference;
+			
 			_isForceStopped = _stateManager.addState(BooleanState, false);
 			isForceStopped = _isForceStopped.reference;
 			
 			_currentScene = _stateManager.addState(SceneState, null);
 			currentScene = _currentScene.reference;
+			
+			_scenes = _stateManager.addState(ArrayState, []);
+			scenes = _scenes.reference;
 			
 			stateManager = _stateManager;
 		}

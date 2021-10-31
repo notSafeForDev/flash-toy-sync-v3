@@ -4,7 +4,9 @@ package ui {
 	import core.CustomEvent;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import states.HierarchyStates;
 	
 	/**
 	 * ...
@@ -18,8 +20,8 @@ package ui {
 		private var listItems : Vector.<HierarchyUIListItem>;
 		private var uiList : UIList;
 		
-		public function HierarchyPanel(_parent : TPMovieClip) {
-			super(_parent, "Hierarchy", 300, 300);
+		public function HierarchyPanel(_parent : TPMovieClip, _contentWidth : Number, _contentHeight : Number) {
+			super(_parent, "Hierarchy", _contentWidth, _contentHeight);
 			
 			selectEvent = new CustomEvent();
 			toggleExpandEvent = new CustomEvent();
@@ -46,13 +48,14 @@ package ui {
 			}
 			
 			var i : Number;
+			var listItem : HierarchyUIListItem;
 			
 			for (i = 0; i < _childInfoList.length; i++) {				
 				if (i >= listItems.length) {
 					var container : TPMovieClip = uiList.getListItemsContainer();
 					var width : Number = contentWidth - uiList.getScrollbarWidth();
 					
-					var listItem : HierarchyUIListItem = new HierarchyUIListItem(container, width, i);
+					listItem = new HierarchyUIListItem(container, width, i);
 					
 					listItem.selectChildEvent.listen(this, onListItemSelectChild);
 					listItem.toggleExpandChildEvent.listen(this, onListItemToggleExpandChild);
@@ -64,9 +67,22 @@ package ui {
 			
 			uiList.showItemsAtScrollPosition(_childInfoList.length);
 			
+			var selectedHierarchyChild : DisplayObject = null;
+			if (HierarchyStates.selectedChild.value != null) {
+				selectedHierarchyChild = HierarchyStates.selectedChild.value.sourceDisplayObject;
+			}
+			
 			for (i = 0; i < _childInfoList.length; i++) {
-				if (listItems[i].isVisible() == true) {
-					listItems[i].update(_childInfoList[i].child, _childInfoList[i].depth, _childInfoList[i].childIndex, _childInfoList[i].isExpandable, _childInfoList[i].isExpanded);
+				listItem = listItems[i];
+				if (listItem.isVisible() == false) {
+					continue;
+				}
+				
+				listItem.update(_childInfoList[i].child, _childInfoList[i].depth, _childInfoList[i].childIndex, _childInfoList[i].isExpandable, _childInfoList[i].isExpanded);
+				if (_childInfoList[i].child.sourceDisplayObject == selectedHierarchyChild) {
+					listItem.highlight();
+				} else {
+					listItem.clearHighlight();
 				}
 			}
 		}

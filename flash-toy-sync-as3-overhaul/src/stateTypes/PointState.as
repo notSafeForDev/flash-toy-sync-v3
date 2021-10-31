@@ -17,7 +17,7 @@ package stateTypes {
 		}
 		
 		public function setValue(_value : Point) : void {
-			value = _value;
+			changeValue(_value);
 		}
 	}
 }

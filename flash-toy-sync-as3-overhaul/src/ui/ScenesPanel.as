@@ -1,6 +1,9 @@
 package ui {
 	
+	import core.CustomEvent;
 	import core.TPMovieClip;
+	import models.SceneModel;
+	import states.AnimationPlaybackStates;
 	
 	/**
 	 * ...
@@ -8,89 +11,72 @@ package ui {
 	 */
 	public class ScenesPanel extends Panel {
 		
-		private var scrollbarWidth : Number = 10;
+		/** Emitted when the user clicks on a scene in the panel, along with the sceneModel instance */
+		public var sceneSelectedEvent : CustomEvent;
 		
-		private var uiScrollArea : UIScrollArea;
+		private var listItems : Vector.<UIListItem>;
+		private var uiList : UIList;
 		
 		public function ScenesPanel(_parent : TPMovieClip, _contentWidth : Number, _contentHeight : Number) {
 			super(_parent, "Scenes", _contentWidth, _contentHeight);
 			
-			var scrollAreaHeight : Number = contentHeight;
-			var scrollAreaContainer : TPMovieClip = TPMovieClip.create(content, "scrollContainer");
-			var scrollContent : TPMovieClip = TPMovieClip.create(scrollAreaContainer, "scrollContent");
+			sceneSelectedEvent = new CustomEvent();
 			
-			scrollPadder = TPMovieClip.create(scrollContent, "scrollPadder");
-			scrollPadder.graphics.beginFill(0xFF0000, 0);
-			scrollPadder.graphics.drawRect(0, 0, 10, 10);
+			var listContainer : TPMovieClip = TPMovieClip.create(content, "listContainer");
 			
 			listItems = new Vector.<UIListItem>();
 			
-			uiScrollArea = createScrollArea(scrollAreaContainer, scrollContent, scrollAreaHeight);
+			uiList = new UIList(listContainer, contentWidth, contentHeight);
 		}
 		
-		private function createScrollArea(_container : TPMovieClip, _content : TPMovieClip, _height : Number) : UIScrollArea {
-			var scrollbarBackground : TPMovieClip = TPMovieClip.create(_container, "scrollbarHandle");
-			scrollbarBackground.graphics.beginFill(0x000000, 0.25);
-			scrollbarBackground.graphics.drawRect(contentWidth - scrollbarWidth, 0, scrollbarWidth, _height);
-			
-			var scrollbarHandle : TPMovieClip = TPMovieClip.create(_container, "scrollbarHandle");
-			scrollbarHandle.graphics.beginFill(0xFFFFFF);
-			scrollbarHandle.graphics.drawRect(contentWidth - scrollbarWidth, 0, scrollbarWidth, scrollbarWidth);
-			
-			var mask : TPMovieClip = TPMovieClip.create(_container, "mask");
-			mask.graphics.beginFill(0xFF0000, 0.5);
-			mask.graphics.drawRect(0, 0, contentWidth - scrollbarWidth, _height);
-			
-			return new UIScrollArea(_content, mask, scrollbarHandle);
+		private function onListItemClick(_index : Number) : void {
+			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			sceneSelectedEvent.emit(scenes[_index]);
 		}
 		
-		public function update(_infoList : Vector.<HierarchyChildInfo>) : void {
+		public function update() : void {
+			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			
 			if (isMinimized() == true) {
-				clearList();
+				uiList.hideItems();
 				return;
 			}
 			
-			updateList(_infoList);
-		}
-		
-		private function updateList(_infoList : Vector.<HierarchyChildInfo>) : void {
 			var i : Number;
 			
-			for (i = 0; i < _infoList.length; i++) {
-				var listItem : UIListItem;
-				
+			for (i = 0; i < scenes.length; i++) {				
 				if (i >= listItems.length) {
-					listItem = new UIListItem(uiScrollArea.content, contentWidth - scrollbarWidth, i);
+					var container : TPMovieClip = uiList.getListItemsContainer();
+					var width : Number = contentWidth - uiList.getScrollbarWidth();
+					
+					var listItem : UIListItem = new UIListItem(container, width, i);
+					
 					listItem.clickEvent.listen(this, onListItemClick);
+					
 					listItems.push(listItem);
+					uiList.addListItem(listItem);
+				}
+			}
+			
+			uiList.showItemsAtScrollPosition(scenes.length);
+			
+			for (i = 0; i < scenes.length; i++) {
+				var scene : SceneModel = scenes[i];
+				var startFrames : Vector.<Number> = scene.getStartFrames();
+				var endFrames : Vector.<Number> = scene.getEndFrames();
+				var primaryText : String = "Scene " + (i + 1);
+				// var secondaryText : String = startFrames[startFrames.length - 1] + " - " + endFrames[endFrames.length - 1];
+				var secondaryText : String = startFrames.join(",") + " - " + endFrames[endFrames.length - 1];
+				
+				listItems[i].setPrimaryText(primaryText);
+				listItems[i].setSecondaryText(secondaryText);
+				
+				if (scene == currentScene) {
+					listItems[i].highlight();
 				} else {
-					listItem = listItems[i];
+					listItems[i].clearHighlight();
 				}
-				
-				listItem.show();
-				
-				var isVisible : Boolean = uiScrollArea.isElementVisible(listItem.background);
-				
-				if (isVisible == false) {
-					listItem.hide();
-					continue;
-				}
-				
-				listItem.setPrimaryText("Scene " + i);
-			}
-			
-			if (listItems.length > 0) {
-				scrollPadder.height = _infoList.length * listItems[0].getHeight();
-			}
-			
-			for (i = _infoList.length; i < listItems.length; i++) {
-				listItems[i].hide();
-			}
-		}
-		
-		private function clearList() : void {
-			for (var i : Number = listItems.length; i < listItems.length; i++) {
-				listItems[i].hide();
 			}
 		}
 	}
