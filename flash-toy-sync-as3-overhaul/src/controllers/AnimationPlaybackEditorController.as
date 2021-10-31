@@ -16,6 +16,7 @@ package controllers {
 		
 		private var scenesPanel : ScenesPanel;
 		
+		/** Used for determining if we can merge two scenes */
 		private var previousFrameForActiveChild : Number = -1;
 		
 		public function AnimationPlaybackEditorController(_animationPlaybackStates : AnimationPlaybackStates, _scenesPanel : ScenesPanel) {
@@ -31,9 +32,11 @@ package controllers {
 		public override function update() : void {
 			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
 			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
+			var scenes : Array;
 			
 			if (activeChild == null && currentScene != null) {
 				currentScene.exit();
+				currentScene = null;
 			}
 			
 			if (activeChild == null) {
@@ -42,24 +45,25 @@ package controllers {
 			
 			var sceneForActiveChild : SceneModel = getActiveSceneForChild(activeChild);
 			
-			// Create a new scene
+			// If no scene is available, Create a new scene
 			if (currentScene == null && sceneForActiveChild == null) {
 				currentScene = enterNewScene();
 			}
 			
-			// Enter an existing scene when we're not at a scene
+			// If we reach a new scene and the current scene haven't been set, enter it
 			if (currentScene == null && sceneForActiveChild != null) {
 				animationPlaybackStates._currentScene.setValue(sceneForActiveChild);
 				currentScene = sceneForActiveChild;
 				currentScene.enter();
 			}
 			
-			// Either switch or merge scenes
+			// If we have reached a new scene that is different to the current one, either merge with it, or switch to it
 			if (currentScene != null && sceneForActiveChild != null && currentScene != sceneForActiveChild) {
-				var scenes : Array = AnimationPlaybackStates.scenes.value;
-				var shouldMerge : Boolean = sceneForActiveChild.isTemporary == true && activeChild.currentFrame == previousFrameForActiveChild + 1;
+				var didSkipFrames : Boolean = activeChild.currentFrame != previousFrameForActiveChild + 1;
+				var shouldMerge : Boolean = sceneForActiveChild.isTemporary == true && didSkipFrames == false;
 				
 				if (shouldMerge == true) {
+					scenes = AnimationPlaybackStates.scenes.value;
 					currentScene.merge(sceneForActiveChild);
 					ArrayUtil.remove(scenes, sceneForActiveChild);
 					animationPlaybackStates._scenes.setValue(scenes);
@@ -76,9 +80,28 @@ package controllers {
 			}
 			
 			var updateStatus : String = currentScene.update();
+			var shouldSplit : Boolean = false;
 			
 			if (updateStatus == SceneModel.UPDATE_STATUS_EXIT) {
 				currentScene = enterNewScene();
+			}
+			
+			if (updateStatus == SceneModel.UPDATE_STATUS_LOOP_MIDDLE) {
+				shouldSplit = true;
+			}
+			
+			if (updateStatus == SceneModel.UPDATE_STATUS_COMPLETELY_STOPPED) {
+				if (currentScene.getTotalInnerFrames() > 1) {
+					shouldSplit = true;
+				}
+			}
+			
+			if (shouldSplit == true) {
+				var firstHalf : SceneModel = currentScene.split();
+				scenes = AnimationPlaybackStates.scenes.value;
+				scenes.push(firstHalf);
+				sortScenes(scenes);
+				animationPlaybackStates._scenes.setValue(scenes);
 			}
 			
 			scenesPanel.update();
@@ -90,7 +113,7 @@ package controllers {
 			var activeChild : TPMovieClip = HierarchyStates.selectedChild.value;
 			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
 			var scenes : Array = AnimationPlaybackStates.scenes.value;
-			var canDiscardCurrentScene : Boolean = currentScene != null && currentScene.getTotalInnerFrames() == 1;
+			var canDiscardCurrentScene : Boolean = currentScene != null && currentScene.isTemporary == true && currentScene.getTotalInnerFrames() == 1;
 			
 			animationPlaybackStates._activeChild.setValue(activeChild);
 			previousFrameForActiveChild = -1;

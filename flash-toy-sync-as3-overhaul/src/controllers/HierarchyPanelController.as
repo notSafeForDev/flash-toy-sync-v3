@@ -42,22 +42,24 @@ package controllers {
 				return;
 			}
 			
-			var selectedChild : TPMovieClip = HierarchyStates.selectedChild.value;
+			var currentSelectedChild : TPMovieClip = HierarchyStates.selectedChild.value;
 			
-			if (selectedChild != null) {
-				var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(selectedChild.sourceMovieClip);
-				
+			if (currentSelectedChild != null) {
+				var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(currentSelectedChild.sourceMovieClip);
 				if (parents.length != selectedChildParentChainLength) {
-					selectedChild = null;
-					hierarchyStates._selectedChild.setValue(null);
+					currentSelectedChild = null;
 				}
 			}
 			
-			if (selectedChild == null && selectedChildPath != null) {
+			if (currentSelectedChild == null && selectedChildPath != null) {
 				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
 				var childFromPath : TPMovieClip = HierarchyUtil.getMovieClipFromPath(root, selectedChildPath);
-				hierarchyStates._selectedChild.setValue(childFromPath);
+				currentSelectedChild = childFromPath;
 			}
+			
+			// It's important that we don't update the state twice here,
+			// due to the playback controller listening to this state
+			hierarchyStates._selectedChild.setValue(currentSelectedChild);
 			
 			hierarchyPanel.update(getInfoForActiveChildren());
 		}

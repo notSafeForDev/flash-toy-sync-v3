@@ -53,5 +53,25 @@ package utils {
 			
 			return false;
 		}
+		
+		/**
+		 * Check if two arrays are identical in length, elements and order of elements
+		 * @param	_arrayA		The first array
+		 * @param	_arrayB		The second array
+		 * @return	Wether they are identical
+		 */
+		public static function areIdentical(_arrayA : *, _arrayB : *) : Boolean {
+			if (_arrayA.length != _arrayB.length) {
+				return false;
+			}
+			
+			for (var i : Number = 0; i < _arrayA.length; i++) {
+				if (_arrayA[i] != _arrayB[i]) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
 	}
 }

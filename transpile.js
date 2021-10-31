@@ -463,14 +463,17 @@ function transpileActionScript3To2(actionscript) {
     // Repace : Class with "any"
     replaceInActionScriptLines(lines, [":", "Class"], "", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);
 
-    // throw new error doesn't stop the application or appear in the console, so we trace and return instead
+    // throw new Error doesn't stop the application or appear in the console, so we trace "throw" instead
     var throwIndexes = findActionScriptLineIndexes(lines, ["throw new Error("]);
-    replaceInActionScriptLines(lines, ["throw new Error("], 'var returnValue; trace("Error: " + ');
+    replaceInActionScriptLines(lines, ["throw new Error("], 'trace("Error: " + ');
     for (let i = 0; i < throwIndexes.length; i++) {
-        lines[throwIndexes[i]] += " return returnValue;";
+        lines[throwIndexes[i]] += ' throw("");';
     }
     
-    // Replace Vector with Array
+    // Replace Vector with Array (Only supports single and nested vectors at the moment)
+    replaceInActionScriptLines(lines, ["new Vector.<Vector.<", ANY_CHARACTERS, ">>()"], "[]");
+    replaceInActionScriptLines(lines, ["Vector.<Vector.<", ANY_CHARACTERS, ">>"], "Array");
+
     replaceInActionScriptLines(lines, ["new Vector.<", ANY_CHARACTERS, ">()"], "[]");
     replaceInActionScriptLines(lines, ["Vector.<", ANY_CHARACTERS, ">"], "Array");
 

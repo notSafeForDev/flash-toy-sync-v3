@@ -7,6 +7,7 @@ package models {
 	import flash.display.Scene;
 	import states.AnimationInfoStates;
 	import states.EditorStates;
+	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
 	import utils.MathUtil;
 	
@@ -24,6 +25,8 @@ package models {
 		public static var UPDATE_STATUS_LOOP_START : String = "UPDATE_STATUS_LOOP_START";
 		/** Status for when the scene looped from a frame after the first */
 		public static var UPDATE_STATUS_LOOP_MIDDLE : String = "UPDATE_STATUS_LOOP_MIDDLE";
+		/** Status for when the scene completely stopped */
+		public static var UPDATE_STATUS_COMPLETELY_STOPPED : String = "UPDATE_STATUS_COMPLETELY_STOPPED";
 		
 		public var isTemporary : Boolean = false;
 		
@@ -33,15 +36,24 @@ package models {
 		protected var endFrames : Vector.<Number> = null;
 		protected var firstStopFrames : Vector.<Number> = null;
 		
+		/** The last frames for each child that the animation was on, while not force stopped */
 		private var lastPlayingFrames : Vector.<Number> = null;
-		private var forceStoppedAtFrames : Vector.<Number> = null;
+		/** 
+		 * A history for the last frames, it starts updating from when we enter the scene,
+		 * to when we loop for the first time, after that, it keeps the same values
+		 */
+		private var playingFramesHistory : Vector.<Vector.<Number>> = null;
 		
+		private var forceStoppedAtFrames : Vector.<Number> = null;
 		private var isForceStopped : Boolean = false;
 		
 		private var script : SceneScriptModel = null;
 		
+		private var lastChildIndex : Number = -1;
+		
 		public function SceneModel(_path : Vector.<String>) {
 			path = _path;
+			lastChildIndex = _path.length;
 		}
 		
 		/**
@@ -67,6 +79,10 @@ package models {
 			return {path: path, startFrames: startFrames, endFrames: endFrames, firstStopFrames: firstStopFrames}
 		}
 		
+		/**
+		 * Combine the scene with another scene, so that frames from the other scene is added to this one
+		 * @param	_otherScene		The other scene to merge with
+		 */
 		public function merge(_otherScene : SceneModel) : void {
 			if (path.join(",") != _otherScene.path.join(",")) {
 				throw new Error("Unable to merge scenes, their paths are not the same");
@@ -77,6 +93,57 @@ package models {
 				endFrames[i] = Math.max(endFrames[i], _otherScene.endFrames[i]);
 				firstStopFrames[i] = Math.max(firstStopFrames[i], _otherScene.firstStopFrames[i]);
 			}
+		}
+		
+		/**
+		 * Makes a copy of the scene
+		 * @return The copy
+		 */
+		public function clone() : SceneModel {
+			var cloned : SceneModel = new SceneModel(path);
+			
+			cloned.startFrames = startFrames.slice();
+			cloned.endFrames = endFrames.slice();
+			cloned.firstStopFrames = firstStopFrames.slice();
+			
+			return cloned;
+		}
+		
+		/**
+		 * Splits the current scene into two different scenes, at the current frame
+		 * The first half will end on the last frames that were playing before the current ones
+		 * Can only be called while the scene is active
+		 * @return	A new scene, which is the first half of the scene
+		 */
+		public function split() : SceneModel {
+			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
+			var currentInnerFrame : Number = currentFrames[lastChildIndex];
+			var firstHalfEndFrames : Vector.<Number> = null;
+			var cloned : SceneModel = clone();
+			var i : Number;
+			
+			// Keep going back in history until we reach an inner frame that is 1 less than the current inner frame,
+			// we want to use those frames as the end frames for the first half
+			for (i = playingFramesHistory.length - 1; i >= 0; i--) {
+				var innerHistoryFrame : Number = playingFramesHistory[i][lastChildIndex];
+				if (innerHistoryFrame == currentInnerFrame - 1) {
+					firstHalfEndFrames = playingFramesHistory[i];
+					break;
+				}
+			}
+			
+			if (firstHalfEndFrames == null) {
+				throw new Error("Unable to split scene, no valid history frame found");
+			}
+			
+			for (i = 0; i < currentFrames.length; i++) {
+				cloned.endFrames[i] = firstHalfEndFrames[i];
+				cloned.firstStopFrames[i] = firstStopFrames[i] <= firstHalfEndFrames[i] ? firstStopFrames[i] : -1;
+				
+				startFrames[i] = currentFrames[i];
+			}
+			
+			return cloned;
 		}
 		
 		/**
@@ -119,11 +186,12 @@ package models {
 				return;
 			}
 			
-			startFrames = getCurrentFramesWhileActive();
-			endFrames = getCurrentFramesWhileActive();
+			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
+			
+			startFrames = currentFrames.slice();
+			endFrames = currentFrames.slice();
 			
 			firstStopFrames = new Vector.<Number>();
-			
 			for (var i : Number = 0; i < startFrames.length; i++) {
 				firstStopFrames.push(-1);
 			}
@@ -139,6 +207,7 @@ package models {
 			
 			isForceStopped = false;
 			lastPlayingFrames = null;
+			playingFramesHistory = null;
 			forceStoppedAtFrames = null;
 		}
 		
@@ -147,10 +216,6 @@ package models {
 		 * @return A status code for what happened during the update
 		 */
 		public function update() : String {
-			if (startFrames == null) {
-				throw new Error("Unable to update scene, it have not been entered");
-			}
-			
 			// If it's force stopped, but the scene somehow isn't active anymore, exit it
 			if (isForceStopped == true && isActive() == false) {
 				exit();
@@ -189,6 +254,8 @@ package models {
 				return SceneModel.UPDATE_STATUS_EXIT;
 			}
 			
+			var totalStoppedChildren : Number = 0;
+			
 			// If we're in the editor, update first stop frames and end frames
 			if (EditorStates.isEditor.value == true) {
 				for (i = 0; i < currentFrames.length; i++) {
@@ -197,19 +264,27 @@ package models {
 					}
 					
 					endFrames[i] = Math.max(endFrames[i], currentFrames[i]);
+					if (currentFrames[i] == firstStopFrames[i]) {
+						totalStoppedChildren++;
+					}
 				}
 			}
 			
-			// If the last playing frames aren't set, we stop here since we can't determine if it have looped or not
+			// If all the children are stopped, stop here
+			if (totalStoppedChildren == currentFrames.length) {
+				updateLastPlayingFrames(currentFrames);
+				return SceneModel.UPDATE_STATUS_COMPLETELY_STOPPED;
+			}
+			
+			// If the lastPlaying frames haven't been updated yet, we can't determine if will loop or not, so we stop here
 			if (lastPlayingFrames == null) {
-				lastPlayingFrames = currentFrames;
+				updateLastPlayingFrames(currentFrames);
 				return SceneModel.UPDATE_STATUS_NORMAL;
 			}
 			
-			var innerChildIndex : Number = currentFrames.length - 1;
-			var innerChildCurrentFrame : Number = currentFrames[innerChildIndex];
-			var innerChildLastFrame : Number = lastPlayingFrames[innerChildIndex];
-			var innerChildStartFrame: Number = startFrames[innerChildIndex];
+			var innerChildCurrentFrame : Number = currentFrames[lastChildIndex];
+			var innerChildLastFrame : Number = lastPlayingFrames[lastChildIndex];
+			var innerChildStartFrame: Number = startFrames[lastChildIndex];
 			
 			var updateStatus : String = SceneModel.UPDATE_STATUS_NORMAL;
 			
@@ -222,7 +297,7 @@ package models {
 				}
 			}
 			
-			lastPlayingFrames = currentFrames;
+			updateLastPlayingFrames(currentFrames);
 			
 			return updateStatus;
 		}
@@ -310,7 +385,6 @@ package models {
 			stop();
 			
 			var children : Vector.<TPMovieClip> = getChildrenWhileActive();
-			var lastChildIndex : Number = children.length - 1;
 			
 			var currentFrame : Number = children[lastChildIndex].currentFrame;
 			var startFrame : Number = startFrames[lastChildIndex];
@@ -351,6 +425,27 @@ package models {
 			isForceStopped = true;
 			forceStoppedAtFrames = getCurrentFramesWhileActive();
 			lastPlayingFrames = null;
+		}
+		
+		/**
+		 * Updates the last playing frames and the playing frames history
+		 * The playing frames history does only update as long as we aren't repeating frames
+		 * @param	_frames
+		 */
+		private function updateLastPlayingFrames(_frames : Vector.<Number>) : void {
+			lastPlayingFrames = _frames.slice();
+			if (playingFramesHistory == null) {
+				playingFramesHistory = new Vector.<Vector.<Number>>();
+				playingFramesHistory.push(lastPlayingFrames);
+			}
+			
+			var lastHistoryIndex : Number = playingFramesHistory.length - 1;
+			var innerChildFrame : Number = _frames[lastChildIndex];
+			var innerChildFrameFromHistory : Number = playingFramesHistory[lastHistoryIndex][lastChildIndex];
+			
+			if (innerChildFrame > innerChildFrameFromHistory) {
+				playingFramesHistory.push(lastPlayingFrames);
+			}
 		}
 		
 		private function getChildrenWhileActive() : Vector.<TPMovieClip> {
