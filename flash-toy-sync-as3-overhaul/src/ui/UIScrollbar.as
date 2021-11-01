@@ -9,6 +9,7 @@ package ui {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import utils.MathUtil;
 	
 	/**
 	 * ...
@@ -22,7 +23,7 @@ package ui {
 		private var scrollbarSize : Number;
 		private var isVertical : Boolean;
 		
-		private var contentSize : Number;
+		private var contentSize : Number = 0;
 		
 		private var progress : Number = 0;
 		
@@ -51,19 +52,18 @@ package ui {
 		}
 		
 		public function setProgress(_value : Number) : void {
-			var handleSize : Number = Math.min(scrollbarSize, contentSize);
-			var availableScrollLength : Number = scrollbarSize - handleSize;
-			
-			if (isVertical == true) {
-				scrollbarHandle.y = handleStartPosition.y + availableScrollLength * _value;
-			} else {
-				scrollbarHandle.x = handleStartPosition.x + availableScrollLength * _value;
-			}
-			
-			updateProgress();
+			progress = MathUtil.clamp(_value, 0, 1);
+			updateHandlePosition();
+			progressUpdateEvent.emit(progress);
 		}
 		
 		public function setContentSize(_value : Number) : void {
+			if (_value > 0) {
+				progress = MathUtil.clamp(progress * (contentSize / _value), 0, 1);
+			} else {
+				progress = 0;
+			}
+			
 			contentSize = _value;
 			
 			var handleSize : Number = getHandleSize();
@@ -76,25 +76,42 @@ package ui {
 				scrollbarHandle.width = handleSize;
 				draggable.dragBounds = new Rectangle(handleStartPosition.x, handleStartPosition.y, availableScrollLength, 0);
 			}
+			
+			updateHandlePosition();
+			
+			progressUpdateEvent.emit(progress);
 		}
 		
 		private function onDraggingScrollbarHandle() : void {
-			updateProgress();
+			progress = calculateProgressBasedOnHandlePosition();
+			progressUpdateEvent.emit(progress);
 		}
 		
-		private function updateProgress() : void {
+		private function calculateProgressBasedOnHandlePosition() : Number {
+			var handleSize : Number = getHandleSize();
+			var availableScrollLength : Number = scrollbarSize - handleSize;
+			var calculatedProgress : Number;
+			
+			if (availableScrollLength <= 0) {
+				calculatedProgress = 0;
+			} else if (isVertical == true) {
+				calculatedProgress = scrollbarHandle.y / availableScrollLength;
+			} else {
+				calculatedProgress = scrollbarHandle.x / availableScrollLength;
+			}
+			
+			return calculatedProgress;
+		}
+		
+		private function updateHandlePosition() : void {
 			var handleSize : Number = getHandleSize();
 			var availableScrollLength : Number = scrollbarSize - handleSize;
 			
-			if (availableScrollLength <= 0) {
-				progress = 0;
-			} else if (isVertical == true) {
-				progress = scrollbarHandle.y / availableScrollLength;
+			if (isVertical == true) {
+				scrollbarHandle.y = handleStartPosition.y + availableScrollLength * progress;
 			} else {
-				progress = scrollbarHandle.x / availableScrollLength;
+				scrollbarHandle.x = handleStartPosition.x + availableScrollLength * progress;
 			}
-			
-			progressUpdateEvent.emit(progress);
 		}
 		
 		private function getHandleSize() : Number {

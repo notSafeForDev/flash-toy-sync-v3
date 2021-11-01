@@ -71,9 +71,10 @@ package controllers {
 			var hasBothScenes : Boolean = currentScene != null && sceneAtFrame != null;
 			var isSameScene : Boolean = hasBothScenes == true && currentScene == sceneAtFrame;
 			var bothScenesHasSamePath : Boolean = hasBothScenes == true && currentScene.getPath().join(",") == sceneAtFrame.getPath().join(",");
+			var currentEndsBeforeSceneAtFrame : Boolean = hasBothScenes == true && currentScene.getInnerEndFrame() + 1 == sceneAtFrame.getInnerStartFrame();
 			
 			var shouldEnterNewScene : Boolean = currentScene == null && sceneAtFrame == null;
-			var shouldMergeWithSceneAtFrame : Boolean = isSameScene == false && bothScenesHasSamePath == true && sceneAtFrame.isTemporary == true;
+			var shouldMergeWithSceneAtFrame : Boolean = isSameScene == false && bothScenesHasSamePath == true && currentEndsBeforeSceneAtFrame == true && sceneAtFrame.isTemporary == true;
 			var shouldEnterSceneAtFrame : Boolean = sceneAtFrame != null && isSameScene == false && shouldMergeWithSceneAtFrame == false;
 			var shouldExitCurrentScene : Boolean = currentScene != null && shouldEnterSceneAtFrame == true;
 			

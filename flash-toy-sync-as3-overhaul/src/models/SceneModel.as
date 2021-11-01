@@ -168,6 +168,22 @@ package models {
 		}
 		
 		/**
+		 * Get the start frame for the deepest nested child
+		 * @return
+		 */
+		public function getInnerStartFrame() : Number {
+			return startFrames[lastChildIndex];
+		}
+		
+		/**
+		 * Get the end frame for the deepest nested child
+		 * @return
+		 */
+		public function getInnerEndFrame() : Number {
+			return endFrames[lastChildIndex];
+		}
+		
+		/**
 		 * Get the total number of frames for the inner child only
 		 * @return	The total number of frames
 		 */

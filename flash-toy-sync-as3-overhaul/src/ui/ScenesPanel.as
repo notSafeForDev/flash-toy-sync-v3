@@ -4,6 +4,7 @@ package ui {
 	import core.TPMovieClip;
 	import models.SceneModel;
 	import states.AnimationPlaybackStates;
+	import utils.ArrayUtil;
 	
 	/**
 	 * ...
@@ -27,11 +28,22 @@ package ui {
 			listItems = new Vector.<UIListItem>();
 			
 			uiList = new UIList(listContainer, contentWidth, contentHeight);
+			
+			AnimationPlaybackStates.listen(this, onSceneStatesChange, [AnimationPlaybackStates.currentScene, AnimationPlaybackStates.scenes]);
 		}
 		
 		private function onListItemClick(_index : Number) : void {
 			var scenes : Array = AnimationPlaybackStates.scenes.value;
 			sceneSelectedEvent.emit(scenes[_index]);
+		}
+		
+		private function onSceneStatesChange() : void {
+			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			var index : Number = ArrayUtil.indexOf(scenes, AnimationPlaybackStates.currentScene.value);
+			
+			if (index >= 0) {
+				uiList.scrollToItem(listItems[index], scenes.length);
+			}
 		}
 		
 		public function update() : void {
@@ -45,7 +57,7 @@ package ui {
 			
 			var i : Number;
 			
-			for (i = 0; i < scenes.length; i++) {				
+			for (i = 0; i < scenes.length; i++) {
 				if (i >= listItems.length) {
 					var container : TPMovieClip = uiList.getListItemsContainer();
 					var width : Number = contentWidth - uiList.getScrollbarWidth();

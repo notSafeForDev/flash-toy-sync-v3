@@ -43,8 +43,8 @@ package ui {
 			var scrollAreaContainer : TPMovieClip = TPMovieClip.create(_parent, "scrollContainer");
 			uiSCrollAreaContent = TPMovieClip.create(scrollAreaContainer, "scrollContent");
 			
-			listPadding = TPMovieClip.create(uiSCrollAreaContent, "scrollPadder");
-			listPadding.graphics.beginFill(0xFF0000, 0);
+			listPadding = TPMovieClip.create(uiSCrollAreaContent, "listPadding");
+			listPadding.graphics.beginFill(0x00FF00, 0);
 			listPadding.graphics.drawRect(0, 0, 10, 10);
 			
 			uiScrollArea = createScrollArea(scrollAreaContainer, uiSCrollAreaContent);
@@ -62,14 +62,14 @@ package ui {
 			listItems.push(_listItem);
 		}
 		
-		public function showItemsAtScrollPosition(_activeItemCount : Number) : void {
-			if (_activeItemCount > listItems.length) {
+		public function showItemsAtScrollPosition(_totalActiveItems : Number) : void {
+			if (_totalActiveItems > listItems.length) {
 				throw new Error("Unable to show items at scroll position, there are not enough available list items");
 			}
 			
 			var i : Number;
 			
-			for (i = 0; i < _activeItemCount; i++) {
+			for (i = 0; i < _totalActiveItems; i++) {
 				listItems[i].show();
 				
 				var isVisible : Boolean = uiScrollArea.isElementVisible(listItems[i].background);
@@ -80,10 +80,10 @@ package ui {
 			}
 			
 			if (listItems.length > 0) {
-				listPadding.height = _activeItemCount * listItems[0].getHeight();
+				listPadding.height = _totalActiveItems * listItems[0].getHeight();
 			}
 			
-			for (i = _activeItemCount; i < listItems.length; i++) {
+			for (i = _totalActiveItems; i < listItems.length; i++) {
 				listItems[i].hide();
 			}
 		}
@@ -92,6 +92,14 @@ package ui {
 			for (var i : Number = listItems.length; i < listItems.length; i++) {
 				listItems[i].hide();
 			}
+		}
+		
+		public function scrollToItem(_listItem : UIListItem, _totalActiveItems : Number) : void {
+			listPadding.height = _totalActiveItems * listItems[0].getHeight();
+			_listItem.show();
+			
+			uiScrollArea.scrollToElement(_listItem.background);
+			showItemsAtScrollPosition(_totalActiveItems);
 		}
 		
 		private function createScrollArea(_container : TPMovieClip, _content : TPMovieClip) : UIScrollArea {

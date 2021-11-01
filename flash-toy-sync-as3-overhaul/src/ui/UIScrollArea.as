@@ -48,5 +48,34 @@ package ui {
 			var yInsideMask : Number = _child.y + content.y;
 			return yInsideMask + _child.height >= 0 && yInsideMask <= mask.height;
 		}
+		
+		public function scrollToElement(_child : TPDisplayObject) : void {
+			scrollbar.setContentSize(content.height);
+			
+			var scrollableHeight : Number = Math.max(0, content.height - mask.height);
+			
+			var yInsideMask : Number = _child.y + content.y;
+			var yOffset : Number;
+			
+			var minY : Number = 0;
+			var maxY : Number = mask.height - _child.height;
+			
+			if (scrollableHeight == 0 || (yInsideMask >= minY && yInsideMask <= maxY)) {
+				return;
+			}
+			
+			if (yInsideMask < minY) {
+				yOffset = -yInsideMask;
+			}
+			
+			if (yInsideMask > maxY) {
+				yOffset = -(yInsideMask - maxY);
+			}
+			
+			var yBefore : Number = content.y;
+			var scrollbarProgressOffset : Number = -(yOffset / scrollableHeight);
+			scrollbar.setProgress(scrollbar.getProgress() + scrollbarProgressOffset);
+			var yAfter : Number = content.y;
+		}
 	}
 }
