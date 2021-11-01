@@ -101,6 +101,8 @@ package {
 				animationSizeStates._height.setValue(_stageHeight);
 			}
 			
+			animationSizeStates._isUsingInitialSize.setValue(true);
+			
 			animationInfoStates._animationRoot.setValue(new TPMovieClip(_swf));
 			animationInfoStates._isLoaded.setValue(true);
 			
@@ -160,7 +162,7 @@ package {
 		}
 		
 		private function addBorders() : void {
-			borders = new Borders(container, 0xFF0000);
+			borders = new Borders(container, 0x000000);
 		}
 		
 		private function addPanels() : void {

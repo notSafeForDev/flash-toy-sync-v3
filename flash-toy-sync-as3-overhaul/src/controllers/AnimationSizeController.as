@@ -27,18 +27,22 @@ package controllers {
 		
 		private function onIncreaseWidthShortcut() : void {
 			animationSizeStates._width.setValue(AnimationSizeStates.width.value + 5);
+			animationSizeStates._isUsingInitialSize.setValue(false);
 		}
 		
 		private function onDecreaseWidthShortcut() : void {
 			animationSizeStates._width.setValue(AnimationSizeStates.width.value - 5);
+			animationSizeStates._isUsingInitialSize.setValue(false);
 		}
 		
 		private function onIncreaseHeightShortcut() : void {
 			animationSizeStates._height.setValue(AnimationSizeStates.height.value + 5);
+			animationSizeStates._isUsingInitialSize.setValue(false);
 		}
 		
 		private function onDecreaseHeightShortcut() : void {
 			animationSizeStates._height.setValue(AnimationSizeStates.height.value - 5);
+			animationSizeStates._isUsingInitialSize.setValue(false);
 		}
 	}
 }

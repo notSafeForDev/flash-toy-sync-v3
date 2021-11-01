@@ -1,7 +1,9 @@
 package visualComponents {
 	
+	import components.Timeout;
 	import core.TPMovieClip;
 	import flash.display.MovieClip;
+	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import states.AnimationSizeStates;
@@ -16,18 +18,18 @@ package visualComponents {
 		private var element : TPMovieClip;
 		
 		private var color : Number;
-		private var currentColor : Number;
 		
 		private var containerWidth : Number;
 		private var containerHeight : Number;
 		private var containerAspectRatio : Number;
 		private var containerMaxDimension : Number;
 		
+		private var highlightBorderTimeout : Number;
+		
 		public function Borders(_parent : TPMovieClip, _color : Number) {
 			element = TPMovieClip.create(_parent, "borders");
 			
 			color = _color;
-			currentColor = _color;
 			
 			containerWidth = TPStage.stageWidth;
 			containerHeight = TPStage.stageHeight;
@@ -39,6 +41,23 @@ package visualComponents {
 		
 		private function onAnimationSizeStatesChange() : void {
 			update(AnimationSizeStates.width.value / AnimationSizeStates.height.value);
+			
+			if (AnimationSizeStates.isUsingInitialSize.value == true) {
+				return;
+			}
+			
+			Timeout.clear(highlightBorderTimeout);
+			
+			var highlightColorTransform : ColorTransform = new ColorTransform();
+			highlightColorTransform.redOffset = 100;
+			highlightColorTransform.alphaMultiplier = 0.5;
+			element.colorTransform = highlightColorTransform;
+			
+			highlightBorderTimeout = Timeout.set(this, doneHighlightingBorders, 500);
+		}
+		
+		private function doneHighlightingBorders() : void {
+			element.colorTransform = new ColorTransform();
 		}
 		
 		private function update(_visibleAreaAspectRatio : Number) : void {
@@ -68,7 +87,7 @@ package visualComponents {
 			);
 			
 			element.graphics.clear();
-			element.graphics.beginFill(currentColor);
+			element.graphics.beginFill(color);
 			element.graphics.drawRect(outsideRect.x, outsideRect.y, outsideRect.width, insideRect.y - outsideRect.y); // Top
 			element.graphics.drawRect(outsideRect.x, insideRect.y, insideRect.x - outsideRect.x, insideRect.height); // Left
 			element.graphics.drawRect(insideRect.right, insideRect.y, outsideRect.right - insideRect.right, insideRect.height); // Right
