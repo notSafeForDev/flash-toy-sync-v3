@@ -111,7 +111,7 @@ class core.TPDisplayObject {
 		sourceDisplayObject.setMask(_mask.sourceDisplayObject);
 	}
 	
-	public function addOnEnterFrameListener(_scope, _handler : Function) {
+	public function addEnterFrameListener(_scope, _handler : Function) {
 		var originalFunction = sourceDisplayObject.onEnterFrame;
 		
 		sourceDisplayObject.onEnterFrame = function() {

@@ -14,6 +14,8 @@ package core {
 	 */
 	public class TPDisplayObject {
 		
+		private var enterFrameHandlers : Array;
+		
 		public var sourceDisplayObject : DisplayObject;
 		
 		public function TPDisplayObject(_object : DisplayObject) {
@@ -132,10 +134,36 @@ package core {
 			sourceDisplayObject.mask = _object.sourceDisplayObject;
 		}
 		
-		public function addOnEnterFrameListener(_scope : * , _handler : Function) : void {
-			sourceDisplayObject.addEventListener(Event.ENTER_FRAME, function(e : Event) : void {
+		public function addEnterFrameListener(_scope : * , _handler : Function) : void {
+			if (enterFrameHandlers == null) {
+				enterFrameHandlers = [];
+			}
+			
+			var handler : Function = function(e : Event) : void {
 				_handler.apply(_scope);
-			});
+			}
+			
+			sourceDisplayObject.addEventListener(Event.ENTER_FRAME, handler);
+			
+			enterFrameHandlers.push({scope: _scope, originalHandler: _handler, handler: handler});
+		}
+		
+		public function removeEnterFrameListener(_scope : * , _handler : Function) : void {
+			throw new Error("Unable to remove enterFrame listener, it's not yet implemented in the AS2 version");
+			
+			if (enterFrameHandlers == null) {
+				return;
+			}
+			
+			var handler : Function = null;
+			for (var i : Number = 0; i < enterFrameHandlers.length; i++) {
+				if (enterFrameHandlers[i].scope == _scope && enterFrameHandlers[i].originalHandler == _handler) {
+					handler = enterFrameHandlers[i].handler;
+					break;
+				}
+			}
+			
+			sourceDisplayObject.removeEventListener(Event.ENTER_FRAME, handler); 
 		}
 		
 		public function localToGlobal(_point : Point) : Point {

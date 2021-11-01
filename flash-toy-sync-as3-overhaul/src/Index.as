@@ -13,6 +13,7 @@ package {
 	import controllers.StrokerToyEditorController;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.events.Event;
 	import flash.text.TextFormat;
 	import flash.ui.Mouse;
 	import flash.utils.getTimer;
@@ -87,7 +88,7 @@ package {
 			addErrorText();
 			addFPSText();
 			
-			container.addOnEnterFrameListener(this, onEnterFrame);
+			container.addEnterFrameListener(this, onEnterFrame);
 		}
 		
 		private function onAnimationSelected(_name : String) : void {
@@ -106,7 +107,10 @@ package {
 			initializeControllers();
 		}
 		
-		private function onEnterFrame() : void {
+		private function onEnterFrame() : void {	
+			var startTime : Number = getTimer();
+			// TEMP ^
+			
 			if (AnimationInfoStates.isLoaded.value == true) {
 				updateControllers();
 			}
@@ -116,6 +120,20 @@ package {
 			if (EditorStates.isEditor.value == true) {
 				Mouse.show();
 			}
+			
+			// TEMP v
+			previousFrameRates.push(getTimer() - startTime);
+			if (previousFrameRates.length > 30) {
+				previousFrameRates.shift();
+			}
+			
+			var total : Number = 0; 
+			for (var i : Number = 0; i < previousFrameRates.length; i++) {
+				total += previousFrameRates[i];
+			}
+			var average : Number = Math.floor((total / previousFrameRates.length) * 10) / 10;
+			
+			fpsText.text = "avg: " + average + "ms";
 		}
 		
 		private function onMainMenuBrowseAnimation() : void {
@@ -148,9 +166,9 @@ package {
 		private function addPanels() : void {
 			var panelsContainer : TPMovieClip = TPMovieClip.create(container, "panelsContainer");
 			
-			hierarchyPanel = new HierarchyPanel(panelsContainer, 250, 250);
+			hierarchyPanel = new HierarchyPanel(panelsContainer, 240, 200);
 			
-			scenesPanel = new ScenesPanel(panelsContainer, 250, 150);
+			scenesPanel = new ScenesPanel(panelsContainer, 240, 120);
 			scenesPanel.setPosition(0, 300);
 			
 			hierarchyPanel.hide();
@@ -194,7 +212,7 @@ package {
 		
 		private function initializeControllers() : void {
 			if (EditorStates.isEditor.value == true) {
-				animationPlaybackController = new AnimationPlaybackEditorController(animationPlaybackStates, scenesPanel);
+				animationPlaybackController = new AnimationPlaybackEditorController(animationPlaybackStates, hierarchyPanel, scenesPanel);
 			} else {
 				animationPlaybackController = new AnimationPlaybackController(animationPlaybackStates);
 			}
@@ -204,24 +222,9 @@ package {
 		}
 		
 		private function updateControllers() : void {
-			var startTime : Number = getTimer();
-			
 			hierarchyPanelController.update();
 			animationSizeController.update();
 			animationPlaybackController.update();
-			
-			previousFrameRates.push(getTimer() - startTime);
-			if (previousFrameRates.length > 30) {
-				previousFrameRates.shift();
-			}
-			
-			var total : Number = 0; 
-			for (var i : Number = 0; i < previousFrameRates.length; i++) {
-				total += previousFrameRates[i];
-			}
-			var average : Number = Math.floor((total / previousFrameRates.length) * 10) / 10;
-			
-			fpsText.text = "avg: " + average + "ms";
 		}
 	}
 }

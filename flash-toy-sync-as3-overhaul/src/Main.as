@@ -4,6 +4,7 @@ package {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
 	
 	/**
 	 * ...
@@ -27,6 +28,11 @@ package {
 			stage.addChild(container);
 			
 			new Index(container);
+			
+			// Fixes an issue where keyboard input stops registering after having clicked on the external swf
+			stage.addEventListener(FocusEvent.FOCUS_OUT, function(e : FocusEvent) : void {
+				stage.focus = stage;
+			});
 		}
 	}
 }

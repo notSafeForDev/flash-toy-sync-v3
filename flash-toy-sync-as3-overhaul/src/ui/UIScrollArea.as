@@ -26,7 +26,7 @@ package ui {
 			scrollbar.progressUpdateEvent.listen(this, onScrollbarProgressUpdate);
 			scrollbar.setContentSize(mask.height);
 			
-			content.addOnEnterFrameListener(this, onEnterFrame);
+			content.addEnterFrameListener(this, onEnterFrame);
 		}
 		
 		private function onScrollbarProgressUpdate(_progress : Number) : void {

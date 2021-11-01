@@ -1,6 +1,8 @@
 package states {
 	
 	import components.StateManager;
+	import stateTypes.ArrayState;
+	import stateTypes.ArrayStateReference;
 	import stateTypes.TPMovieClipState;
 	import stateTypes.TPMovieClipStateReference;
 	
@@ -12,16 +14,16 @@ package states {
 		
 		private static var stateManager : StateManager;
 		
-		public var _selectedChild : TPMovieClipState;
-		public static var selectedChild : TPMovieClipStateReference;
+		public var _hierarchyPanelInfoList : ArrayState;
+		public static var hierarchyPanelInfoList : ArrayStateReference;
 		
 		public function HierarchyStates(_stateManager : StateManager) {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}
 			
-			_selectedChild = _stateManager.addState(TPMovieClipState, null);
-			selectedChild = _selectedChild.reference;
+			_hierarchyPanelInfoList = _stateManager.addState(ArrayState, []);
+			hierarchyPanelInfoList = _hierarchyPanelInfoList.reference;
 			
 			stateManager = _stateManager;
 		}

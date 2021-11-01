@@ -1,5 +1,6 @@
 package ui {
 	
+	import components.HierarchyChildInfo;
 	import core.CustomEvent;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
@@ -39,33 +40,37 @@ package ui {
 			super.onMouseDown();
 		}
 		
-		public function update(_child : TPDisplayObject, _depth : Number, _childIndex : Number, _isExpandable : Boolean, _isExpanded : Boolean) : void {
-			child = _child;
-			depth = _depth;
+		public function hasChild(_child : TPDisplayObject) : Boolean {
+			return child.sourceDisplayObject == _child.sourceDisplayObject;
+		}
+		
+		public function update(_info: HierarchyChildInfo) : void {
+			child = _info.child;
+			depth = _info.depth;
 			
 			var prefix : String = "";
 			
-			for (var i : Number = 0; i < _depth; i++) {
+			for (var i : Number = 0; i < _info.depth; i++) {
 				prefix += "  ";
 			}
 			
-			if (_isExpandable == true && _isExpanded == true) {
+			if (_info.isExpandable == true && _info.isExpanded == true) {
 				prefix += " v ";
 			}
-			if (_isExpandable == true && _isExpanded == false) {
+			if (_info.isExpandable == true && _info.isExpanded == false) {
 				prefix += " > ";
 			}
-			if (_isExpandable == false) {
+			if (_info.isExpandable == false) {
 				prefix += "   ";
 			}
 			
-			var name : String = HierarchyUtil.getChildIdentifier(_child.name, _depth, _childIndex);
+			var name : String = HierarchyUtil.getChildIdentifier(_info.child.name, _info.depth, _info.childIndex);
 			setPrimaryText(prefix + name);
 			
-			if (TPMovieClip.isMovieClip(_child.sourceDisplayObject) == false) {
+			if (TPMovieClip.isMovieClip(_info.child.sourceDisplayObject) == false) {
 				setSecondaryText("-/-");
 			} else {
-				var movieClip : MovieClip = TPMovieClip.asMovieClip(_child.sourceDisplayObject);
+				var movieClip : MovieClip = TPMovieClip.asMovieClip(_info.child.sourceDisplayObject);
 				var tpMovieClip : TPMovieClip = new TPMovieClip(movieClip);
 				setSecondaryText(tpMovieClip.currentFrame + "/" + tpMovieClip.totalFrames);
 			}

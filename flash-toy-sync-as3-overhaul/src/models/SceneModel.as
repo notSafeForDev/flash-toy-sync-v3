@@ -17,6 +17,8 @@ package models {
 	 */
 	public class SceneModel {
 		
+		private static var enteredScene : SceneModel;
+		
 		/** Status for when nothing unusual happened during update */
 		public static var UPDATE_STATUS_NORMAL : String = "UPDATE_STATUS_NORMAL";
 		/** Status for when the scene was exited on it's own, such as when the user clicks a button and the animation changes frames */
@@ -25,9 +27,10 @@ package models {
 		public static var UPDATE_STATUS_LOOP_START : String = "UPDATE_STATUS_LOOP_START";
 		/** Status for when the scene looped from a frame after the first */
 		public static var UPDATE_STATUS_LOOP_MIDDLE : String = "UPDATE_STATUS_LOOP_MIDDLE";
-		/** Status for when the scene completely stopped */
+		/** Status for when all the children that are part of the scene is stopped without being force stopped */
 		public static var UPDATE_STATUS_COMPLETELY_STOPPED : String = "UPDATE_STATUS_COMPLETELY_STOPPED";
 		
+		/** Can be set to allow the scene to be merged, or remove when it otherwise would be kept */
 		public var isTemporary : Boolean = false;
 		
 		protected var path : Vector.<String> = null;
@@ -45,11 +48,13 @@ package models {
 		private var playingFramesHistory : Vector.<Vector.<Number>> = null;
 		
 		private var forceStoppedAtFrames : Vector.<Number> = null;
-		private var isForceStopped : Boolean = false;
+		private var _isForceStopped : Boolean = false;
 		
 		private var script : SceneScriptModel = null;
 		
 		private var lastChildIndex : Number = -1;
+		
+		private var haveDoneInitialUpdate : Boolean = false;
 		
 		public function SceneModel(_path : Vector.<String>) {
 			path = _path;
@@ -182,11 +187,20 @@ package models {
 		 * Has to be called before calling the update method
 		 */
 		public function enter() : void {
+			if (enteredScene != null) {
+				throw new Error("Unable to enter scene, there is already a scene that have been entered");
+			}
+			
+			enteredScene = this;
+			
+			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
+			
+			haveDoneInitialUpdate = false;
+			updateLastPlayingFrames(currentFrames.slice());
+			
 			if (startFrames != null) {
 				return;
 			}
-			
-			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
 			
 			startFrames = currentFrames.slice();
 			endFrames = currentFrames.slice();
@@ -201,14 +215,16 @@ package models {
 		 * Has to be called when the scene is no longer selected
 		 */
 		public function exit() : void {
-			if (isForceStopped == true && isActive() == true) {
+			if (_isForceStopped == true && isActive() == true) {
 				play();
 			}
 			
-			isForceStopped = false;
+			_isForceStopped = false;
 			lastPlayingFrames = null;
 			playingFramesHistory = null;
 			forceStoppedAtFrames = null;
+			
+			enteredScene = null;
 		}
 		
 		/**
@@ -216,19 +232,23 @@ package models {
 		 * @return A status code for what happened during the update
 		 */
 		public function update() : String {
+			if (lastPlayingFrames == null) {
+				throw new Error("Unable to update scene, the scene have not been entered correctly");
+			}
+			
 			// If it's force stopped, but the scene somehow isn't active anymore, exit it
-			if (isForceStopped == true && isActive() == false) {
+			if (_isForceStopped == true && isActive() == false) {
 				exit();
 				return SceneModel.UPDATE_STATUS_EXIT;
 			}
 			
 			// If it's force stopped, but something caused the frames to change, resume playing
-			if (isForceStopped == true && isAtFramesWhileActive(forceStoppedAtFrames) == false) {
+			if (_isForceStopped == true && isAtFramesWhileActive(forceStoppedAtFrames) == false) {
 				play();
 			}
 			
 			// If the scene wasn't resumed above, stop here
-			if (isForceStopped == true) {
+			if (_isForceStopped == true) {
 				return SceneModel.UPDATE_STATUS_NORMAL;
 			}
 			
@@ -259,7 +279,7 @@ package models {
 			// If we're in the editor, update first stop frames and end frames
 			if (EditorStates.isEditor.value == true) {
 				for (i = 0; i < currentFrames.length; i++) {
-					if (lastPlayingFrames != null && currentFrames[i] == lastPlayingFrames[i] && firstStopFrames[i] < 0) {
+					if (haveDoneInitialUpdate == true && currentFrames[i] == lastPlayingFrames[i] && firstStopFrames[i] < 0) {
 						firstStopFrames[i] = currentFrames[i];
 					}
 					
@@ -274,12 +294,6 @@ package models {
 			if (totalStoppedChildren == currentFrames.length) {
 				updateLastPlayingFrames(currentFrames);
 				return SceneModel.UPDATE_STATUS_COMPLETELY_STOPPED;
-			}
-			
-			// If the lastPlaying frames haven't been updated yet, we can't determine if will loop or not, so we stop here
-			if (lastPlayingFrames == null) {
-				updateLastPlayingFrames(currentFrames);
-				return SceneModel.UPDATE_STATUS_NORMAL;
 			}
 			
 			var innerChildCurrentFrame : Number = currentFrames[lastChildIndex];
@@ -298,6 +312,8 @@ package models {
 			}
 			
 			updateLastPlayingFrames(currentFrames);
+			
+			haveDoneInitialUpdate = true;
 			
 			return updateStatus;
 		}
@@ -327,6 +343,14 @@ package models {
 		}
 		
 		/**
+		 * Check wether the scene have been stopped through the editor
+		 * @return Wether it have been stopped through the editor
+		 */
+		public function isForceStopped() : Boolean {
+			return _isForceStopped;
+		}
+		
+		/**
 		 * Play all the nested children that are part of the scene, except if a child is at a frame where it was naturally stopped as part of the animation
 		 * Can only be called while the scene is active
 		 */
@@ -337,12 +361,12 @@ package models {
 				var child : TPMovieClip = children[i];
 				var firstStopFrame : Number = firstStopFrames[i];
 				
-				if (child.currentFrame < firstStopFrame) {
+				if (firstStopFrame < 0 || child.currentFrame < firstStopFrame) {
 					child.play();
 				}
 			}
 			
-			isForceStopped = false;
+			_isForceStopped = false;
 		}
 		
 		/**
@@ -391,7 +415,15 @@ package models {
 			var endFrame : Number = endFrames[lastChildIndex];
 			var targetFrame : Number = MathUtil.clamp(currentFrame + _frames, startFrame, endFrame);
 			
-			children[lastChildIndex].gotoAndStop(targetFrame);
+			for (var i : Number = 0; i < children.length; i++) {
+				var child : TPMovieClip = children[i];
+				
+				if (i < children.length - 1) {
+					child.stop();
+				} else {
+					child.gotoAndStop(targetFrame);
+				}
+			}
 			
 			setAsForceStopped();
 		}
@@ -417,14 +449,14 @@ package models {
 			if (_shouldPlay == false) {
 				setAsForceStopped();
 			} else {
-				isForceStopped = false;
+				_isForceStopped = false;
 			}
 		}
 		
 		private function setAsForceStopped() : void {
-			isForceStopped = true;
+			_isForceStopped = true;
 			forceStoppedAtFrames = getCurrentFramesWhileActive();
-			lastPlayingFrames = null;
+			updateLastPlayingFrames(forceStoppedAtFrames.slice());
 		}
 		
 		/**

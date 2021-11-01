@@ -24,15 +24,11 @@ package controllers {
 		
 		private var expandedChildren : Vector.<DisplayObject>;
 		
-		private var selectedChildPath : Vector.<String> = null;
-		private var selectedChildParentChainLength : Number = -1;
-		
 		public function HierarchyPanelController(_hierarchyStates : HierarchyStates, _hierarchyPanel : HierarchyPanel) {
 			hierarchyStates = _hierarchyStates;
 			
 			hierarchyPanel = _hierarchyPanel;
 			hierarchyPanel.toggleExpandEvent.listen(this, onToggleExpand);
-			hierarchyPanel.selectEvent.listen(this, onSelect);
 			
 			expandedChildren = new Vector.<DisplayObject>();
 		}
@@ -42,26 +38,7 @@ package controllers {
 				return;
 			}
 			
-			var currentSelectedChild : TPMovieClip = HierarchyStates.selectedChild.value;
-			
-			if (currentSelectedChild != null) {
-				var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(currentSelectedChild.sourceMovieClip);
-				if (parents.length != selectedChildParentChainLength) {
-					currentSelectedChild = null;
-				}
-			}
-			
-			if (currentSelectedChild == null && selectedChildPath != null) {
-				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
-				var childFromPath : TPMovieClip = HierarchyUtil.getMovieClipFromPath(root, selectedChildPath);
-				currentSelectedChild = childFromPath;
-			}
-			
-			// It's important that we don't update the state twice here,
-			// due to the playback controller listening to this state
-			hierarchyStates._selectedChild.setValue(currentSelectedChild);
-			
-			hierarchyPanel.update(getInfoForActiveChildren());
+			hierarchyStates._hierarchyPanelInfoList.setValue(getInfoForActiveChildren());
 		}
 		
 		private function createInitialChildInfo(_tpDisplayObject : TPDisplayObject, _depth : Number, _childIndex : Number) : HierarchyChildInfo {
@@ -73,23 +50,6 @@ package controllers {
 			info.isExpanded = ArrayUtil.includes(expandedChildren, _tpDisplayObject.sourceDisplayObject);
 			
 			return info;
-		}
-		
-		private function onSelect(_child : TPDisplayObject) : void {
-			if (TPMovieClip.isMovieClip(_child.sourceDisplayObject) == false) {
-				return;
-			}
-			
-			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
-			var path : Vector.<String> = HierarchyUtil.getChildPath(root, _child);
-			var movieClip : MovieClip = TPMovieClip.asMovieClip(_child.sourceDisplayObject);
-			var tpMovieClip : TPMovieClip = new TPMovieClip(movieClip);
-			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(movieClip);
-			
-			hierarchyStates._selectedChild.setValue(tpMovieClip);
-			
-			selectedChildParentChainLength = parents.length;
-			selectedChildPath = path;
 		}
 		
 		private function onToggleExpand(_child : TPDisplayObject) : void {
@@ -113,11 +73,11 @@ package controllers {
 			}
 		}
 		
-		private function getInfoForActiveChildren() : Vector.<HierarchyChildInfo> {
+		private function getInfoForActiveChildren() : Array {
 			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
 			var rootInfo : HierarchyChildInfo = createInitialChildInfo(root, 0, 0);
 			
-			var infoList : Vector.<HierarchyChildInfo> = new Vector.<HierarchyChildInfo>();
+			var infoList : Array = [];
 			var expandableChildren : Vector.<DisplayObject> = new Vector.<DisplayObject>();
 			
 			infoList.push(rootInfo);
@@ -125,7 +85,8 @@ package controllers {
 			TPMovieClip.iterateOverChildren(root.sourceMovieClip, this, getInfoForActiveChildrenIterator, [infoList, expandableChildren]);
 			
 			for (var i : Number = 0; i < infoList.length; i++) {
-				var child : TPDisplayObject = infoList[i].child;
+				var info : HierarchyChildInfo = infoList[i];
+				var child : TPDisplayObject = info.child;
 				
 				var isParentExpanded : Boolean = ArrayUtil.includes(expandedChildren, child.parent);
 				
@@ -136,13 +97,13 @@ package controllers {
 				}
 				
 				var isChildExpandable : Boolean = (i == 0 && infoList.length > 1) || ArrayUtil.includes(expandableChildren, child.sourceDisplayObject);
-				infoList[i].isExpandable = isChildExpandable;
+				info.isExpandable = isChildExpandable;
 			}
 			
 			return infoList;
 		}
 		
-		private function getInfoForActiveChildrenIterator(_child : MovieClip, _depth : Number, _childIndex : Number, _infoList : Vector.<HierarchyChildInfo>, _expandableChildren : Vector.<DisplayObject>) : Number {
+		private function getInfoForActiveChildrenIterator(_child : MovieClip, _depth : Number, _childIndex : Number, _infoList : Array, _expandableChildren : Vector.<DisplayObject>) : Number {
 			var tpMovieClip : TPMovieClip = new TPMovieClip(_child);
 			
 			var parent : DisplayObjectContainer = tpMovieClip.parent;

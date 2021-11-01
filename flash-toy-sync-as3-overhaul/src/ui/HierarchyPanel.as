@@ -6,6 +6,7 @@ package ui {
 	import core.TPMovieClip;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import states.AnimationPlaybackStates;
 	import states.HierarchyStates;
 	
 	/**
@@ -31,6 +32,9 @@ package ui {
 			listItems = new Vector.<HierarchyUIListItem>();
 			
 			uiList = new UIList(listContainer, contentWidth, contentHeight);
+			
+			HierarchyStates.listen(this, onHierachyInfoListStateChange, [HierarchyStates.hierarchyPanelInfoList]);
+			AnimationPlaybackStates.listen(this, onAnimationPlaybackActiveChildStateChange, [AnimationPlaybackStates.activeChild]);
 		}
 		
 		private function onListItemSelectChild(_child : TPDisplayObject) : void {
@@ -41,16 +45,18 @@ package ui {
 			toggleExpandEvent.emit(_child);
 		}
 		
-		public function update(_childInfoList : Vector.<HierarchyChildInfo>) : void {
+		private function onHierachyInfoListStateChange() : void {
 			if (isMinimized() == true) {
 				uiList.hideItems();
 				return;
 			}
 			
-			var i : Number;
-			var listItem : HierarchyUIListItem;
+			var infoList : Array = HierarchyStates.hierarchyPanelInfoList.value;
 			
-			for (i = 0; i < _childInfoList.length; i++) {				
+			var listItem : HierarchyUIListItem;
+			var i : Number;
+			
+			for (i = 0; i < infoList.length; i++) {				
 				if (i >= listItems.length) {
 					var container : TPMovieClip = uiList.getListItemsContainer();
 					var width : Number = contentWidth - uiList.getScrollbarWidth();
@@ -65,24 +71,30 @@ package ui {
 				}
 			}
 			
-			uiList.showItemsAtScrollPosition(_childInfoList.length);
+			uiList.showItemsAtScrollPosition(infoList.length);
 			
-			var selectedHierarchyChild : DisplayObject = null;
-			if (HierarchyStates.selectedChild.value != null) {
-				selectedHierarchyChild = HierarchyStates.selectedChild.value.sourceDisplayObject;
+			for (i = 0; i < infoList.length; i++) {
+				listItem = listItems[i];
+				if (listItem.isVisible() == true) {
+					listItem.update(infoList[i]);
+				}
 			}
 			
-			for (i = 0; i < _childInfoList.length; i++) {
-				listItem = listItems[i];
-				if (listItem.isVisible() == false) {
-					continue;
-				}
-				
-				listItem.update(_childInfoList[i].child, _childInfoList[i].depth, _childInfoList[i].childIndex, _childInfoList[i].isExpandable, _childInfoList[i].isExpanded);
-				if (_childInfoList[i].child.sourceDisplayObject == selectedHierarchyChild) {
-					listItem.highlight();
+			highlightListItemForActiveChild();
+		}
+		
+		private function onAnimationPlaybackActiveChildStateChange() : void {			
+			highlightListItemForActiveChild();
+		}
+		
+		private function highlightListItemForActiveChild() : void {
+			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
+			
+			for (var i : Number = 0; i < listItems.length; i++) {
+				if (activeChild != null && listItems[i].hasChild(activeChild) == true) {
+					listItems[i].highlight();
 				} else {
-					listItem.clearHighlight();
+					listItems[i].clearHighlight();
 				}
 			}
 		}
