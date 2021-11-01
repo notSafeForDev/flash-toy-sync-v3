@@ -2,7 +2,6 @@ package ui {
 	
 	import core.DraggableObject;
 	import core.MouseEvents;
-	import core.SimpleDraggableObject;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import core.TPStage;

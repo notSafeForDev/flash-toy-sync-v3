@@ -9,7 +9,5 @@ package controllers {
 		public function ScriptTrackerMarkersEditorController() {
 			
 		}
-		
 	}
-
 }
