@@ -1,6 +1,7 @@
 package controllers {
 	
 	import components.KeyboardInput;
+	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
@@ -8,8 +9,10 @@ package controllers {
 	import states.ScriptStates;
 	import utils.MathUtil;
 	import utils.SceneScriptUtil;
-	import visualComponents.ScriptMarker;
-	import visualComponents.ScriptTrackingMarker;
+	import utils.StageChildSelectionUtil;
+	import ui.ScriptMarker;
+	import ui.ScriptTrackingMarker;
+	import visualComponents.DepthPreview;
 	
 	/**
 	 * ...
@@ -18,8 +21,6 @@ package controllers {
 	public class ScriptTrackerMarkersEditorController {
 		
 		private var scriptStates : ScriptStates;
-		
-		private var depthPreview : TPMovieClip;
 		
 		private var baseModel : ScriptTrackingMarkerModel;
 		private var stimModel : ScriptTrackingMarkerModel;
@@ -34,11 +35,11 @@ package controllers {
 		public function ScriptTrackerMarkersEditorController(_scriptStates : ScriptStates, _container : TPMovieClip) {
 			scriptStates = _scriptStates;
 			
-			depthPreview = TPMovieClip.create(_container, "depthPreview");
-			
 			var baseMarker : ScriptTrackingMarker = new ScriptTrackingMarker(_container, 0xDB2547, "BASE");
 			var stimMarker : ScriptTrackingMarker = new ScriptTrackingMarker(_container, 0x00FF00, "STIM");
 			var tipMarker : ScriptTrackingMarker = new ScriptTrackingMarker(_container, 0x0000FF, "TIP");
+			
+			var depthPreview : DepthPreview = new DepthPreview(_container, baseMarker, stimMarker, tipMarker);
 			
 			baseMarker.hide();
 			stimMarker.hide();
@@ -59,8 +60,6 @@ package controllers {
 		}
 		
 		public function update() : void {
-			depthPreview.graphics.clear();
-			
 			var isDraggingAnyMarker : Boolean = false;
 			var areAllMarkersVisible : Boolean = true;
 			
@@ -70,60 +69,12 @@ package controllers {
 				}
 			}
 			
+			scriptStates._isDraggingTrackerMarker.setValue(isDraggingAnyMarker);
+			
 			if (isDraggingAnyMarker == true) {
-				drawDepthPreview();
+				var childAtCursor : TPDisplayObject = StageChildSelectionUtil.getClickableChildAtCursor();
+				scriptStates._childUnderDraggedMarker.setValue(childAtCursor);
 			}
-		}
-		
-		// TODO: Move to a util class or a trackerMarkersDepthPreview class
-		private function drawDepthPreview() : void {
-			depthPreview.graphics.clear();
-			
-			if (baseModel.element.isVisible() == false || tipModel.element.isVisible() == false) {
-				return;
-			}
-			
-			var markerRadius : Number = baseModel.element.getRadius();
-			var basePoint : Point = baseModel.element.getPosition();
-			var tipPoint : Point = tipModel.element.getPosition();
-			var distance : Number = MathUtil.distanceBetween(basePoint, tipPoint);
-			var direction : Point = tipPoint.subtract(basePoint);
-			direction.normalize(1);
-			
-			if (distance < markerRadius * 2) {
-				return;
-			}
-			
-			var lineOffset : Point = direction.clone();
-			lineOffset.normalize(markerRadius + 10);
-			
-			var lineStart : Point = basePoint.add(lineOffset);
-			var lineEnd : Point = tipPoint.subtract(lineOffset);
-			
-			depthPreview.graphics.lineStyle(2, 0xDB2547, 0.25);
-			depthPreview.graphics.moveTo(lineStart.x, lineStart.y);
-			depthPreview.graphics.lineTo(lineEnd.x, lineEnd.y);
-			
-			if (stimModel.element.isVisible() == false) {
-				return;
-			}
-			
-			var stimPoint : Point = stimModel.element.getPosition();
-			
-			var depth : Number = SceneScriptUtil.caclulateDepth(basePoint, tipPoint, stimPoint);
-			
-			var depthLineEnd : Point = new Point(MathUtil.lerp(tipPoint.x, basePoint.x, depth), MathUtil.lerp(tipPoint.y, basePoint.y, depth));
-			
-			var depthLineDirection : Point = depthLineEnd.subtract(stimPoint);
-			depthLineDirection.normalize(1);
-			
-			var depthLineStartOffset : Point = depthLineDirection.clone();
-			depthLineStartOffset.normalize(markerRadius);
-			
-			var depthLineStart : Point = stimPoint.add(depthLineStartOffset);
-			
-			depthPreview.graphics.moveTo(depthLineStart.x, depthLineStart.y);
-			depthPreview.graphics.lineTo(depthLineEnd.x, depthLineEnd.y);
 		}
 		
 		private function onGrabMarkerShortcut(_model : ScriptTrackingMarkerModel) : void {

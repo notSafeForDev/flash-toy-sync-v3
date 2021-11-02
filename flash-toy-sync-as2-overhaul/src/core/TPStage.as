@@ -4,11 +4,11 @@
  */
 class core.TPStage {
 	
-	private static var stage : MovieClip;
+	private static var _stage : MovieClip;
 	private static var _frameRate : Number;
 		
 	public static function init(_object : MovieClip, _frameRate : Number) : Void {
-		stage = _root;
+		_stage = _root;
 		_frameRate = _frameRate;
 	}
 	
@@ -21,11 +21,11 @@ class core.TPStage {
 	}
 	
 	public static function get mouseX() : Number {
-		return stage._xmouse;
+		return _stage._xmouse;
 	}
 	
 	public static function get mouseY() : Number {
-		return stage._ymouse;
+		return _stage._ymouse;
 	}
 	
 	public static function get frameRate() : Number {
@@ -34,5 +34,9 @@ class core.TPStage {
 	
 	public static function set frameRate(_value : Number) : Void {
 		trace("Error: Unable to set frameRate, it's not supported in AS2");
+	}
+	
+	static function get stage() {
+		return _stage;
 	}
 }

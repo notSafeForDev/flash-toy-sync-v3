@@ -9,35 +9,39 @@ package core {
 	 */
 	public class TPStage {
 		
-		private static var stage : Stage;
+		private static var _stage : Stage;
 		
 		public static function init(_object : DisplayObject, _frameRate : Number) : void {
-			stage = _object.stage;
-			stage.frameRate = _frameRate;
+			_stage = _object.stage;
+			_stage.frameRate = _frameRate;
 		}
 		
 		public static function get stageWidth() : Number {
-			return stage.stageWidth;
+			return _stage.stageWidth;
 		}
 		
 		public static function get stageHeight() : Number {
-			return stage.stageHeight;
+			return _stage.stageHeight;
 		}
 		
 		public static function get mouseX() : Number {
-			return stage.mouseX;
+			return _stage.mouseX;
 		}
 		
 		public static function get mouseY() : Number {
-			return stage.mouseY;
+			return _stage.mouseY;
 		}
 		
 		public static function get frameRate() : Number {
-			return stage.frameRate;
+			return _stage.frameRate;
 		}
 		
 		public static function set frameRate(_value : Number) : void {
-			stage.frameRate = _value;
+			_stage.frameRate = _value;
+		}
+		
+		public static function get stage() : Stage {
+			return _stage;
 		}
 	}
 }

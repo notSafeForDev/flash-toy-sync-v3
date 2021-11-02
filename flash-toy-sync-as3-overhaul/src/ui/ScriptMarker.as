@@ -1,4 +1,4 @@
-package visualComponents {
+package ui {
 	
 	import core.CustomEvent;
 	import core.DraggableObject;

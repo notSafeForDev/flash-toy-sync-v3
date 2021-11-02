@@ -2,7 +2,7 @@ package models {
 	
 	import stateTypes.PointState;
 	import stateTypes.TPDisplayObjectState;
-	import visualComponents.ScriptTrackingMarker;
+	import ui.ScriptTrackingMarker;
 	
 	/**
 	 * ...

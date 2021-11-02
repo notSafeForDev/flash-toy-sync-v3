@@ -6,6 +6,7 @@ package core {
 	import flash.events.Event;
 	import flash.geom.ColorTransform;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * Provides an interface for display objects so that we can access information the same way in both Actionscript 3.0 and 2.0
@@ -174,6 +175,14 @@ package core {
 			return sourceDisplayObject.globalToLocal(_point);
 		}
 		
+		public function getBounds(_targetCoordinateSpace : TPDisplayObject) : Rectangle {
+			return sourceDisplayObject.getBounds(_targetCoordinateSpace.sourceDisplayObject);
+		}
+		
+		public function hitTest(_stageX : Number, _stageY : Number, _shapeFlag : Boolean) : Boolean {
+			return sourceDisplayObject.hitTestPoint(_stageX, _stageY, _shapeFlag);
+		}
+		
 		public static function getParent(_object : DisplayObject) : DisplayObjectContainer {
 			return _object.parent;
 		}
@@ -229,6 +238,35 @@ package core {
 		
 		public static function asDisplayObjectContainer(_object : *) : DisplayObjectContainer {
 			return _object;
+		}
+		
+		/**
+		 * Takes the same transform from one object and applies it to the other, so that the other appears to have the same position, scale, rotation, etc
+		 * @param	_fromObject		The object to read the transform from
+		 * @param	_toObject		The object to apply the transform to
+		 */
+		public static function applyTransformMatrixFromOtherObject(_fromObject : TPDisplayObject, _toObject : TPDisplayObject) : void {
+			var fromObject : DisplayObject = _fromObject.sourceDisplayObject;
+			var toObject : DisplayObject = _toObject.sourceDisplayObject;
+			
+			var fromBounds : Rectangle = fromObject.getBounds(toObject.parent);
+			
+			toObject.transform.matrix = fromObject.transform.matrix.clone();
+			
+			var toBounds : Rectangle = toObject.getBounds(toObject.parent);
+			toObject.scaleX = fromBounds.width / toBounds.width;
+			toObject.scaleY = fromBounds.height / toBounds.height;
+			
+			toBounds = toObject.getBounds(toObject.parent);
+			
+			toObject.x += fromBounds.x - toBounds.x;
+			toObject.y += fromBounds.y - toBounds.y;
+		}
+		
+		public static function remove(_object : TPDisplayObject) : void {
+			if (_object.parent != null) {
+				_object.parent.removeChild(_object.sourceDisplayObject);
+			}
 		}
 	}
 }

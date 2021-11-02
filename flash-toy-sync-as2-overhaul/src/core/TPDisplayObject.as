@@ -1,6 +1,7 @@
 import core.TPDisplayObject;
 import flash.geom.ColorTransform;
 import flash.geom.Point;
+import flash.geom.Rectangle;
 
 /**
  * ...
@@ -91,6 +92,21 @@ class core.TPDisplayObject {
 		return sourceDisplayObject._parent;
 	}
 	
+	public function get children() : Array {
+		var children : Array = [];
+		
+		for (var childName in sourceDisplayObject) {
+			if (typeof sourceDisplayObject[childName] == "movieclip") {
+				children.push(sourceDisplayObject[childName]);
+			}
+		}
+		
+		// We reverse the children as in AS2, they are ordered from highest to lowest depth, where as in AS3, it's the other way around
+		children.reverse();
+		
+		return children;
+	}
+	
 	public function get filters() : Array {
 		return sourceDisplayObject.filters;
 	}
@@ -132,6 +148,15 @@ class core.TPDisplayObject {
 		var modifiedPoint : Point = _point.clone();
 		sourceDisplayObject.globalToLocal(modifiedPoint);
 		return modifiedPoint;
+	}
+	
+	public function getBounds(_targetCoordinateSpace : TPDisplayObject) : Rectangle {
+		var bounds : Object = sourceDisplayObject.getBounds(_targetCoordinateSpace.sourceDisplayObject || sourceDisplayObject._parent);
+		return new Rectangle(bounds.xMin, bounds.yMin, bounds.xMax - bounds.xMin, bounds.yMax - bounds.yMin);
+	}
+	
+	public function hitTest(_stageX : Number, _stageY : Number, _shapeFlag : Boolean) : Boolean {
+		return sourceDisplayObject.hitTest(_stageX, _stageY, _shapeFlag == true);
 	}
 	
 	public static function getParent(_object : MovieClip) : MovieClip {
@@ -202,5 +227,32 @@ class core.TPDisplayObject {
 	
 	public static function asDisplayObjectContainer(_object) : MovieClip {
 		return _object;
+	}
+	
+	public static function applyTransformMatrixFromOtherObject(_fromObject : TPDisplayObject, _toObject : TPDisplayObject) : Void {
+		var fromObject : MovieClip = _fromObject.sourceDisplayObject;
+		var toObject : MovieClip = _toObject.sourceDisplayObject;
+		var toObjectParent : TPDisplayObject = new TPDisplayObject(_toObject.parent);
+		
+		var fromBounds : Rectangle = _fromObject.getBounds(toObjectParent);
+		
+		toObject.transform.matrix = fromObject.transform.matrix.clone();
+		toObject._rotation = fromObject._rotation; // Specific to AS2
+		
+		var toBounds : Rectangle = _toObject.getBounds(toObjectParent);
+		toObject._xscale = (fromBounds.width / toBounds.width) * 100;
+		toObject._yscale = (fromBounds.height / toBounds.height) * 100;
+		
+		toBounds = _toObject.getBounds(toObjectParent);
+		
+		toObject._x += fromBounds.x - toBounds.x;
+		toObject._y += fromBounds.y - toBounds.y;
+	}
+	
+	public static function remove(_object : TPDisplayObject) : Void {
+		// MovieClips created through Adobe Flash/Animate, have a negative depth, and can't be removed
+		// this gives it a positive depth so that it can be removed
+		_object.sourceDisplayObject.swapDepths(10000);
+		_object.sourceDisplayObject.removeMovieClip();
 	}
 }

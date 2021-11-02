@@ -11,6 +11,7 @@ package {
 	import controllers.ScriptTrackerMarkersEditorController;
 	import controllers.StrokerToyController;
 	import controllers.StrokerToyEditorController;
+	import core.CustomEvent;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.events.Event;
@@ -32,12 +33,16 @@ package {
 	import ui.TextStyles;
 	import visualComponents.Animation;
 	import visualComponents.Borders;
+	import visualComponents.StageElementHighlighter;
 	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
 	public class Index {
+		
+		/** Emitted after all controllers have been updated and all state listeners have been notified */
+		public static var enterFrameEvent : CustomEvent;
 		
 		private var stateManager : StateManager;
 		
@@ -72,6 +77,8 @@ package {
 		private var previousFrameRates : Vector.<Number>;
 		
 		public function Index(_container : MovieClip) {
+			enterFrameEvent = new CustomEvent();
+			
 			stateManager = new StateManager();
 			
 			container = new TPMovieClip(_container);
@@ -85,6 +92,7 @@ package {
 			
 			addAnimation();
 			addBorders();
+			addStageElementHighlighter();
 			addTrackingMarkersContainer();
 			addPanels();
 			addMainMenu();
@@ -126,6 +134,8 @@ package {
 				Mouse.show();
 			}
 			
+			enterFrameEvent.emit();
+			
 			// TEMP v
 			previousFrameRates.push(getTimer() - startTime);
 			if (previousFrameRates.length > 30) {
@@ -166,6 +176,10 @@ package {
 		
 		private function addBorders() : void {
 			borders = new Borders(container, 0x000000);
+		}
+		
+		private function addStageElementHighlighter() : void {
+			var stageElementHighlighter : StageElementHighlighter = new StageElementHighlighter(container);
 		}
 		
 		private function addTrackingMarkersContainer() : void {
