@@ -53,11 +53,13 @@ package {
 		private var hierarchyPanelController : HierarchyPanelController;
 		private var saveDataController : SaveDataController;
 		private var scriptSampleMarkersEditorController : ScriptSampleMarkersEditorController;
-		private var scriptTrackermarkersEditorController : ScriptTrackerMarkersEditorController;
+		private var scriptTrackerMarkersEditorController : ScriptTrackerMarkersEditorController;
 		private var strokerToyController : StrokerToyController;
 		private var strokerToyEditorController : StrokerToyEditorController;
 		
 		private var container : TPMovieClip;
+		private var panelsContainer : TPMovieClip;
+		private var trackingMarkersContainer : TPMovieClip;
 		private var mainMenu : MainMenu;
 		private var borders : Borders;
 		private var animation : Animation;
@@ -83,6 +85,7 @@ package {
 			
 			addAnimation();
 			addBorders();
+			addTrackingMarkersContainer();
 			addPanels();
 			addMainMenu();
 			addErrorText();
@@ -165,8 +168,12 @@ package {
 			borders = new Borders(container, 0x000000);
 		}
 		
+		private function addTrackingMarkersContainer() : void {
+			trackingMarkersContainer = TPMovieClip.create(container, "trackingMarkersContainer");
+		}
+		
 		private function addPanels() : void {
-			var panelsContainer : TPMovieClip = TPMovieClip.create(container, "panelsContainer");
+			panelsContainer = TPMovieClip.create(container, "panelsContainer");
 			
 			hierarchyPanel = new HierarchyPanel(panelsContainer, 240, 200);
 			
@@ -221,12 +228,14 @@ package {
 			
 			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
 			animationSizeController = new AnimationSizeController(animationSizeStates);
+			scriptTrackerMarkersEditorController = new ScriptTrackerMarkersEditorController(scriptStates, trackingMarkersContainer);
 		}
 		
 		private function updateControllers() : void {
 			hierarchyPanelController.update();
 			animationSizeController.update();
 			animationPlaybackController.update();
+			scriptTrackerMarkersEditorController.update();
 		}
 	}
 }

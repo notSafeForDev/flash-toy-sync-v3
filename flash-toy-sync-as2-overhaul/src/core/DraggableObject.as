@@ -18,7 +18,7 @@ class core.DraggableObject {
 	private var container : MovieClip;
 	private var hitArea : MovieClip;
 	
-	private var isDragging : Boolean = false;
+	private var _isDragging : Boolean = false;
 	private var mouseDragOffset : Point;
 	
 	function DraggableObject(_container : TPDisplayObject, _hitArea : TPDisplayObject) {
@@ -46,12 +46,12 @@ class core.DraggableObject {
 		}
 	}
 	
-	public function moveToCursor() {
+	public function moveToCursor() : Void {
 		container._x = container._parent._xmouse;
 		container._y = container._parent._ymouse;
 	}
 	
-	function startDrag() {
+	public function startDrag() : Void {
 		mouseDragOffset = new Point(container._root._xmouse, container._root._ymouse);
 		container._parent.globalToLocal(mouseDragOffset);
 		mouseDragOffset.x -= container._x;
@@ -59,33 +59,38 @@ class core.DraggableObject {
 		
 		if (bringToFrontOnDrag == true) {
 			if (container._parent != null) {
+				// TODO: Fix so that the depth doesn't shift around time this is called
 				container.swapDepths(container._parent.getNextHighestDepth());
 			}
 		}
 		
-		isDragging = true;
+		_isDragging = true;
 		startDragEvent.emit();
 	}
 	
-	public function stopDrag() {
-		if (isDragging == false) {
+	public function stopDrag() : Void {
+		if (_isDragging == false) {
 			return;
 		}
 		
-		isDragging = false;
+		_isDragging = false;
 		stopDragEvent.emit();
 	}
 	
-	private function onButtonMoveMouseDown() {
+	public function isDragging() : Boolean {
+		return _isDragging;
+	}
+	
+	private function onButtonMoveMouseDown() : Void {
 		startDrag();
 	}
 	
-	private function onMouseUp() {
+	private function onMouseUp() : Void {
 		stopDrag();
 	}
 	
-	function onEnterFrame() {
-		if (isDragging == false) {
+	private function onEnterFrame() : Void {
+		if (_isDragging == false) {
 			return;
 		}
 		

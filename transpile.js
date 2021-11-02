@@ -304,6 +304,10 @@ function getStringBetween(string, leftPart, rightPart) {
 }
 
 function validateActionscript3ForTranspilation(actionscript) {
+    if (actionscript === "") {
+        throw new Error("Unable to validate actionscript, the file is empty");
+    }
+
     const lines = actionscript.split("\r\n");
     const warnings = [];
 
@@ -501,7 +505,13 @@ function transpileActionScriptFiles(target, ignoreFolders = [], ignoreFiles = []
             transpileActionScriptFiles(filePath);
         } else if (filePath.includes(".as") === true && ignoreFiles.includes(filePath) === false) {
             fs.readFile(filePath, "utf-8", (err, data) => {
+                if (data === "") {
+                    console.log(filePath + " appears to be empty, skipping it");
+                    return;
+                }
+
                 console.log("Transpiling: " + filePath);
+
                 const isValid = validateActionscript3ForTranspilation(data);
                 if (isValid === false) {
                     console.log("Warnings found in: " + filePath);
@@ -509,7 +519,9 @@ function transpileActionScriptFiles(target, ignoreFolders = [], ignoreFiles = []
                     isAborted = true;
                     return;
                 }
+
                 const transpiled = transpileActionScript3To2(data);
+
                 fs.writeFile(filePath, transpiled, "utf-8", (err) => {
                     if (err) {
                         throw err

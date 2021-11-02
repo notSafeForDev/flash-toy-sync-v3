@@ -102,5 +102,17 @@ package utils {
 		public static function angleBetween(_pointA : Point, _pointB : Point) : Number {
 			return Math.atan2(_pointB.y - _pointA.y, _pointB.x - _pointA.x) * 180 / Math.PI;
 		}
+		
+		/**
+		 * Get the distance between two points
+		 * @param	_pointA		The first point
+		 * @param	_pointB		The second point
+		 * @return	The distance
+		 */
+		public static function distanceBetween(_pointA : Point, _pointB : Point) : Number {
+			var distanceX : Number = _pointB.x - _pointA.x;
+			var distanceY : Number = _pointB.y - _pointA.y;
+			return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+		}
 	}
 }

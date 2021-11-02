@@ -1,4 +1,5 @@
 package components {
+	import core.CustomEvent;
 	import flash.display.DisplayObject;
 	import core.TPKeyboardInput;
 	
@@ -8,12 +9,18 @@ package components {
 	 */
 	public class KeyboardInput {
 		
+		public static var keyDownEvent : CustomEvent;
+		public static var keyUpEvent : CustomEvent;
+		
 		private static var transpiledKeyboardInput : TPKeyboardInput;
 		
 		private static var shortcuts : Vector.<KeyboardShortcut>;
 		
 		public static function init(_object : DisplayObject) : void {
-			transpiledKeyboardInput = new TPKeyboardInput(_object, KeyboardInput.onKeyDown, null);
+			transpiledKeyboardInput = new TPKeyboardInput(_object, KeyboardInput.onKeyDown, onKeyUp);
+			
+			keyDownEvent = new CustomEvent();
+			keyUpEvent = new CustomEvent();
 			
 			shortcuts = new Vector.<KeyboardShortcut>();
 		}
@@ -26,6 +33,10 @@ package components {
 			
 			var shortcut : KeyboardShortcut = new KeyboardShortcut(keys, _scope, _handler, _rest);
 			KeyboardInput.shortcuts.push(shortcut);
+			KeyboardInput.shortcuts.sort(function(_a : KeyboardShortcut, _b : KeyboardShortcut) : Number {
+				return _b.keys.length - _a.keys.length;
+			});
+			
 			return shortcut;
 		}
 		
@@ -45,6 +56,12 @@ package components {
 					break;
 				}
 			}
+			
+			keyDownEvent.emit(_key);
+		}
+		
+		private static function onKeyUp(_key : Number) : void {
+			keyUpEvent.emit(_key);
 		}
 	}
 }

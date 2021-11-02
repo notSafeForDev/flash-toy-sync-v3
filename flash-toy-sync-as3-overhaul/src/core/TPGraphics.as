@@ -65,6 +65,10 @@ package core {
 			graphics.drawRoundRect(_x, _y, _width, _height, _radius, _radius);
 		}
 		
+		public function drawCircle(_x : Number, _y : Number, _radius : Number) : void {
+			graphics.drawCircle(_x, _y, _radius);
+		}
+		
 		public function clear() : void {
 			graphics.clear();
 		}

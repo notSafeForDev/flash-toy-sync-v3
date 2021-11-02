@@ -45,9 +45,11 @@ package ui {
 			var textFormat : TextFormat = new TextFormat();
 			textFormat.font = font;
 			textFormat.color = 0xFFFFFF;
-			
+			textFormat.align = TextElement.ALIGN_CENTER;
+
 			_text.setTextFormat(textFormat);
-			
+			_text.sourceTextField.autoSize = TextElement.AUTO_SIZE_CENTER;
+			_text.element.height = 20;
 			_text.element.filters = [new GlowFilter(0x000000, 0.5, 2, 2, 255)];
 		}
 		

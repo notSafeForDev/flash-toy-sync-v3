@@ -16,7 +16,7 @@ package utils {
 		 * @param	_stim	The position on the screen where the stimulation takes place on the "penis"
 		 * @return	The calculated depth from 0 to 1 (clamped), 0 meaning at the base, 1 meaning at the tip
 		 */
-		public function caclulateDepth(_base : Point, _tip : Point, _stim : Point) : Number {
+		public static function caclulateDepth(_base : Point, _tip : Point, _stim : Point) : Number {
 			var angle : Number = MathUtil.angleBetween(_base, _tip);
 			
 			// We rotate the tip and stimulation points so that the tip is directly to the right of the base, at the same y position
@@ -35,7 +35,7 @@ package utils {
 		 * @param	_positions	The positions to interpolate between, must include at least one non null value
 		 * @return
 		 */
-		public function getInterpolatedPosition(_positions : Vector.<Point>, _index : Number) : Number {
+		public static function getInterpolatedPosition(_positions : Vector.<Point>, _index : Number) : Point {
 			if (_positions[_index] != null) {
 				return _positions[_index];
 			}

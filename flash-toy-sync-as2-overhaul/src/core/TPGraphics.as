@@ -53,6 +53,18 @@ class core.TPGraphics{
 		graphics.curveTo(_x, _y, _x + _radius, _y); // Top left corner
 	}
 	
+	public function drawCircle(_x : Number, _y : Number, _radius : Number) : Void {
+		graphics.moveTo(_x+_radius, _y);
+		graphics.curveTo(_radius+_x, Math.tan(Math.PI/8)*_radius+_y, Math.sin(Math.PI/4)*_radius+_x, Math.sin(Math.PI/4)*_radius+_y);
+		graphics.curveTo(Math.tan(Math.PI/8)*_radius+_x, _radius+_y, _x, _radius+_y);
+		graphics.curveTo(-Math.tan(Math.PI/8)*_radius+_x, _radius+_y, -Math.sin(Math.PI/4)*_radius+_x, Math.sin(Math.PI/4)*_radius+_y);
+		graphics.curveTo(-_radius+_x, Math.tan(Math.PI/8)*_radius+_y, -_radius+_x, _y);
+		graphics.curveTo(-_radius+_x, -Math.tan(Math.PI/8)*_radius+_y, -Math.sin(Math.PI/4)*_radius+_x, -Math.sin(Math.PI/4)*_radius+_y);
+		graphics.curveTo(-Math.tan(Math.PI/8)*_radius+_x, -_radius+_y, _x, -_radius+_y);
+		graphics.curveTo(Math.tan(Math.PI/8)*_radius+_x, -_radius+_y, Math.sin(Math.PI/4)*_radius+_x, -Math.sin(Math.PI/4)*_radius+_y);
+		graphics.curveTo(_radius+_x, -Math.tan(Math.PI/8)*_radius+_y, _radius+_x, _y);
+	}
+	
 	public function clear() : Void {
 		graphics.clear();
 	}
