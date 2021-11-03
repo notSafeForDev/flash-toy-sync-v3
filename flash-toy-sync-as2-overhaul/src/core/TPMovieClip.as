@@ -87,9 +87,14 @@ class core.TPMovieClip extends TPDisplayObject {
 				continue;
 			}
 			
-			i++;
-			
 			var child : MovieClip = _topParent[childName];
+			
+			// In case of external swfs, one of the properties can be itself, which puts it into an endless loop
+			if (child == _topParent) {
+				continue;
+			}
+			
+			i++;
 			
 			var code = _handler.apply(_scope, [child, _currentDepth + 1, i].concat(_args));
 			if (code == ITERATE_ABORT || code == ITERATE_SKIP_SIBLINGS) {
