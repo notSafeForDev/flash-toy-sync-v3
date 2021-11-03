@@ -7,6 +7,7 @@ package controllers {
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import states.AnimationInfoStates;
+	import states.AnimationPlaybackStates;
 	import states.HierarchyStates;
 	import ui.HierarchyPanel;
 	import utils.ArrayUtil;
@@ -79,6 +80,7 @@ package controllers {
 			
 			var infoList : Array = [];
 			var expandableChildren : Vector.<DisplayObject> = new Vector.<DisplayObject>();
+			var includedChildren : Vector.<DisplayObject> = new Vector.<DisplayObject>();
 			
 			infoList.push(rootInfo);
 			
@@ -96,11 +98,62 @@ package controllers {
 					continue;
 				}
 				
+				includedChildren.push(child.sourceDisplayObject);
+				
 				var isChildExpandable : Boolean = (i == 0 && infoList.length > 1) || ArrayUtil.includes(expandableChildren, child.sourceDisplayObject);
 				info.isExpandable = isChildExpandable;
 			}
 			
+			var activeChild : TPDisplayObject = AnimationPlaybackStates.activeChild.value;
+			if (activeChild != null && ArrayUtil.includes(includedChildren, activeChild.sourceDisplayObject) == false) {
+				addChildToInfoList(activeChild, infoList, includedChildren);
+			}
+			
 			return infoList;
+		}
+		
+		private function addChildToInfoList(_child : TPDisplayObject, _infoList : Array, _includedChildren : Vector.<DisplayObject>) : void {
+			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(_child.sourceDisplayObject);
+			var insertIndex : Number = -1;
+			var insertDepth : Number = -1;
+			var i : Number;
+			
+			for (i = 0; i < parents.length; i++) {
+				insertIndex = ArrayUtil.indexOf(_includedChildren, parents[i]);
+				if (insertIndex >= 0) {
+					insertDepth = _infoList[insertIndex].depth;
+					parents = parents.slice(0, i);
+					break;
+				}
+			}
+			
+			if (insertIndex < 0) {
+				return;
+			}
+			
+			// The parents are originally ordered from direct parent, ending with the stage
+			// So we reverse it so that it starts with the first parent to add
+			parents.reverse();
+			
+			for (i = 0; i < parents.length; i++) {
+				var parentInfo : HierarchyChildInfo = new HierarchyChildInfo();
+				parentInfo.child = new TPDisplayObject(parents[i]);
+				parentInfo.childIndex = TPDisplayObject.getChildIndex(parents[i]);
+				parentInfo.depth = insertDepth + 1 + i;
+				parentInfo.isExpandable = false;
+				parentInfo.isExpanded = false;
+				
+				_infoList.splice(insertIndex + 1 + i, 0, parentInfo);
+			}
+			
+			var childInfo : HierarchyChildInfo = new HierarchyChildInfo();
+			childInfo.child = _child;
+			childInfo.childIndex = TPDisplayObject.getChildIndex(_child.sourceDisplayObject);
+			childInfo.depth = insertDepth + parents.length + 1;
+			childInfo.isExpandable = false;
+			childInfo.isExpanded = false;
+			
+			_infoList.splice(insertIndex + 1 + parents.length, 0, childInfo);
 		}
 		
 		private function getInfoForActiveChildrenIterator(_child : MovieClip, _depth : Number, _childIndex : Number, _infoList : Array, _expandableChildren : Vector.<DisplayObject>) : Number {
