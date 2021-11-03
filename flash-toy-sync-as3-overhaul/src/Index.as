@@ -12,6 +12,7 @@ package {
 	import controllers.StrokerToyController;
 	import controllers.StrokerToyEditorController;
 	import core.CustomEvent;
+	import core.JSONLoader;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.events.Event;
@@ -100,6 +101,16 @@ package {
 			addFPSText();
 			
 			container.addEnterFrameListener(this, onEnterFrame);
+			
+			JSONLoader.load("flash-toy-sync-standalone.json", this, onStandaloneJSONLoaded);
+		}
+		
+		private function onStandaloneJSONLoaded(_json : Object) : void {
+			if (_json.swf != undefined) {
+				animationInfoStates._name.setValue(_json.swf);
+			}
+			
+			animationInfoStates._isStandalone.setValue(_json.swf != undefined);
 		}
 		
 		private function onAnimationSelected(_name : String) : void {

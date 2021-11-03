@@ -16,6 +16,9 @@ package states {
 		
 		private static var stateManager : StateManager;
 		
+		public var _isStandalone : BooleanState;
+		public static var isStandalone : BooleanStateReference;
+		
 		public var _animationRoot : TPMovieClipState;
 		public static var animationRoot : TPMovieClipStateReference;
 		
@@ -29,6 +32,9 @@ package states {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}
+			
+			_isStandalone = _stateManager.addState(BooleanState, false);
+			isStandalone = _isStandalone.reference;
 			
 			_animationRoot = _stateManager.addState(TPMovieClipState, null);
 			animationRoot = _animationRoot.reference;

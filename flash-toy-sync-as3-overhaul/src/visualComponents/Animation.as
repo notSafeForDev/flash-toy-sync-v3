@@ -5,6 +5,7 @@ package visualComponents {
 	import flash.display.MovieClip;
 	import core.TPMovieClip;
 	import core.SWFLoaderUtil;
+	import states.AnimationInfoStates;
 	import states.AnimationSizeStates;
 	
 	/**
@@ -36,7 +37,12 @@ package visualComponents {
 		 * @param	_name	The name of the swf file, including the .swf extension
 		 */
 		public function load(_name : String) : void {
-			var path : String = "animations/" + _name;
+			var path : String;
+			if (AnimationInfoStates.isStandalone.value == true) {
+				path = _name;
+			} else {
+				path = "animations/" + _name;
+			}
 			
 			SWFLoaderUtil.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
 		}
