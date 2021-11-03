@@ -1,4 +1,5 @@
 package ui {
+	
 	import core.TPMovieClip;
 	import ui.ScriptMarker;
 	import ui.TextElement;
@@ -8,9 +9,9 @@ package ui {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class ScriptTrackingMarker extends ScriptMarker {
+	public class ScriptTrackerMarker extends ScriptMarker {
 		
-		public function ScriptTrackingMarker(_parent : TPMovieClip, _color : Number, _text : String) {
+		public function ScriptTrackerMarker(_parent : TPMovieClip, _color : Number, _text : String) {
 			super(_parent, _text);
 			
 			element.graphics.beginFill(_color, 0.5);

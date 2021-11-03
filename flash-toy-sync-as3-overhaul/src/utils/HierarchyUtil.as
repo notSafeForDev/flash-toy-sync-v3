@@ -101,7 +101,7 @@ package utils {
 				child = TPDisplayObject.getChildAtIndex(childAsParent, childIndex);
 			}
 			
-			return new TPDisplayObject(child);
+			return child != null ? new TPDisplayObject(child) : null;
 		}
 		
 		/**

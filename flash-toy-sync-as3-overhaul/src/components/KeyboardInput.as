@@ -1,5 +1,7 @@
 package components {
+	
 	import core.CustomEvent;
+	import core.TPDisplayObject;
 	import flash.display.DisplayObject;
 	import core.TPKeyboardInput;
 	
@@ -16,7 +18,7 @@ package components {
 		
 		private static var shortcuts : Vector.<KeyboardShortcut>;
 		
-		public static function init(_object : DisplayObject) : void {
+		public static function init(_object : TPDisplayObject) : void {
 			transpiledKeyboardInput = new TPKeyboardInput(_object, KeyboardInput.onKeyDown, onKeyUp);
 			
 			keyDownEvent = new CustomEvent();

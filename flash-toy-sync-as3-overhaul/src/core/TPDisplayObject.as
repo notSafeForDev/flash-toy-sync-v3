@@ -20,6 +20,10 @@ package core {
 		public var sourceDisplayObject : DisplayObject;
 		
 		public function TPDisplayObject(_object : DisplayObject) {
+			if (_object == null) {
+				throw new Error("Unable to create a tsDisplayObject, the supplied object is null");
+			}
+			
 			sourceDisplayObject = _object;
 		}
 		
@@ -181,6 +185,15 @@ package core {
 		
 		public function hitTest(_stageX : Number, _stageY : Number, _shapeFlag : Boolean) : Boolean {
 			return sourceDisplayObject.hitTestPoint(_stageX, _stageY, _shapeFlag);
+		}
+		
+		/**
+		 * Checks if the object have been removed from the stage
+		 * Note: in the AS2 version we instead check if the object doesn't have a parent, which could lead to different results
+		 * @return
+		 */
+		public function isRemoved() : Boolean {
+			return sourceDisplayObject.stage == null;
 		}
 		
 		public static function getParent(_object : DisplayObject) : DisplayObjectContainer {

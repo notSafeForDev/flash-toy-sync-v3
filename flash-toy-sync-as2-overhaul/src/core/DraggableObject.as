@@ -86,7 +86,9 @@ class core.DraggableObject {
 	}
 	
 	private function onMouseUp() : Void {
-		stopDrag();
+		if (_isDragging == true) {
+			stopDrag();
+		}
 	}
 	
 	private function onEnterFrame() : Void {

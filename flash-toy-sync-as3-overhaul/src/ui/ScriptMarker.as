@@ -78,5 +78,10 @@ package ui {
 		public function getPosition() : Point {
 			return new Point(element.x, element.y);
 		}
+		
+		public function setPosition(_x : Number, _y : Number) : void {
+			element.x = _x;
+			element.y = _y;
+		}
 	}
 }

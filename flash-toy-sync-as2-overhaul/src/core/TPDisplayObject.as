@@ -13,6 +13,10 @@ class core.TPDisplayObject {
 	
 	// Doesn't use any type, as the object could be a TextField
 	public function TPDisplayObject(_object) {
+		if (_object == null) {
+			trace("Unable to create a tsDisplayObject, the supplied object is null");
+		}
+		
 		sourceDisplayObject = _object;
 	}
 	
@@ -157,6 +161,10 @@ class core.TPDisplayObject {
 	
 	public function hitTest(_stageX : Number, _stageY : Number, _shapeFlag : Boolean) : Boolean {
 		return sourceDisplayObject.hitTest(_stageX, _stageY, _shapeFlag == true);
+	}
+	
+	public function isRemoved() : Boolean {
+		return sourceDisplayObject._parent == null;
 	}
 	
 	public static function getParent(_object : MovieClip) : MovieClip {

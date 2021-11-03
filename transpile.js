@@ -304,14 +304,18 @@ function getStringBetween(string, leftPart, rightPart) {
 }
 
 function validateActionscript3ForTranspilation(actionscript) {
-    if (actionscript === "") {
-        throw new Error("Unable to validate actionscript, the file is empty");
-    }
-
     const lines = actionscript.split("\r\n");
     const warnings = [];
 
     const classLineIndex = findActionScriptLineIndex(lines, ["public class"]);
+
+    if (actionscript === "") {
+        throw new Error("Unable to validate actionscript, the file is empty");
+    }
+    if (classLineIndex < 0) {
+        throw new Error("Unable to validate actionscript, the file is not a valid class file");
+    }
+
     const className = getStringBetween(lines[classLineIndex], "class ", " {");
 
     const constructorLineIndex = lines.findIndex(line => line.includes("function " + className + "("));

@@ -11,10 +11,10 @@ package core {
 	public class TPKeyboardInput {
 		private var pressedKeys : Vector.<Number>;
 		
-		public function TPKeyboardInput(_object : DisplayObject, _keyDownHandler : Function, _keyUpHandler : Function) {
+		public function TPKeyboardInput(_object : TPDisplayObject, _keyDownHandler : Function, _keyUpHandler : Function) {
 			pressedKeys = new Vector.<Number>();
 			
-			_object.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) : void {
+			_object.sourceDisplayObject.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) : void {
 				// Control and Shift are handled differently 
 				// as certain combinations that includes those keys prevents keyboard events from getting triggered
 				if (e.ctrlKey == true && isKeyPressed(Keyboard.CONTROL) == false) {
@@ -31,7 +31,7 @@ package core {
 				}
 			});
 			
-			_object.stage.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) : void {
+			_object.sourceDisplayObject.stage.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) : void {
 				var ctrlKeyIndex : int = pressedKeys.indexOf(Keyboard.CONTROL);
 				if (ctrlKeyIndex >= 0 && e.ctrlKey == false) {
 					pressedKeys.splice(ctrlKeyIndex, 1);

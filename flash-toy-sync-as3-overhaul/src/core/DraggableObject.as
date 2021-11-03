@@ -74,7 +74,9 @@ package core {
 		}
 		
 		private function onMouseUp(e : MouseEvent) : void {
-			stopDrag();
+			if (_isDragging == true) {
+				stopDrag();
+			}
 		}
 		
 		private function onEnterFrame(e : Event) : void {

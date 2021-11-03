@@ -8,7 +8,7 @@ package {
 	import controllers.HierarchyPanelController;
 	import controllers.SaveDataController;
 	import controllers.ScriptSampleMarkersEditorController;
-	import controllers.ScriptTrackerMarkersEditorController;
+	import controllers.ScriptTrackersController;
 	import controllers.StrokerToyController;
 	import controllers.StrokerToyEditorController;
 	import core.CustomEvent;
@@ -58,7 +58,7 @@ package {
 		private var hierarchyPanelController : HierarchyPanelController;
 		private var saveDataController : SaveDataController;
 		private var scriptSampleMarkersEditorController : ScriptSampleMarkersEditorController;
-		private var scriptTrackerMarkersEditorController : ScriptTrackerMarkersEditorController;
+		private var scriptTrackersController : ScriptTrackersController;
 		private var strokerToyController : StrokerToyController;
 		private var strokerToyEditorController : StrokerToyEditorController;
 		
@@ -86,7 +86,7 @@ package {
 			previousFrameRates = new Vector.<Number>();
 			
 			TPStage.init(_container, 30);
-			KeyboardInput.init(_container);
+			KeyboardInput.init(container);
 			
 			initializeStates();
 			
@@ -242,14 +242,14 @@ package {
 			
 			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
 			animationSizeController = new AnimationSizeController(animationSizeStates);
-			scriptTrackerMarkersEditorController = new ScriptTrackerMarkersEditorController(scriptStates, trackingMarkersContainer);
+			scriptTrackersController = new ScriptTrackersController(scriptStates, trackingMarkersContainer);
 		}
 		
 		private function updateControllers() : void {
 			hierarchyPanelController.update();
 			animationSizeController.update();
 			animationPlaybackController.update();
-			scriptTrackerMarkersEditorController.update();
+			scriptTrackersController.update();
 		}
 	}
 }
