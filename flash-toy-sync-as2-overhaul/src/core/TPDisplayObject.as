@@ -100,7 +100,8 @@ class core.TPDisplayObject {
 		var children : Array = [];
 		
 		for (var childName in sourceDisplayObject) {
-			if (typeof sourceDisplayObject[childName] == "movieclip") {
+			// We also need to check if it isn't refering to itself, as that can be an issue for external swfs
+			if (typeof sourceDisplayObject[childName] == "movieclip" && sourceDisplayObject[childName] != sourceDisplayObject) {
 				children.push(sourceDisplayObject[childName]);
 			}
 		}
@@ -187,9 +188,10 @@ class core.TPDisplayObject {
 	
 	public static function getNestedChildren(_topParent : MovieClip) : Array {
 		var children : Array = [];
-
+		
 		for (var childName : String in _topParent) {
-			if (isDisplayObject(_topParent[childName]) == true) {
+			// We also need to check if it isn't refering to itself, as that can be an issue for external swfs
+			if (isDisplayObject(_topParent[childName]) == true && _topParent[childName] != _topParent) {
 				children.push(_topParent[childName]);
 				children = children.concat(getNestedChildren(_topParent[childName]));
 			}
