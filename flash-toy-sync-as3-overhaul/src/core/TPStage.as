@@ -2,6 +2,9 @@ package core {
 	
 	import flash.display.DisplayObject;
 	import flash.display.Stage;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.text.TextField;
 	
 	/**
 	 * ...
@@ -11,9 +14,13 @@ package core {
 		
 		private static var _stage : Stage;
 		
+		private static var focusedInputTextField : TextField;
+		
 		public static function init(_object : DisplayObject, _frameRate : Number) : void {
 			_stage = _object.stage;
 			_stage.frameRate = _frameRate;
+			
+			_stage.addEventListener(MouseEvent.CLICK, onStageClick);
 		}
 		
 		public static function get stageWidth() : Number {
@@ -42,6 +49,22 @@ package core {
 		
 		public static function get stage() : Stage {
 			return _stage;
+		}
+		
+		public static function hasFocusedInputTextField() : Boolean {
+			return focusedInputTextField != null;
+		}
+		
+		private static function onStageClick(e : MouseEvent) : void {
+			if (e.target is TextField) {
+				var textField : TextField = e.target as TextField;
+				if (textField.type == "input") {
+					focusedInputTextField = textField;
+					return;
+				}
+			}
+			
+			focusedInputTextField = null;
 		}
 	}
 }

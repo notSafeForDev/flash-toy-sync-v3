@@ -21,5 +21,9 @@ package core {
 				_handler.apply(_scope, [_textField.text]);
 			});
 		}
+		
+		public static function hasFocusedTextElement() : Boolean {
+			return false;
+		}
 	}
 }

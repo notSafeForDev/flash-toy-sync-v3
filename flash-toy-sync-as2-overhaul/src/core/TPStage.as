@@ -36,7 +36,11 @@ class core.TPStage {
 		trace("Error: Unable to set frameRate, it's not supported in AS2");
 	}
 	
-	static function get stage() {
+	public static function get stage() {
 		return _stage;
+	}
+	
+	public static function hasFocusedInputTextField() : Boolean {
+		return Selection.getFocus() != undefined;
 	}
 }

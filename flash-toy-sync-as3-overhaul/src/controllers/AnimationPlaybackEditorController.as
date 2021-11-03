@@ -155,18 +155,16 @@ package controllers {
 			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
 			if (currentScene != null) {
 				currentScene.stepFrames(_frames);
+				animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
 			}
-			
-			animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
 		}
 		
 		private function onRewindShortcut() : void {
 			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
 			if (currentScene != null) {
 				currentScene.gotoAndStop(currentScene.getStartFrames());
+				animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
 			}
-			
-			animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
 		}
 		
 		private function onHierarchyPanelChildSelected(_child : TPDisplayObject) : void {

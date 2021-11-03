@@ -67,6 +67,8 @@ package ui {
 		
 		public function convertToInputField(_scope : *, _onChangeHandler : Function) : void {
 			sourceTextField.type = "input";
+			sourceTextField.selectable = true;
+			sourceTextField.mouseEnabled = true;
 			TPTextField.addOnChangeListener(sourceTextField, _scope, _onChangeHandler);
 		}
 	}

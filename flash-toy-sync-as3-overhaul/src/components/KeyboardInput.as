@@ -2,6 +2,7 @@ package components {
 	
 	import core.CustomEvent;
 	import core.TPDisplayObject;
+	import core.TPStage;
 	import flash.display.DisplayObject;
 	import core.TPKeyboardInput;
 	
@@ -47,6 +48,10 @@ package components {
 		}
 		
 		private static function onKeyDown(_key : Number) : void {
+			if (TPStage.hasFocusedInputTextField() == true) {
+				return;
+			}
+			
 			for (var i : Number = 0; i < shortcuts.length; i++) {
 				var shortcut : KeyboardShortcut = KeyboardInput.shortcuts[i];
 				
@@ -63,7 +68,9 @@ package components {
 		}
 		
 		private static function onKeyUp(_key : Number) : void {
-			keyUpEvent.emit(_key);
+			if (TPStage.hasFocusedInputTextField() == false) {
+				keyUpEvent.emit(_key);
+			}
 		}
 	}
 }
