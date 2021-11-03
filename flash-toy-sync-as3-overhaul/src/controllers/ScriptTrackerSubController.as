@@ -7,6 +7,7 @@ package controllers {
 	import flash.geom.Point;
 	import stateTypes.PointState;
 	import stateTypes.TPDisplayObjectState;
+	import states.AnimationPlaybackStates;
 	import states.ScriptStates;
 	import ui.ScriptTrackerMarker;
 	
@@ -29,6 +30,7 @@ package controllers {
 			pointState = _pointState;
 			keyboardShortcut = _keyboardShortcut;
 			
+			marker.hide();
 			marker.stopDragEvent.listen(this, onMarkerStopDrag);
 			
 			KeyboardInput.addShortcut([keyboardShortcut], this, onGrabMarkerShortcut, []);
@@ -76,6 +78,9 @@ package controllers {
 			marker.stopDrag();
 			
 			var attachedTo : TPDisplayObject = ScriptStates.childUnderDraggedMarker.value;
+			if (attachedTo == null) {
+				attachedTo = AnimationPlaybackStates.activeChild.value;
+			}
 			
 			if (attachedTo == null || attachedTo.isRemoved() == true) {
 				clearStates();

@@ -164,7 +164,9 @@ class core.TPDisplayObject {
 	}
 	
 	public function isRemoved() : Boolean {
-		return sourceDisplayObject._parent == null;
+		// If the object is the root of an external swf, then the parent is null,
+		// so we instead check it's depth
+		return sourceDisplayObject.getDepth() == undefined;
 	}
 	
 	public static function getParent(_object : MovieClip) : MovieClip {

@@ -6,6 +6,7 @@ package controllers {
 	import states.ScriptStates;
 	import ui.ScriptTrackerMarker;
 	import utils.StageChildSelectionUtil;
+	import visualComponents.DepthPreview;
 	
 	/**
 	 * ...
@@ -21,6 +22,8 @@ package controllers {
 		
 		private var subControllers : Vector.<ScriptTrackerSubController>;
 		
+		private var depthPreview : DepthPreview;
+		
 		public function ScriptTrackersController(_scriptStates : ScriptStates, _container : TPMovieClip) {
 			scriptStates = _scriptStates;
 			
@@ -34,6 +37,8 @@ package controllers {
 			
 			subControllers = new Vector.<ScriptTrackerSubController>();
 			subControllers.push(baseSubController, stimSubController, tipSubController);
+			
+			depthPreview = new DepthPreview(_container, baseMarker, stimMarker, tipMarker);
 		}
 		
 		public function update() : void {
@@ -57,7 +62,7 @@ package controllers {
 					var childAtCursor : TPDisplayObject = StageChildSelectionUtil.getClickableChildAtCursor();
 					scriptStates._childUnderDraggedMarker.setValue(childAtCursor);
 				}
-			}			
+			}
 		}
 	}
 }

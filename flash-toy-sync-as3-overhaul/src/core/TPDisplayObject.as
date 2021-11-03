@@ -187,11 +187,6 @@ package core {
 			return sourceDisplayObject.hitTestPoint(_stageX, _stageY, _shapeFlag);
 		}
 		
-		/**
-		 * Checks if the object have been removed from the stage
-		 * Note: in the AS2 version we instead check if the object doesn't have a parent, which could lead to different results
-		 * @return
-		 */
 		public function isRemoved() : Boolean {
 			return sourceDisplayObject.stage == null;
 		}
