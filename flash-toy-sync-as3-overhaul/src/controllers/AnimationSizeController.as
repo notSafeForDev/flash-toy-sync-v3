@@ -3,6 +3,7 @@ package controllers {
 	import components.KeyboardInput;
 	import flash.ui.Keyboard;
 	import states.AnimationSizeStates;
+	import ui.Shortcuts;
 	
 	/**
 	 * ...
@@ -15,10 +16,10 @@ package controllers {
 		public function AnimationSizeController(_animationSizeStates : AnimationSizeStates) {
 			animationSizeStates = _animationSizeStates;
 			
-			KeyboardInput.addShortcut([Keyboard.S, Keyboard.LEFT], this, onIncreaseWidthShortcut, null);
-			KeyboardInput.addShortcut([Keyboard.S, Keyboard.RIGHT], this, onDecreaseWidthShortcut, null);
-			KeyboardInput.addShortcut([Keyboard.S, Keyboard.UP], this, onIncreaseHeightShortcut, null);
-			KeyboardInput.addShortcut([Keyboard.S, Keyboard.DOWN], this, onDecreaseHeightShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.increaseAnimationWidth, this, onIncreaseWidthShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.decreaseAnimationWidth, this, onDecreaseWidthShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.increaseAnimationHeight, this, onIncreaseHeightShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.decreaseAnimationHeight, this, onDecreaseHeightShortcut, null);
 		}
 		
 		public function update() : void {

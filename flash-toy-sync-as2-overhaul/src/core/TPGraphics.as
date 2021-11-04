@@ -65,6 +65,10 @@ class core.TPGraphics{
 		graphics.curveTo(_radius+_x, -Math.tan(Math.PI/8)*_radius+_y, _radius+_x, _y);
 	}
 	
+	public function endFill() : Void {
+		graphics.endFill();
+	}
+	
 	public function clear() : Void {
 		graphics.clear();
 	}

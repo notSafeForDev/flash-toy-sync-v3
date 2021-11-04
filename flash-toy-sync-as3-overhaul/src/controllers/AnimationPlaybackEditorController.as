@@ -8,8 +8,10 @@ package controllers {
 	import models.SceneModel;
 	import states.AnimationInfoStates;
 	import states.AnimationPlaybackStates;
+	import states.HierarchyStates;
 	import ui.HierarchyPanel;
 	import ui.ScenesPanel;
+	import ui.Shortcuts;
 	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
 	
@@ -34,14 +36,16 @@ package controllers {
 			hierarchyPanel.selectEvent.listen(this, onHierarchyPanelChildSelected);
 			scenesPanel.sceneSelectedEvent.listen(this, onScenesPanelSceneSelected);
 			
-			KeyboardInput.addShortcut([Keyboard.ENTER], this, onTogglePlayingShortcut, []);
-			KeyboardInput.addShortcut([Keyboard.SPACE], this, onTogglePlayingShortcut, []);
-			KeyboardInput.addShortcut([Keyboard.LEFT], this, onStepFramesShortcut, [-1]);
-			KeyboardInput.addShortcut([Keyboard.A], this, onStepFramesShortcut, [-1]);
-			KeyboardInput.addShortcut([Keyboard.RIGHT], this, onStepFramesShortcut, [1]);
-			KeyboardInput.addShortcut([Keyboard.D], this, onStepFramesShortcut, [1]);
-			KeyboardInput.addShortcut([Keyboard.SHIFT, Keyboard.LEFT], this, onRewindShortcut, []);
-			KeyboardInput.addShortcut([Keyboard.SHIFT, Keyboard.A], this, onRewindShortcut, []);
+			HierarchyStates.listen(this, onHierarchyPanelLockedChildrenStateChange, [HierarchyStates.lockedChildren]);
+			
+			KeyboardInput.addShortcut(Shortcuts.togglePlaying1, this, onTogglePlayingShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.togglePlaying2, this, onTogglePlayingShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.stepFrameBackwards1, this, onStepFramesShortcut, [-1]);
+			KeyboardInput.addShortcut(Shortcuts.stepFrameBackwards2, this, onStepFramesShortcut, [-1]);
+			KeyboardInput.addShortcut(Shortcuts.stepFrameForwards1, this, onStepFramesShortcut, [1]);
+			KeyboardInput.addShortcut(Shortcuts.stepFrameForwards2, this, onStepFramesShortcut, [1]);
+			KeyboardInput.addShortcut(Shortcuts.rewind1, this, onRewindShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.rewind2, this, onRewindShortcut, []);
 		}
 		
 		public override function update() : void {
@@ -168,7 +172,16 @@ package controllers {
 		}
 		
 		private function onHierarchyPanelChildSelected(_child : TPDisplayObject) : void {
+			if (KeyboardInput.areKeysPressed(Shortcuts.singleSelect) == true || KeyboardInput.areKeysPressed(Shortcuts.multiSelect) == true) {
+				return;
+			}
+			
 			if (TPMovieClip.isMovieClip(_child.sourceDisplayObject) == false) {
+				return;
+			}
+			
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
+			if (ArrayUtil.includes(lockedChildren, _child.sourceDisplayObject) == true) {
 				return;
 			}
 			
@@ -227,6 +240,17 @@ package controllers {
 			setActiveChild(childAtPath);
 			
 			animationPlaybackStates._currentScene.setValue(_scene);
+		}
+		
+		private function onHierarchyPanelLockedChildrenStateChange() : void {
+			var activeChild : TPDisplayObject = AnimationPlaybackStates.activeChild.value;
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
+			
+			if (activeChild != null && ArrayUtil.includes(lockedChildren, activeChild.sourceDisplayObject) == true) {
+				setActiveChild(null);
+				activeChildPath = null;
+				activeChildParentsChainLength = -1;
+			}
 		}
 		
 		private function setActiveChild(_child : TPMovieClip) : void {

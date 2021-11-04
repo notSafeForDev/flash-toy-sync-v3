@@ -18,10 +18,14 @@ package states {
 		
 		private static var stateManager : StateManager;
 		
+		/** The inner child of the current scene */
 		public var _activeChild : TPMovieClipState;
+		/** The inner child of the current scene */
 		public static var activeChild : TPMovieClipStateReference;
 		
+		/** If the inner child of the current scene have been stopped through the editor */
 		public var _isForceStopped : BooleanState;
+		/** If the inner child of the current scene have been stopped through the editor */
 		public static var isForceStopped : BooleanStateReference;
 		
 		public var _currentScene : SceneState;

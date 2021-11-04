@@ -10,6 +10,7 @@ package controllers {
 	import states.AnimationPlaybackStates;
 	import states.ScriptStates;
 	import ui.ScriptTrackerMarker;
+	import utils.ArrayUtil;
 	
 	/**
 	 * ...
@@ -17,23 +18,28 @@ package controllers {
 	 */
 	public class ScriptTrackerSubController {
 		
+		/** Emitted when the marker is released without previously being attached to any object */
+		public var initalAttachEvent : CustomEvent;
+		
 		private var marker : ScriptTrackerMarker;
 		private var attachedToState : TPDisplayObjectState;
 		private var pointState : PointState;
-		private var keyboardShortcut : Number;
+		private var keyboardShortcut : Array;
 		
 		private var attachedToDisplayObjectReference : DisplayObjectReference;
 		
-		public function ScriptTrackerSubController(_marker : ScriptTrackerMarker, _attachedToState : TPDisplayObjectState, _pointState : PointState, _keyboardShortcut : Number) {
+		public function ScriptTrackerSubController(_marker : ScriptTrackerMarker, _attachedToState : TPDisplayObjectState, _pointState : PointState, _keyboardShortcut : Array) {
 			marker = _marker;
 			attachedToState = _attachedToState;
 			pointState = _pointState;
 			keyboardShortcut = _keyboardShortcut;
 			
+			initalAttachEvent = new CustomEvent();
+			
 			marker.hide();
 			marker.stopDragEvent.listen(this, onMarkerStopDrag);
 			
-			KeyboardInput.addShortcut([keyboardShortcut], this, onGrabMarkerShortcut, []);
+			KeyboardInput.addShortcut(_keyboardShortcut, this, onGrabMarkerShortcut, []);
 			KeyboardInput.keyUpEvent.listen(this, onKeyUp);
 		}
 		
@@ -71,7 +77,7 @@ package controllers {
 		}
 		
 		private function onKeyUp(_key : Number) : void {
-			if (_key != keyboardShortcut || marker.isDragging() == false) {
+			if (marker.isDragging() == false || ArrayUtil.includes(keyboardShortcut, _key) == false) {
 				return;
 			}
 			
@@ -92,6 +98,8 @@ package controllers {
 			
 			attachedToState.setValue(attachedTo);
 			pointState.setValue(localPoint);
+			
+			initalAttachEvent.emit(attachedTo);
 			
 			attachedToDisplayObjectReference = new DisplayObjectReference(attachedTo);
 			attachedToDisplayObjectReference.objectUpdateEvent.listen(this, onAttachedToObjectUpdate);

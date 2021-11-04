@@ -7,7 +7,9 @@ package ui {
 	import core.TPStage;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
+	import states.HierarchyStates;
 	import states.ScriptStates;
+	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
 	
 	/**
@@ -32,7 +34,7 @@ package ui {
 		protected override function onMouseDown() : void {
 			var localMousePosition : Point = background.globalToLocal(new Point(TPStage.mouseX, TPStage.mouseY));
 			
-			if (localMousePosition.x < 20 + depth * 15) {
+			if (localMousePosition.x < 25 + depth * 15) {
 				toggleExpandChildEvent.emit(child);
 			} else {
 				selectChildEvent.emit(child);
@@ -51,7 +53,7 @@ package ui {
 			
 			updateBackgroundGraphics();
 			
-			var prefix : String = "";
+			var prefix : String = " ";
 			
 			for (var i : Number = 0; i < _info.depth; i++) {
 				prefix += "  ";
@@ -70,6 +72,12 @@ package ui {
 			var name : String = HierarchyUtil.getChildIdentifier(_info.child.name, _info.depth, _info.childIndex);
 			setPrimaryText(prefix + name);
 			
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
+			if (ArrayUtil.includes(lockedChildren, child.sourceDisplayObject) == true) {
+				setSecondaryText("");
+				return;
+			}
+			
 			if (TPMovieClip.isMovieClip(_info.child.sourceDisplayObject) == false) {
 				setSecondaryText("-/-");
 			} else {
@@ -86,6 +94,11 @@ package ui {
 				return;
 			}
 			
+			if (HierarchyStates.selectedChild.value != null && child.sourceDisplayObject == HierarchyStates.selectedChild.value.sourceDisplayObject) {
+				background.graphics.beginFill(0xFFFFFF);
+				Icons.drawListItemSelection(background.graphics, 6, 5, 6, 10);
+			}
+			
 			var baseTrackerAttachedTo : TPDisplayObject = ScriptStates.baseTrackerAttachedTo.value;
 			var stimTrackerAttachedTo : TPDisplayObject = ScriptStates.stimTrackerAttachedTo.value;
 			var tipTrackerAttachedTo : TPDisplayObject = ScriptStates.tipTrackerAttachedTo.value;
@@ -99,12 +112,27 @@ package ui {
 			if (tipTrackerAttachedTo != null && child.sourceDisplayObject == tipTrackerAttachedTo.sourceDisplayObject) {
 				drawChildSelectionIndicator(Colors.tipMarker, 2);
 			}
+			
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
+			if (ArrayUtil.includes(lockedChildren, child.sourceDisplayObject) == false) {
+				return;
+			}
+			
+			background.graphics.beginFill(0xFFFFFF, 0.25);
+			Icons.drawLockBody(background.graphics, width - 16, 4, 12, 12);
+			
+			background.graphics.lineStyle(2, 0xFFFFFF, 0.25);
+			background.graphics.beginFill(0xFFFFFF, 0);
+			Icons.drawLockShackle(background.graphics, width - 16, 4, 12, 12);
+			
+			background.graphics.beginFill(0x000000);
+			Icons.drawLockKeyHole(background.graphics, width - 16, 4, 12, 12);
 		}
 		
 		private function drawChildSelectionIndicator(_color : Number, _index : Number) : void {
 			background.graphics.beginFill(_color);
 			background.graphics.drawRect(1, 1 + _index * 6, 3, 6);
-			background.sourceMovieClip.graphics.endFill();
+			background.graphics.endFill();
 		}
 	}
 }

@@ -69,6 +69,10 @@ package core {
 			graphics.drawCircle(_x, _y, _radius);
 		}
 		
+		public function endFill() : void {
+			graphics.endFill();
+		}
+		
 		public function clear() : void {
 			graphics.clear();
 		}

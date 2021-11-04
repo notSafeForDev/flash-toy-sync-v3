@@ -6,6 +6,7 @@ package controllers {
 	import states.ScriptStates;
 	import ui.Colors;
 	import ui.ScriptTrackerMarker;
+	import ui.Shortcuts;
 	import utils.StageChildSelectionUtil;
 	import visualComponents.DepthPreview;
 	
@@ -32,12 +33,16 @@ package controllers {
 			var stimMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.stimMarker, "STIM");
 			var tipMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.tipMarker, "TIP");
 			
-			baseSubController = new ScriptTrackerSubController(baseMarker, _scriptStates._baseTrackerAttachedTo, _scriptStates._baseTrackerPoint, Keyboard.B);
-			stimSubController = new ScriptTrackerSubController(stimMarker, _scriptStates._stimTrackerAttachedTo, _scriptStates._stimTrackerPoint, Keyboard.S);
-			tipSubController = new ScriptTrackerSubController(tipMarker, _scriptStates._tipTrackerAttachedTo, _scriptStates._tipTrackerPoint, Keyboard.T);
+			baseSubController = new ScriptTrackerSubController(baseMarker, _scriptStates._baseTrackerAttachedTo, _scriptStates._baseTrackerPoint, Shortcuts.grabBaseMarker);
+			stimSubController = new ScriptTrackerSubController(stimMarker, _scriptStates._stimTrackerAttachedTo, _scriptStates._stimTrackerPoint, Shortcuts.grabStimMarker);
+			tipSubController = new ScriptTrackerSubController(tipMarker, _scriptStates._tipTrackerAttachedTo, _scriptStates._tipTrackerPoint, Shortcuts.grabTipMarker);
 			
 			subControllers = new Vector.<ScriptTrackerSubController>();
 			subControllers.push(baseSubController, stimSubController, tipSubController);
+			
+			for (var i : Number = 0; i < subControllers.length; i++) {
+				subControllers[i].initalAttachEvent.listen(this, onInitialAttach);
+			}
 			
 			depthPreview = new DepthPreview(_container, baseMarker, stimMarker, tipMarker);
 		}
@@ -64,6 +69,10 @@ package controllers {
 					scriptStates._childUnderDraggedMarker.setValue(childAtCursor);
 				}
 			}
+		}
+		
+		private function onInitialAttach(_child : TPDisplayObject) : void {
+			scriptStates._lastDraggedTrackerAttachedTo.setValue(_child);
 		}
 	}
 }

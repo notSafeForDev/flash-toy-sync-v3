@@ -1,6 +1,7 @@
 package states {
 	
 	import components.StateManager;
+	import core.TPDisplayObject;
 	import flash.geom.Point;
 	import stateTypes.BooleanState;
 	import stateTypes.BooleanStateReference;
@@ -41,6 +42,9 @@ package states {
 		public var _childUnderDraggedMarker : TPDisplayObjectState;
 		public static var childUnderDraggedMarker : TPDisplayObjectStateReference;
 		
+		public var _lastDraggedTrackerAttachedTo : TPDisplayObjectState;
+		public static var lastDraggedTrackerAttachedTo : TPDisplayObjectStateReference;
+		
 		public function ScriptStates(_stateManager : StateManager) {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
@@ -69,6 +73,9 @@ package states {
 			
 			_childUnderDraggedMarker = _stateManager.addState(TPDisplayObjectState, null);
 			childUnderDraggedMarker = _childUnderDraggedMarker.reference;
+			
+			_lastDraggedTrackerAttachedTo = _stateManager.addState(TPDisplayObjectState, null);
+			lastDraggedTrackerAttachedTo = _lastDraggedTrackerAttachedTo.reference;
 			
 			stateManager = _stateManager;
 		}

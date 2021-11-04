@@ -30,14 +30,23 @@ package controllers {
 			hierarchyStates = _hierarchyStates;
 			
 			hierarchyPanel = _hierarchyPanel;
+			hierarchyPanel.selectEvent.listen(this, onSelect);
 			hierarchyPanel.toggleExpandEvent.listen(this, onToggleExpand);
+			hierarchyPanel.toggleLockEvent.listen(this, onToggleLock);
 			
 			expandedChildren = new Vector.<DisplayObject>();
+			
+			ScriptStates.listen(this, onLastDraggedTrackerAttachedToStateChange, [ScriptStates.lastDraggedTrackerAttachedTo]);
 		}
 		
 		public function update() : void {
 			if (AnimationInfoStates.isLoaded.value == false) {
 				return;
+			}
+			
+			var selectedChild : TPDisplayObject = HierarchyStates.selectedChild.value;
+			if (selectedChild != null && selectedChild.isRemoved() == true) {
+				hierarchyStates._selectedChild.setValue(null);
 			}
 			
 			hierarchyStates._hierarchyPanelInfoList.setValue(getInfoForActiveChildren());
@@ -52,6 +61,13 @@ package controllers {
 			info.isExpanded = ArrayUtil.includes(expandedChildren, _tpDisplayObject.sourceDisplayObject);
 			
 			return info;
+		}
+		
+		private function onSelect(_child : TPDisplayObject) : void {
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
+			if (ArrayUtil.includes(lockedChildren, _child.sourceDisplayObject) == false) {
+				hierarchyStates._selectedChild.setValue(_child);
+			}
 		}
 		
 		private function onToggleExpand(_child : TPDisplayObject) : void {
@@ -73,6 +89,23 @@ package controllers {
 					i--;
 				}
 			}
+		}
+		
+		private function onToggleLock() : void {
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
+			var selectedChild : TPDisplayObject = HierarchyStates.selectedChild.value;
+			
+			if (ArrayUtil.includes(lockedChildren, selectedChild.sourceDisplayObject) == true) {
+				ArrayUtil.remove(lockedChildren, selectedChild.sourceDisplayObject);
+			} else {
+				lockedChildren.push(selectedChild.sourceDisplayObject);
+			}
+			
+			hierarchyStates._lockedChildren.setValue(lockedChildren);
+		}
+		
+		private function onLastDraggedTrackerAttachedToStateChange() : void {
+			hierarchyStates._selectedChild.setValue(ScriptStates.lastDraggedTrackerAttachedTo.value);
 		}
 		
 		private function getInfoForActiveChildren() : Array {

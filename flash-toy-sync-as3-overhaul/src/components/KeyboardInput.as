@@ -47,6 +47,16 @@ package components {
 			return transpiledKeyboardInput.isKeyPressed(_key);
 		}
 		
+		public static function areKeysPressed(_keys : Array) : Boolean {
+			for (var i : Number = 0; i < _keys.length; i++) {
+				if (isKeyPressed(_keys[i]) == false) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		
 		private static function onKeyDown(_key : Number) : void {
 			if (TPStage.hasFocusedInputTextField() == true) {
 				return;

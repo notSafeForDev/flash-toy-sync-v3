@@ -8,6 +8,7 @@ package utils {
 	import flash.geom.Rectangle;
 	import states.AnimationInfoStates;
 	import states.AnimationPlaybackStates;
+	import states.HierarchyStates;
 	
 	/**
 	 * ...
@@ -27,7 +28,7 @@ package utils {
 			var isCheckingDirectChildren : Boolean = true;
 			var isDone : Boolean = false;
 			var stageMousePoint : Point = new Point(TPStage.mouseX, TPStage.mouseY);
-			// var childrenWithDisabledMouseSelect : Array = EditorState.mouseSelectDisabledForChildren.value;
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
 			
 			while (isDone == false) {
 				var closestChild : TPDisplayObject = null;
@@ -39,11 +40,11 @@ package utils {
 					var tpDisplayObject : TPDisplayObject = new TPDisplayObject(children[i]);
 					
 					// If the child has disabled mouse selection, skip it
-					/* if (ArrayUtil.indexOf(childrenWithDisabledMouseSelect, children[i]) >= 0) {
+					if (ArrayUtil.includes(lockedChildren, children[i]) == true) {
 						continue;
 					}
 					// If the mouse selection filter matches the child's name, skip it
-					if (isChildFilteredOut(children[i]) == true) {
+					/* if (isChildFilteredOut(children[i]) == true) {
 						continue;
 					} */
 					// If the mouse position isn't within the child's bounds, skip it
