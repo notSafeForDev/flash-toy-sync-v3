@@ -53,12 +53,16 @@ package visualComponents {
 			}
 			
 			var lineOffset : Point = direction.clone();
-			lineOffset.normalize(markerRadius + 10);
+			lineOffset.normalize(0);
 			
 			var lineStart : Point = basePoint.add(lineOffset);
 			var lineEnd : Point = tipPoint.subtract(lineOffset);
 			
-			overlayContainer.graphics.lineStyle(2, 0xDB2547, 0.25);
+			overlayContainer.graphics.lineStyle(3, 0x000000, 0.25);
+			overlayContainer.graphics.moveTo(lineStart.x, lineStart.y);
+			overlayContainer.graphics.lineTo(lineEnd.x, lineEnd.y);
+			
+			overlayContainer.graphics.lineStyle(1, 0xFFFFFF, 0.5);
 			overlayContainer.graphics.moveTo(lineStart.x, lineStart.y);
 			overlayContainer.graphics.lineTo(lineEnd.x, lineEnd.y);
 			
@@ -80,8 +84,12 @@ package visualComponents {
 			
 			var depthLineStart : Point = stimPoint.add(depthLineStartOffset);
 			
+			overlayContainer.graphics.lineStyle(3, 0x000000, 0.25);
 			overlayContainer.graphics.moveTo(depthLineStart.x, depthLineStart.y);
 			overlayContainer.graphics.lineTo(depthLineEnd.x, depthLineEnd.y);
+			
+			overlayContainer.graphics.lineStyle(1, 0xFFFFFF, 0.5);
+			overlayContainer.graphics.moveTo(depthLineStart.x, depthLineStart.y);
 			overlayContainer.graphics.lineTo(depthLineEnd.x, depthLineEnd.y);
 		}
 	}

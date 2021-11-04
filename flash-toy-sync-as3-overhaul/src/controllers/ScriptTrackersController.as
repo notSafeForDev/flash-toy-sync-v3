@@ -4,6 +4,7 @@ package controllers {
 	import core.TPMovieClip;
 	import flash.ui.Keyboard;
 	import states.ScriptStates;
+	import ui.Colors;
 	import ui.ScriptTrackerMarker;
 	import utils.StageChildSelectionUtil;
 	import visualComponents.DepthPreview;
@@ -27,9 +28,9 @@ package controllers {
 		public function ScriptTrackersController(_scriptStates : ScriptStates, _container : TPMovieClip) {
 			scriptStates = _scriptStates;
 			
-			var baseMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, 0xDB2547, "BASE");
-			var stimMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, 0x00FF00, "STIM");
-			var tipMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, 0x0000FF, "TIP");
+			var baseMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.baseMarker, "BASE");
+			var stimMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.stimMarker, "STIM");
+			var tipMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.tipMarker, "TIP");
 			
 			baseSubController = new ScriptTrackerSubController(baseMarker, _scriptStates._baseTrackerAttachedTo, _scriptStates._baseTrackerPoint, Keyboard.B);
 			stimSubController = new ScriptTrackerSubController(stimMarker, _scriptStates._stimTrackerAttachedTo, _scriptStates._stimTrackerPoint, Keyboard.S);

@@ -7,6 +7,7 @@ package ui {
 	import core.TPStage;
 	import flash.display.MovieClip;
 	import flash.geom.Point;
+	import states.ScriptStates;
 	import utils.HierarchyUtil;
 	
 	/**
@@ -48,6 +49,8 @@ package ui {
 			child = _info.child;
 			depth = _info.depth;
 			
+			updateBackgroundGraphics();
+			
 			var prefix : String = "";
 			
 			for (var i : Number = 0; i < _info.depth; i++) {
@@ -74,6 +77,34 @@ package ui {
 				var tpMovieClip : TPMovieClip = new TPMovieClip(movieClip);
 				setSecondaryText(tpMovieClip.currentFrame + "/" + tpMovieClip.totalFrames);
 			}
+		}
+		
+		protected override function updateBackgroundGraphics() : void {
+			super.updateBackgroundGraphics();
+			
+			if (child == null) {
+				return;
+			}
+			
+			var baseTrackerAttachedTo : TPDisplayObject = ScriptStates.baseTrackerAttachedTo.value;
+			var stimTrackerAttachedTo : TPDisplayObject = ScriptStates.stimTrackerAttachedTo.value;
+			var tipTrackerAttachedTo : TPDisplayObject = ScriptStates.tipTrackerAttachedTo.value;
+			
+			if (baseTrackerAttachedTo != null && child.sourceDisplayObject == baseTrackerAttachedTo.sourceDisplayObject) {
+				drawChildSelectionIndicator(Colors.baseMarker, 0);
+			}
+			if (stimTrackerAttachedTo != null && child.sourceDisplayObject == stimTrackerAttachedTo.sourceDisplayObject) {
+				drawChildSelectionIndicator(Colors.stimMarker, 1);
+			}
+			if (tipTrackerAttachedTo != null && child.sourceDisplayObject == tipTrackerAttachedTo.sourceDisplayObject) {
+				drawChildSelectionIndicator(Colors.tipMarker, 2);
+			}
+		}
+		
+		private function drawChildSelectionIndicator(_color : Number, _index : Number) : void {
+			background.graphics.beginFill(_color);
+			background.graphics.drawRect(1, 1 + _index * 6, 3, 6);
+			background.sourceMovieClip.graphics.endFill();
 		}
 	}
 }

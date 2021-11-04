@@ -9,6 +9,7 @@ package controllers {
 	import states.AnimationInfoStates;
 	import states.AnimationPlaybackStates;
 	import states.HierarchyStates;
+	import states.ScriptStates;
 	import ui.HierarchyPanel;
 	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
@@ -104,15 +105,19 @@ package controllers {
 				info.isExpandable = isChildExpandable;
 			}
 			
-			var activeChild : TPDisplayObject = AnimationPlaybackStates.activeChild.value;
-			if (activeChild != null && ArrayUtil.includes(includedChildren, activeChild.sourceDisplayObject) == false) {
-				addChildToInfoList(activeChild, infoList, includedChildren);
-			}
+			includeChildInInfoList(AnimationPlaybackStates.activeChild.value, infoList, includedChildren);
+			includeChildInInfoList(ScriptStates.baseTrackerAttachedTo.value, infoList, includedChildren);
+			includeChildInInfoList(ScriptStates.stimTrackerAttachedTo.value, infoList, includedChildren);
+			includeChildInInfoList(ScriptStates.tipTrackerAttachedTo.value, infoList, includedChildren);
 			
 			return infoList;
 		}
 		
-		private function addChildToInfoList(_child : TPDisplayObject, _infoList : Array, _includedChildren : Vector.<DisplayObject>) : void {
+		private function includeChildInInfoList(_child : TPDisplayObject, _infoList : Array, _includedChildren : Vector.<DisplayObject>) : void {
+			if (_child == null || ArrayUtil.includes(_includedChildren, _child.sourceDisplayObject) == true) {
+				return;
+			}
+			
 			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(_child.sourceDisplayObject);
 			var insertIndex : Number = -1;
 			var insertDepth : Number = -1;
@@ -144,6 +149,7 @@ package controllers {
 				parentInfo.isExpanded = false;
 				
 				_infoList.splice(insertIndex + 1 + i, 0, parentInfo);
+				_includedChildren.splice(insertIndex + 1 + i, 0, parents[i]);
 			}
 			
 			var childInfo : HierarchyChildInfo = new HierarchyChildInfo();
@@ -154,6 +160,7 @@ package controllers {
 			childInfo.isExpanded = false;
 			
 			_infoList.splice(insertIndex + 1 + parents.length, 0, childInfo);
+			_includedChildren.splice(insertIndex + 1 + parents.length, 0, _child.sourceDisplayObject);
 		}
 		
 		private function getInfoForActiveChildrenIterator(_child : MovieClip, _depth : Number, _childIndex : Number, _infoList : Array, _expandableChildren : Vector.<DisplayObject>) : Number {

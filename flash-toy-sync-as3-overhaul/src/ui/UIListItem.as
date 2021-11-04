@@ -25,9 +25,11 @@ package ui {
 		private var defaultColorTransform : ColorTransform;
 		private var highlightColorTransform : ColorTransform;
 		
-		private var height : Number = 20;
+		protected var width : Number;
+		protected var height : Number = 20;
 		
 		public function UIListItem(_parent : TPMovieClip, _width : Number, _index : Number) {
+			width = _width;
 			index = _index;
 			
 			clickEvent = new CustomEvent();
@@ -40,9 +42,8 @@ package ui {
 			highlightColorTransform.blueOffset = 100;
 			
 			background = TPMovieClip.create(_parent, "listItem" + _index);
-			background.graphics.beginFill(0x000000, 0.5);
-			background.graphics.drawRect(0, 0, _width, height);
 			background.y = _index * height;
+			updateBackgroundGraphics();
 			
 			primaryText = new TextElement(background, "");
 			TextStyles.applyListItemStyle(primaryText);
@@ -60,6 +61,12 @@ package ui {
 			
 			background.buttonMode = true;
 			MouseEvents.addOnMouseDown(this, background.sourceDisplayObject, onMouseDown);
+		}
+		
+		protected function updateBackgroundGraphics() : void {
+			background.graphics.clear();
+			background.graphics.beginFill(0x000000, 0.5);
+			background.graphics.drawRect(0, 0, width, height);
 		}
 		
 		protected function onMouseDown() : void {
