@@ -8,7 +8,7 @@ package ui {
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import states.HierarchyStates;
-	import states.ScriptStates;
+	import states.ScriptTrackerStates;
 	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
 	
@@ -48,9 +48,14 @@ package ui {
 		}
 		
 		public function update(_info: HierarchyChildInfo) : void {
+			if (_info == null || _info.child == null) {
+				throw new Error("Unable to update hierarchy list item, the info is not valid");
+			}
+			
 			child = _info.child;
 			depth = _info.depth;
 			
+			updateBackgroundGraphics();
 			updateBackgroundGraphics();
 			
 			var prefix : String = " ";
@@ -99,9 +104,9 @@ package ui {
 				Icons.drawListItemSelection(background.graphics, 6, 5, 6, 10);
 			}
 			
-			var baseTrackerAttachedTo : TPDisplayObject = ScriptStates.baseTrackerAttachedTo.value;
-			var stimTrackerAttachedTo : TPDisplayObject = ScriptStates.stimTrackerAttachedTo.value;
-			var tipTrackerAttachedTo : TPDisplayObject = ScriptStates.tipTrackerAttachedTo.value;
+			var baseTrackerAttachedTo : TPDisplayObject = ScriptTrackerStates.baseTrackerAttachedTo.value;
+			var stimTrackerAttachedTo : TPDisplayObject = ScriptTrackerStates.stimTrackerAttachedTo.value;
+			var tipTrackerAttachedTo : TPDisplayObject = ScriptTrackerStates.tipTrackerAttachedTo.value;
 			
 			if (baseTrackerAttachedTo != null && child.sourceDisplayObject == baseTrackerAttachedTo.sourceDisplayObject) {
 				drawChildSelectionIndicator(Colors.baseMarker, 0);

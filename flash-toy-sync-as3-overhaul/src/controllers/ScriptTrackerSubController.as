@@ -8,7 +8,7 @@ package controllers {
 	import stateTypes.PointState;
 	import stateTypes.TPDisplayObjectState;
 	import states.AnimationPlaybackStates;
-	import states.ScriptStates;
+	import states.ScriptTrackerStates;
 	import ui.ScriptTrackerMarker;
 	import utils.ArrayUtil;
 	
@@ -24,14 +24,16 @@ package controllers {
 		private var marker : ScriptTrackerMarker;
 		private var attachedToState : TPDisplayObjectState;
 		private var pointState : PointState;
+		private var globalPointState : PointState;
 		private var keyboardShortcut : Array;
 		
 		private var attachedToDisplayObjectReference : DisplayObjectReference;
 		
-		public function ScriptTrackerSubController(_marker : ScriptTrackerMarker, _attachedToState : TPDisplayObjectState, _pointState : PointState, _keyboardShortcut : Array) {
+		public function ScriptTrackerSubController(_marker : ScriptTrackerMarker, _attachedToState : TPDisplayObjectState, _pointState : PointState, _globalPointState : PointState, _keyboardShortcut : Array) {
 			marker = _marker;
 			attachedToState = _attachedToState;
 			pointState = _pointState;
+			globalPointState = _globalPointState;
 			keyboardShortcut = _keyboardShortcut;
 			
 			initalAttachEvent = new CustomEvent();
@@ -57,6 +59,8 @@ package controllers {
 				
 				marker.setPosition(globalPoint.x, globalPoint.y);
 			}
+			
+			globalPointState.setValue(marker.isVisible() ? marker.getPosition() : null);
 		}
 		
 		public function isDraggingMarker() : Boolean {
@@ -83,7 +87,7 @@ package controllers {
 			
 			marker.stopDrag();
 			
-			var attachedTo : TPDisplayObject = ScriptStates.childUnderDraggedMarker.value;
+			var attachedTo : TPDisplayObject = ScriptTrackerStates.childUnderDraggedMarker.value;
 			if (attachedTo == null) {
 				attachedTo = AnimationPlaybackStates.activeChild.value;
 			}

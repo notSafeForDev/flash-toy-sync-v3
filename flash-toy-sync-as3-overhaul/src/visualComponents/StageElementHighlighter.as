@@ -6,7 +6,7 @@ package visualComponents {
 	import core.TPStage;
 	import flash.filters.GlowFilter;
 	import flash.geom.Rectangle;
-	import states.ScriptStates;
+	import states.ScriptTrackerStates;
 	
 	/**
 	 * ...
@@ -29,8 +29,8 @@ package visualComponents {
 				childBitmap.visible = false;
 			}
 			
-			if (ScriptStates.isDraggingTrackerMarker.value == true && ScriptStates.childUnderDraggedMarker.value != null) {
-				highlightElement(ScriptStates.childUnderDraggedMarker.value);
+			if (ScriptTrackerStates.isDraggingTrackerMarker.value == true && ScriptTrackerStates.childUnderDraggedMarker.value != null) {
+				highlightElement(ScriptTrackerStates.childUnderDraggedMarker.value);
 			}
 		}
 		

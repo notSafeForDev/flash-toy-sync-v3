@@ -3,8 +3,7 @@ package visualComponents {
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import flash.geom.Point;
-	import states.ScriptStates;
-	import ui.ScriptMarker;
+	import states.ScriptTrackerStates;
 	import utils.MathUtil;
 	import utils.SceneScriptUtil;
 	
@@ -16,16 +15,8 @@ package visualComponents {
 		
 		private var overlayContainer : TPMovieClip;
 		
-		private var baseMarker : ScriptMarker;
-		private var stimMarker : ScriptMarker;
-		private var tipMarker : ScriptMarker
-		
-		public function DepthPreview(_container : TPMovieClip, _baseMarker : ScriptMarker, _stimMarker : ScriptMarker, _tipMarker : ScriptMarker) {
+		public function DepthPreview(_container : TPMovieClip) {
 			overlayContainer = TPMovieClip.create(_container, "overlayContainer");
-			
-			baseMarker = _baseMarker;
-			stimMarker = _stimMarker;
-			tipMarker = _tipMarker;
 			
 			Index.enterFrameEvent.listen(this, onEnterFrame);
 		}
@@ -33,19 +24,21 @@ package visualComponents {
 		private function onEnterFrame() : void {
 			overlayContainer.graphics.clear();
 			
-			if (ScriptStates.isDraggingTrackerMarker.value == false) {
+			if (ScriptTrackerStates.isDraggingTrackerMarker.value == false) {
 				return;
 			}
 			
-			if (baseMarker.isVisible() == false || tipMarker.isVisible() == false) {
+			var base : Point = ScriptTrackerStates.baseGlobalTrackerPoint.value;
+			var stim : Point = ScriptTrackerStates.stimGlobalTrackerPoint.value;
+			var tip : Point = ScriptTrackerStates.tipGlobalTrackerPoint.value;
+			
+			if (base == null || tip == null) {
 				return;
 			}
 			
-			var markerRadius : Number = 12;
-			var basePoint : Point = baseMarker.getPosition();
-			var tipPoint : Point = tipMarker.getPosition();
-			var distance : Number = MathUtil.distanceBetween(basePoint, tipPoint);
-			var direction : Point = tipPoint.subtract(basePoint);
+			var markerRadius : Number = 8;
+			var distance : Number = MathUtil.distanceBetween(base, tip);
+			var direction : Point = tip.subtract(base);
 			direction.normalize(1);
 			
 			if (distance < markerRadius * 2) {
@@ -55,8 +48,8 @@ package visualComponents {
 			var lineOffset : Point = direction.clone();
 			lineOffset.normalize(0);
 			
-			var lineStart : Point = basePoint.add(lineOffset);
-			var lineEnd : Point = tipPoint.subtract(lineOffset);
+			var lineStart : Point = base.add(lineOffset);
+			var lineEnd : Point = tip.subtract(lineOffset);
 			
 			overlayContainer.graphics.lineStyle(3, 0x000000, 0.25);
 			overlayContainer.graphics.moveTo(lineStart.x, lineStart.y);
@@ -66,23 +59,21 @@ package visualComponents {
 			overlayContainer.graphics.moveTo(lineStart.x, lineStart.y);
 			overlayContainer.graphics.lineTo(lineEnd.x, lineEnd.y);
 			
-			if (stimMarker.isVisible() == false) {
+			if (stim == null) {
 				return;
 			}
 			
-			var stimPoint : Point = stimMarker.getPosition();
+			var depth : Number = SceneScriptUtil.caclulateDepth(base, stim, tip);
 			
-			var depth : Number = SceneScriptUtil.caclulateDepth(basePoint, tipPoint, stimPoint);
+			var depthLineEnd : Point = new Point(MathUtil.lerp(tip.x, base.x, depth), MathUtil.lerp(tip.y, base.y, depth));
 			
-			var depthLineEnd : Point = new Point(MathUtil.lerp(tipPoint.x, basePoint.x, depth), MathUtil.lerp(tipPoint.y, basePoint.y, depth));
-			
-			var depthLineDirection : Point = depthLineEnd.subtract(stimPoint);
+			var depthLineDirection : Point = depthLineEnd.subtract(stim);
 			depthLineDirection.normalize(1);
 			
 			var depthLineStartOffset : Point = depthLineDirection.clone();
 			depthLineStartOffset.normalize(markerRadius);
 			
-			var depthLineStart : Point = stimPoint.add(depthLineStartOffset);
+			var depthLineStart : Point = stim.add(depthLineStartOffset);
 			
 			overlayContainer.graphics.lineStyle(3, 0x000000, 0.25);
 			overlayContainer.graphics.moveTo(depthLineStart.x, depthLineStart.y);

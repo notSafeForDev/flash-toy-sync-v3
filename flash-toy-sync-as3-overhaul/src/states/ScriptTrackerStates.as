@@ -14,7 +14,7 @@ package states {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class ScriptStates {
+	public class ScriptTrackerStates {
 		
 		private static var stateManager : StateManager;
 		
@@ -26,6 +26,15 @@ package states {
 		
 		public var _stimTrackerPoint : PointState;
 		public static var stimTrackerPoint : PointStateReference;
+		
+		public var _baseGlobalTrackerPoint : PointState;
+		public static var baseGlobalTrackerPoint : PointStateReference;
+		
+		public var _stimGlobalTrackerPoint : PointState;
+		public static var stimGlobalTrackerPoint : PointStateReference;
+		
+		public var _tipGlobalTrackerPoint : PointState;
+		public static var tipGlobalTrackerPoint : PointStateReference;
 		
 		public var _baseTrackerAttachedTo : TPDisplayObjectState;
 		public static var baseTrackerAttachedTo : TPDisplayObjectStateReference;
@@ -45,7 +54,7 @@ package states {
 		public var _lastDraggedTrackerAttachedTo : TPDisplayObjectState;
 		public static var lastDraggedTrackerAttachedTo : TPDisplayObjectStateReference;
 		
-		public function ScriptStates(_stateManager : StateManager) {
+		public function ScriptTrackerStates(_stateManager : StateManager) {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}
@@ -58,6 +67,15 @@ package states {
 			
 			_stimTrackerPoint = _stateManager.addState(PointState, null);
 			stimTrackerPoint = _stimTrackerPoint.reference;
+			
+			_baseGlobalTrackerPoint = _stateManager.addState(PointState, null);
+			baseGlobalTrackerPoint = _baseGlobalTrackerPoint.reference;
+			
+			_stimGlobalTrackerPoint = _stateManager.addState(PointState, null);
+			stimGlobalTrackerPoint = _stimGlobalTrackerPoint.reference;
+			
+			_tipGlobalTrackerPoint = _stateManager.addState(PointState, null);
+			tipGlobalTrackerPoint = _tipGlobalTrackerPoint.reference;
 			
 			_baseTrackerAttachedTo = _stateManager.addState(TPDisplayObjectState, null);
 			baseTrackerAttachedTo = _baseTrackerAttachedTo.reference;

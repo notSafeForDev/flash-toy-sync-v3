@@ -1,7 +1,10 @@
 package core {
 	
 	import flash.display.DisplayObject;
+	import flash.events.Event;
+	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
 	import flash.ui.Keyboard;
 	
 	/**
@@ -11,8 +14,12 @@ package core {
 	public class TPKeyboardInput {
 		private var pressedKeys : Vector.<Number>;
 		
+		private var keyUpHandler : Function;
+		
 		public function TPKeyboardInput(_object : TPDisplayObject, _keyDownHandler : Function, _keyUpHandler : Function) {
 			pressedKeys = new Vector.<Number>();
+			
+			keyUpHandler = _keyUpHandler;
 			
 			_object.sourceDisplayObject.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) : void {
 				// Control and Shift are handled differently 
@@ -48,6 +55,8 @@ package core {
 					_keyUpHandler(e.keyCode);
 				}
 			});
+			
+			_object.sourceDisplayObject.stage.addEventListener(FocusEvent.FOCUS_OUT, onStageFocusLoss);
 		}
 		
 		public function getPressedKeys() : Vector.<Number> {
@@ -56,6 +65,16 @@ package core {
 		
 		public function isKeyPressed(_key : Number) : Boolean {
 			return TPArrayUtil.indexOf(pressedKeys, _key) >= 0;
+		}
+		
+		// When the focus is lost for the stage, it doesn't detect key events, 
+		// so to prevent keys from getting stuck as pressed, we release all currently pressed keys
+		private function onStageFocusLoss(e : Event) : void {
+			for (var i : Number = 0; i < pressedKeys.length; i++) {
+				keyUpHandler(pressedKeys[i]);
+			}
+			
+			pressedKeys.length = 0;
 		}
 	}
 }

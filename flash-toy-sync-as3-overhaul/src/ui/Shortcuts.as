@@ -30,5 +30,8 @@ package ui {
 		
 		public static var rewind1 : Array = [Keyboard.SHIFT, Keyboard.LEFT];
 		public static var rewind2 : Array = [Keyboard.SHIFT, Keyboard.A];
+		
+		public static var recordFrame : Array = [Keyboard.R];
+		public static var recordScene : Array = [Keyboard.SHIFT, Keyboard.R];
 	}
 }

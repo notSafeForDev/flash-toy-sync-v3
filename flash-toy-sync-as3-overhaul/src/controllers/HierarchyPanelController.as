@@ -9,7 +9,7 @@ package controllers {
 	import states.AnimationInfoStates;
 	import states.AnimationPlaybackStates;
 	import states.HierarchyStates;
-	import states.ScriptStates;
+	import states.ScriptTrackerStates;
 	import ui.HierarchyPanel;
 	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
@@ -36,7 +36,7 @@ package controllers {
 			
 			expandedChildren = new Vector.<DisplayObject>();
 			
-			ScriptStates.listen(this, onLastDraggedTrackerAttachedToStateChange, [ScriptStates.lastDraggedTrackerAttachedTo]);
+			ScriptTrackerStates.listen(this, onLastDraggedTrackerAttachedToStateChange, [ScriptTrackerStates.lastDraggedTrackerAttachedTo]);
 		}
 		
 		public function update() : void {
@@ -105,7 +105,7 @@ package controllers {
 		}
 		
 		private function onLastDraggedTrackerAttachedToStateChange() : void {
-			hierarchyStates._selectedChild.setValue(ScriptStates.lastDraggedTrackerAttachedTo.value);
+			hierarchyStates._selectedChild.setValue(ScriptTrackerStates.lastDraggedTrackerAttachedTo.value);
 		}
 		
 		private function getInfoForActiveChildren() : Array {
@@ -139,9 +139,9 @@ package controllers {
 			}
 			
 			includeChildInInfoList(AnimationPlaybackStates.activeChild.value, infoList, includedChildren);
-			includeChildInInfoList(ScriptStates.baseTrackerAttachedTo.value, infoList, includedChildren);
-			includeChildInInfoList(ScriptStates.stimTrackerAttachedTo.value, infoList, includedChildren);
-			includeChildInInfoList(ScriptStates.tipTrackerAttachedTo.value, infoList, includedChildren);
+			includeChildInInfoList(ScriptTrackerStates.baseTrackerAttachedTo.value, infoList, includedChildren);
+			includeChildInInfoList(ScriptTrackerStates.stimTrackerAttachedTo.value, infoList, includedChildren);
+			includeChildInInfoList(ScriptTrackerStates.tipTrackerAttachedTo.value, infoList, includedChildren);
 			
 			return infoList;
 		}

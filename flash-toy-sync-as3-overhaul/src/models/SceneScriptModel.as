@@ -8,36 +8,163 @@ package models {
 	 */
 	public class SceneScriptModel {
 		
-		/** The screen position of the base of the "penis", on each frame in the scene */
-		private var basePositions : Vector.<Point>;
-		/** The screen position of the tip of the "penis", on each frame in the scene */
-		private var tipPositions : Vector.<Point>;
-		/** The screen position where the stimulation takes place on the "penis", on each frame in the scene */
-		private var stimPositions : Vector.<Point>;
-		
-		/** The "penetration" depth on each frame in the scene */
-		private var depths : Vector.<Number>;
-		
 		/** The scene this script is used for */
-		private var scene : SceneModel;
+		protected var scene : SceneModel;
 		
-		public function SceneScriptModel() {
+		/** The first recorded frame of the scene, which won't necessariliy be the same as the first inner frame of the scene */
+		protected var firstRecordedInnerFrame : Number = -1;
+		
+		/** The screen position of the base of the "penis", on each frame in the scene */
+		protected var basePositions : Vector.<Point>;
+		/** The screen position where the stimulation takes place on the "penis", on each frame in the scene */
+		protected var stimPositions : Vector.<Point>;
+		/** The screen position of the tip of the "penis", on each frame in the scene */
+		protected var tipPositions : Vector.<Point>;
+		
+		private var splitEventListener : Object;
+		private var mergeEventListener : Object;
+		
+		public function SceneScriptModel(_scene : SceneModel) {
+			scene = _scene;
+			
+			splitEventListener = scene.splitEvent.listen(this, onSceneSplit);
+			mergeEventListener = scene.mergeEvent.listen(this, onSceneMerged);
+			
 			basePositions = new Vector.<Point>();
 			tipPositions = new Vector.<Point>();
 			stimPositions = new Vector.<Point>();
-			
-			depths = new Vector.<Number>();
 		}
 		
-		public function clone() : SceneScriptModel {
-			var cloned : SceneScriptModel = new SceneScriptModel();
+		public function clone(_clonedScene : SceneModel) : SceneScriptModel {
+			var clonedScript : SceneScriptModel = new SceneScriptModel(_clonedScene);
 			
-			cloned.basePositions = basePositions.slice();
-			cloned.tipPositions = tipPositions.slice();
-			cloned.stimPositions = stimPositions.slice();
-			cloned.depths = depths.slice();
+			clonedScript.firstRecordedInnerFrame = firstRecordedInnerFrame;
+			clonedScript.basePositions = basePositions.slice();
+			clonedScript.tipPositions = tipPositions.slice();
+			clonedScript.stimPositions = stimPositions.slice();
 			
-			return cloned;
+			return clonedScript;
+		}
+		
+		public function addPositions(_frame : Number, _base : Point, _stim : Point, _tip : Point) : void {
+			if (basePositions.length == 0) {
+				firstRecordedInnerFrame = _frame;
+				basePositions.push(_base);
+				stimPositions.push(_stim);
+				tipPositions.push(_tip);
+				return;
+			}
+			
+			var lastFrameForPositions : Number = firstRecordedInnerFrame + (basePositions.length - 1);
+			
+			var totalFillBeginning : Number = Math.max(0, firstRecordedInnerFrame - _frame);
+			var totalFillEnd : Number = Math.max(0, _frame - lastFrameForPositions);
+			
+			fillInBlankPositionsAtBeginning(totalFillBeginning);
+			fillInBlankPositionsAtEnd(totalFillEnd);
+			
+			firstRecordedInnerFrame = Math.min(firstRecordedInnerFrame, _frame);
+			
+			var frameIndex : Number = _frame - firstRecordedInnerFrame;
+			
+			basePositions[frameIndex] = _base;
+			stimPositions[frameIndex] = _stim;
+			tipPositions[frameIndex] = _tip;
+		}
+		
+		public function isComplete() : Boolean {
+			return firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length == scene.getTotalInnerFrames();
+		}
+		
+		protected function destroy() : void {
+			scene.mergeEvent.stopListening(mergeEventListener);
+			scene.splitEvent.stopListening(splitEventListener);
+		}
+		
+		private function onSceneSplit(_firstHalf : SceneModel) : void {
+			if (basePositions.length == 0) {
+				return;
+			}
+			
+			var totalRemovedFromBeginning : Number = Math.max(0, scene.getInnerStartFrame() - firstRecordedInnerFrame);
+			
+			basePositions.splice(0, totalRemovedFromBeginning);
+			stimPositions.splice(0, totalRemovedFromBeginning);
+			tipPositions.splice(0, totalRemovedFromBeginning);
+			
+			if (basePositions.length > 0) {
+				firstRecordedInnerFrame = Math.max(firstRecordedInnerFrame, scene.getInnerStartFrame());
+			} else {
+				firstRecordedInnerFrame = -1;
+			}
+			
+			var firstHalfScript : SceneScriptModel = _firstHalf.getPlugins().getScript();
+			
+			var firstHalfTotalRecoredFrames : Number = Math.max(0, _firstHalf.getInnerEndFrame() - firstHalfScript.firstRecordedInnerFrame + 1);
+			
+			firstHalfScript.basePositions = firstHalfScript.basePositions.slice(0, firstHalfTotalRecoredFrames);
+			firstHalfScript.stimPositions = firstHalfScript.stimPositions.slice(0, firstHalfTotalRecoredFrames);
+			firstHalfScript.tipPositions = firstHalfScript.tipPositions.slice(0, firstHalfTotalRecoredFrames);
+			
+			if (firstHalfScript.basePositions.length == 0) {
+				firstHalfScript.firstRecordedInnerFrame = -1;
+			}
+		}
+		
+		private function onSceneMerged(_otherScene : SceneModel) : void {
+			var otherScript : SceneScriptModel = _otherScene.getPlugins().getScript();
+			if (otherScript.basePositions.length == 0) {
+				return;
+			}
+			
+			var totalFillBeginning : Number = Math.max(0, firstRecordedInnerFrame - _otherScene.getInnerStartFrame());
+			
+			fillInBlankPositionsAtBeginning(totalFillBeginning);
+			
+			firstRecordedInnerFrame = Math.min(firstRecordedInnerFrame, _otherScene.getInnerStartFrame());
+			
+			var i : Number;
+			for (i = 0; i < totalFillBeginning; i++) {
+				basePositions[i] = otherScript.basePositions[i];
+				stimPositions[i] = otherScript.stimPositions[i];
+				tipPositions[i] = otherScript.tipPositions[i];
+			}
+			
+			var endFrame : Number = firstRecordedInnerFrame + basePositions.length - 1;
+			var otherEndFrame : Number = otherScript.firstRecordedInnerFrame + otherScript.basePositions.length - 1;
+			var totalFillEnd : Number = Math.max(0, otherEndFrame - endFrame);
+			
+			fillInBlankPositionsAtEnd(totalFillEnd);
+			
+			var startCopyFromFrame : Number = Math.max(endFrame + 1, otherScript.firstRecordedInnerFrame);
+			var totalFramesToCopy : Number = (otherEndFrame - startCopyFromFrame) + 1;
+			
+			for (i = 0; i < totalFramesToCopy; i++) {
+				var otherFrameIndex : Number = (startCopyFromFrame - otherScript.firstRecordedInnerFrame) + i;
+				var frameIndex : Number = (startCopyFromFrame - firstRecordedInnerFrame) + i;
+				
+				basePositions[frameIndex] = otherScript.basePositions[otherFrameIndex];
+				stimPositions[frameIndex] = otherScript.stimPositions[otherFrameIndex];
+				tipPositions[frameIndex] = otherScript.tipPositions[otherFrameIndex];
+			}
+			
+			otherScript.destroy();
+		}
+		
+		private function fillInBlankPositionsAtBeginning(_totalBlankPositions : Number) : void {
+			for (var i : Number = 0; i < _totalBlankPositions; i++) {
+				basePositions.unshift(null);
+				stimPositions.unshift(null);
+				tipPositions.unshift(null);
+			}
+		}
+		
+		private function fillInBlankPositionsAtEnd(_totalBlankPositions : Number) : void {
+			for (var i : Number = 0; i < _totalBlankPositions; i++) {
+				basePositions.push(null);
+				stimPositions.push(null);
+				tipPositions.push(null);
+			}
 		}
 	}
 }

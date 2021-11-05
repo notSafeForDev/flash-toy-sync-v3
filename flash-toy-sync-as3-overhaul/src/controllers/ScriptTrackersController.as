@@ -3,7 +3,7 @@ package controllers {
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import flash.ui.Keyboard;
-	import states.ScriptStates;
+	import states.ScriptTrackerStates;
 	import ui.Colors;
 	import ui.ScriptTrackerMarker;
 	import ui.Shortcuts;
@@ -16,7 +16,7 @@ package controllers {
 	 */
 	public class ScriptTrackersController {
 		
-		private var scriptStates : ScriptStates;
+		private var scriptTrackerStates : ScriptTrackerStates;
 		
 		private var baseSubController : ScriptTrackerSubController;
 		private var stimSubController : ScriptTrackerSubController;
@@ -26,25 +26,28 @@ package controllers {
 		
 		private var depthPreview : DepthPreview;
 		
-		public function ScriptTrackersController(_scriptStates : ScriptStates, _container : TPMovieClip) {
-			scriptStates = _scriptStates;
+		public function ScriptTrackersController(_scriptTrackerStates : ScriptTrackerStates, _container : TPMovieClip) {
+			scriptTrackerStates = _scriptTrackerStates;
 			
 			var baseMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.baseMarker, "BASE");
 			var stimMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.stimMarker, "STIM");
 			var tipMarker : ScriptTrackerMarker = new ScriptTrackerMarker(_container, Colors.tipMarker, "TIP");
 			
-			baseSubController = new ScriptTrackerSubController(baseMarker, _scriptStates._baseTrackerAttachedTo, _scriptStates._baseTrackerPoint, Shortcuts.grabBaseMarker);
-			stimSubController = new ScriptTrackerSubController(stimMarker, _scriptStates._stimTrackerAttachedTo, _scriptStates._stimTrackerPoint, Shortcuts.grabStimMarker);
-			tipSubController = new ScriptTrackerSubController(tipMarker, _scriptStates._tipTrackerAttachedTo, _scriptStates._tipTrackerPoint, Shortcuts.grabTipMarker);
+			baseSubController = new ScriptTrackerSubController(
+				baseMarker, scriptTrackerStates._baseTrackerAttachedTo, scriptTrackerStates._baseTrackerPoint, scriptTrackerStates._baseGlobalTrackerPoint, Shortcuts.grabBaseMarker);
+			stimSubController = new ScriptTrackerSubController(
+				stimMarker, scriptTrackerStates._stimTrackerAttachedTo, scriptTrackerStates._stimTrackerPoint, scriptTrackerStates._stimGlobalTrackerPoint, Shortcuts.grabStimMarker);
+			tipSubController = new ScriptTrackerSubController(
+				tipMarker, scriptTrackerStates._tipTrackerAttachedTo, scriptTrackerStates._tipTrackerPoint, scriptTrackerStates._tipGlobalTrackerPoint, Shortcuts.grabTipMarker);
 			
 			subControllers = new Vector.<ScriptTrackerSubController>();
 			subControllers.push(baseSubController, stimSubController, tipSubController);
 			
 			for (var i : Number = 0; i < subControllers.length; i++) {
-				subControllers[i].initalAttachEvent.listen(this, onInitialAttach);
+				subControllers[i].initalAttachEvent.listen(this, onTrackerInitialAttach);
 			}
 			
-			depthPreview = new DepthPreview(_container, baseMarker, stimMarker, tipMarker);
+			depthPreview = new DepthPreview(_container);
 		}
 		
 		public function update() : void {
@@ -57,22 +60,22 @@ package controllers {
 				}
 			}
 			
-			scriptStates._isDraggingTrackerMarker.setValue(subControllerForDraggedMarker != null);
+			scriptTrackerStates._isDraggingTrackerMarker.setValue(subControllerForDraggedMarker != null);
 			
 			if (subControllerForDraggedMarker != null) {
 				var attachedTo : TPDisplayObject = subControllerForDraggedMarker.getAttachedToStateValue();
 				
 				if (attachedTo != null) {
-					scriptStates._childUnderDraggedMarker.setValue(attachedTo);
+					scriptTrackerStates._childUnderDraggedMarker.setValue(attachedTo);
 				} else {
 					var childAtCursor : TPDisplayObject = StageChildSelectionUtil.getClickableChildAtCursor();
-					scriptStates._childUnderDraggedMarker.setValue(childAtCursor);
+					scriptTrackerStates._childUnderDraggedMarker.setValue(childAtCursor);
 				}
 			}
 		}
 		
-		private function onInitialAttach(_child : TPDisplayObject) : void {
-			scriptStates._lastDraggedTrackerAttachedTo.setValue(_child);
+		private function onTrackerInitialAttach(_child : TPDisplayObject) : void {
+			scriptTrackerStates._lastDraggedTrackerAttachedTo.setValue(_child);
 		}
 	}
 }

@@ -7,7 +7,8 @@ package {
 	import controllers.AnimationSizeController;
 	import controllers.HierarchyPanelController;
 	import controllers.SaveDataController;
-	import controllers.ScriptSampleMarkersEditorController;
+	import controllers.ScriptRecordingController;
+	import controllers.ScriptSampleMarkerSubController;
 	import controllers.ScriptTrackersController;
 	import controllers.StrokerToyController;
 	import controllers.StrokerToyEditorController;
@@ -24,7 +25,8 @@ package {
 	import states.AnimationSizeStates;
 	import states.EditorStates;
 	import states.HierarchyStates;
-	import states.ScriptStates;
+	import states.ScriptRecordingStates;
+	import states.ScriptTrackerStates;
 	import core.TPMovieClip;
 	import core.TPStage;
 	import ui.HierarchyPanel;
@@ -52,14 +54,15 @@ package {
 		private var animationPlaybackStates : AnimationPlaybackStates;
 		private var animationSizeStates : AnimationSizeStates;
 		private var editorStates : EditorStates;
-		private var scriptStates : ScriptStates;
+		private var scriptTrackerStates : ScriptTrackerStates;
+		private var scriptRecordingStates : ScriptRecordingStates;
 		
 		private var animationPlaybackController : AnimationPlaybackController;
 		private var animationSizeController : AnimationSizeController;
 		private var hierarchyPanelController : HierarchyPanelController;
 		private var saveDataController : SaveDataController;
-		private var scriptSampleMarkersEditorController : ScriptSampleMarkersEditorController;
 		private var scriptTrackersController : ScriptTrackersController;
+		private var scriptRecordingController : ScriptRecordingController;
 		private var strokerToyController : StrokerToyController;
 		private var strokerToyEditorController : StrokerToyEditorController;
 		
@@ -241,7 +244,8 @@ package {
 			animationPlaybackStates = new AnimationPlaybackStates(stateManager);
 			animationSizeStates = new AnimationSizeStates(stateManager);
 			editorStates = new EditorStates(stateManager);
-			scriptStates = new ScriptStates(stateManager);
+			scriptTrackerStates = new ScriptTrackerStates(stateManager);
+			scriptRecordingStates = new ScriptRecordingStates(stateManager);
 		}
 		
 		private function initializeControllers() : void {
@@ -253,7 +257,8 @@ package {
 			
 			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
 			animationSizeController = new AnimationSizeController(animationSizeStates);
-			scriptTrackersController = new ScriptTrackersController(scriptStates, trackingMarkersContainer);
+			scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
+			scriptRecordingController = new ScriptRecordingController(scriptRecordingStates);
 		}
 		
 		private function updateControllers() : void {

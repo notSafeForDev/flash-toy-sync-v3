@@ -138,6 +138,9 @@ package ui {
 			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
 			
 			for (var i : Number = 0; i < listItems.length; i++) {
+				if (listItems[i].isVisible() == false) {
+					continue;
+				}
 				if (activeChild != null && listItems[i].hasChild(activeChild) == true) {
 					listItems[i].highlight();
 				} else {

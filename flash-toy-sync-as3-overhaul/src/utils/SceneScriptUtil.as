@@ -10,13 +10,13 @@ package utils {
 	public class SceneScriptUtil {
 		
 		/**
-		 * Calculate the "penetration" depth based on base, tip and stimulation positions
+		 * Calculate the "penetration" depth based on base, stimulation and tip positions
 		 * @param	_base	The position on the screen where the base of the "penis" is
-		 * @param	_tip	The position on the screen where the tip of the "penis" is
 		 * @param	_stim	The position on the screen where the stimulation takes place on the "penis"
-		 * @return	The calculated depth from 0 to 1 (clamped), 0 meaning at the base, 1 meaning at the tip
+		 * @param	_tip	The position on the screen where the tip of the "penis" is
+		 * @return	The calculated depth from 0 to 1 (clamped), 0 meaning at the tip, 1 meaning at the base
 		 */
-		public static function caclulateDepth(_base : Point, _tip : Point, _stim : Point) : Number {
+		public static function caclulateDepth(_base : Point, _stim : Point, _tip : Point) : Number {
 			var angle : Number = MathUtil.angleBetween(_base, _tip);
 			
 			// We rotate the tip and stimulation points so that the tip is directly to the right of the base, at the same y position

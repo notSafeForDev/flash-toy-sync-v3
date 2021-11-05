@@ -1,5 +1,6 @@
 package models {
 	
+	import core.CustomEvent;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import flash.display.DisplayObjectContainer;
@@ -30,8 +31,17 @@ package models {
 		/** Status for when all the children that are part of the scene is stopped without being force stopped */
 		public static var UPDATE_STATUS_COMPLETELY_STOPPED : String = "UPDATE_STATUS_COMPLETELY_STOPPED";
 		
+		// The following events are mainly intended to be utilized by plugins
+		
+		/** Emitted when the scene splits, along with the first half */
+		public var splitEvent : CustomEvent;
+		/** Emitted when the scene have been merged with another scene, along with the other scene it was merged with */
+		public var mergeEvent : CustomEvent;
+		
 		/** Can be set to allow the scene to be merged, or remove when it otherwise would be kept */
 		public var isTemporary : Boolean = false;
+		
+		private var plugins : ScenePluginsModel;
 		
 		protected var path : Vector.<String> = null;
 		
@@ -42,15 +52,13 @@ package models {
 		/** The last frames for each child that the animation was on, while not force stopped */
 		private var lastPlayingFrames : Vector.<Number> = null;
 		/** 
-		 * A history for the last frames, it starts updating from when we enter the scene,
-		 * to when we loop for the first time, after that, it keeps the same values
+		 * History for the last played frames, it starts updating from when we enter the scene,
+		 * and keeps updating as long as no frames are repeated
 		 */
 		private var playingFramesHistory : Vector.<Vector.<Number>> = null;
 		
 		private var forceStoppedAtFrames : Vector.<Number> = null;
 		private var _isForceStopped : Boolean = false;
-		
-		private var script : SceneScriptModel = null;
 		
 		private var lastChildIndex : Number = -1;
 		
@@ -59,6 +67,11 @@ package models {
 		public function SceneModel(_path : Vector.<String>) {
 			path = _path;
 			lastChildIndex = _path.length;
+			
+			splitEvent = new CustomEvent();
+			mergeEvent = new CustomEvent();
+			
+			plugins = new ScenePluginsModel(this, true);
 		}
 		
 		/**
@@ -85,33 +98,19 @@ package models {
 		}
 		
 		/**
-		 * Combine the scene with another scene, so that frames from the other scene is added to this one
-		 * @param	_otherScene		The other scene to merge with
-		 */
-		public function merge(_otherScene : SceneModel) : void {
-			if (path.join(",") != _otherScene.path.join(",")) {
-				throw new Error("Unable to merge scenes, their paths are not the same");
-			}
-			
-			for (var i : Number = 0; i < startFrames.length; i++) {
-				startFrames[i] = Math.min(startFrames[i], _otherScene.startFrames[i]);
-				endFrames[i] = Math.max(endFrames[i], _otherScene.endFrames[i]);
-				firstStopFrames[i] = Math.max(firstStopFrames[i], _otherScene.firstStopFrames[i]);
-			}
-		}
-		
-		/**
 		 * Makes a copy of the scene
 		 * @return The copy
 		 */
 		public function clone() : SceneModel {
-			var cloned : SceneModel = new SceneModel(path);
+			var clonedScene : SceneModel = new SceneModel(path);
 			
-			cloned.startFrames = startFrames.slice();
-			cloned.endFrames = endFrames.slice();
-			cloned.firstStopFrames = firstStopFrames.slice();
+			clonedScene.startFrames = startFrames.slice();
+			clonedScene.endFrames = endFrames.slice();
+			clonedScene.firstStopFrames = firstStopFrames.slice();
 			
-			return cloned;
+			clonedScene.plugins = plugins.clone(plugins, clonedScene);
+			
+			return clonedScene;
 		}
 		
 		/**
@@ -124,7 +123,7 @@ package models {
 			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
 			var currentInnerFrame : Number = currentFrames[lastChildIndex];
 			var firstHalfEndFrames : Vector.<Number> = null;
-			var cloned : SceneModel = clone();
+			var firstHalf : SceneModel = clone();
 			var i : Number;
 			
 			// Keep going back in history until we reach an inner frame that is 1 less than the current inner frame,
@@ -138,17 +137,45 @@ package models {
 			}
 			
 			if (firstHalfEndFrames == null) {
-				throw new Error("Unable to split scene, no valid history frame found");
+				throw new Error("Unable to split scene, no valid history frames found");
 			}
 			
 			for (i = 0; i < currentFrames.length; i++) {
-				cloned.endFrames[i] = firstHalfEndFrames[i];
-				cloned.firstStopFrames[i] = firstStopFrames[i] <= firstHalfEndFrames[i] ? firstStopFrames[i] : -1;
+				firstHalf.endFrames[i] = firstHalfEndFrames[i];
+				firstHalf.firstStopFrames[i] = firstStopFrames[i] <= firstHalfEndFrames[i] ? firstStopFrames[i] : -1;
 				
 				startFrames[i] = currentFrames[i];
 			}
 			
-			return cloned;
+			splitEvent.emit(firstHalf);
+			
+			return firstHalf;
+		}
+		
+		/**
+		 * Combine the scene with another scene, so that frames from the other scene is added to this one
+		 * @param	_otherScene		The other scene to merge with
+		 */
+		public function merge(_otherScene : SceneModel) : void {
+			if (path.join(",") != _otherScene.path.join(",")) {
+				throw new Error("Unable to merge scenes, their paths are not the same");
+			}
+			
+			for (var i : Number = 0; i < startFrames.length; i++) {
+				startFrames[i] = Math.min(startFrames[i], _otherScene.startFrames[i]);
+				endFrames[i] = Math.max(endFrames[i], _otherScene.endFrames[i]);
+				firstStopFrames[i] = Math.max(firstStopFrames[i], _otherScene.firstStopFrames[i]);
+			}
+			
+			mergeEvent.emit(_otherScene);
+		}
+		
+		/** 
+		 * Get the plugins for the scenes, which is a collection of additional functionality to the scene 
+		 * @return The plugins model
+		 */
+		public function getPlugins() : ScenePluginsModel {
+			return plugins;
 		}
 		
 		/**

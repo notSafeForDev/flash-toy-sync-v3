@@ -19,7 +19,7 @@ package ui {
 		}
 		
 		public function getRadius() : Number {
-			return 12;
+			return 8;
 		}
 	}
 }
