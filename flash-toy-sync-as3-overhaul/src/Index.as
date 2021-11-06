@@ -10,7 +10,7 @@ package {
 	import controllers.ScriptRecordingController;
 	import controllers.ScriptTrackersController;
 	import controllers.StrokerToyController;
-	import controllers.StrokerToyEditorController;
+	import controllers.StrokerToyControllerEditor;
 	import core.CustomEvent;
 	import core.JSONLoader;
 	import flash.display.DisplayObject;
@@ -59,11 +59,11 @@ package {
 		private var animationSceneController : AnimationScenesController;
 		private var animationSizeController : AnimationSizeController;
 		private var hierarchyPanelController : HierarchyPanelController;
-		private var saveDataController : SaveDataController;
 		private var scriptTrackersController : ScriptTrackersController;
 		private var scriptRecordingController : ScriptRecordingController;
 		private var strokerToyController : StrokerToyController;
-		private var strokerToyEditorController : StrokerToyEditorController;
+		private var strokerToyEditorController : StrokerToyControllerEditor;
+		private var saveDataController : SaveDataController;
 		
 		private var container : TPMovieClip;
 		private var panelsContainer : TPMovieClip;
@@ -251,6 +251,7 @@ package {
 			editorStates = new EditorStates(stateManager);
 			scriptTrackerStates = new ScriptTrackerStates(stateManager);
 			scriptRecordingStates = new ScriptRecordingStates(stateManager);
+			saveDataController = new SaveDataController(animationSizeStates, animationSceneStates);
 		}
 		
 		private function initializeControllers() : void {

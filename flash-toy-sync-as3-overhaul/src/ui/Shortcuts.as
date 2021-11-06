@@ -35,5 +35,7 @@ package ui {
 		public static var recordScene : Array = [Keyboard.SHIFT, Keyboard.R];
 		
 		public static var remove : Array = [Keyboard.BACKSPACE];
+		
+		public static var save : Array = [Keyboard.CONTROL, Keyboard.S];
 	}
 }

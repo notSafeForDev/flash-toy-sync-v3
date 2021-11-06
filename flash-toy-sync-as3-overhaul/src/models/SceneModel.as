@@ -11,6 +11,7 @@ package models {
 	import utils.ArrayUtil;
 	import utils.HierarchyUtil;
 	import utils.MathUtil;
+	import utils.SaveDataUtil;
 	
 	/**
 	 * ...
@@ -51,7 +52,7 @@ package models {
 		
 		/** The last frames for each child that the animation was on, while not force stopped */
 		private var lastPlayingFrames : Vector.<Number> = null;
-		/** 
+		/**
 		 * History for the last played frames, it starts updating from when we enter the scene,
 		 * and keeps updating as long as no frames are repeated
 		 */
@@ -80,11 +81,14 @@ package models {
 		 * @return 	The scene
 		 */
 		public static function fromSaveData(_saveData : Object) : SceneModel {
-			var scene : SceneModel = new SceneModel(_saveData.path);
+			var path : Vector.<String> = ArrayUtil.addValuesFromArrayToVector(new Vector.<String>(), _saveData.path);
+			var scene : SceneModel = new SceneModel(path);
 			
-			scene.startFrames = _saveData.startFrames;
-			scene.endFrames = _saveData.endFrames;
-			scene.firstStopFrames = _saveData.firstStopFrames;
+			scene.startFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.startFrames);
+			scene.endFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.endFrames);
+			scene.firstStopFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.firstStopFrames);
+			
+			scene.plugins = ScenePluginsModel.fromSaveData(_saveData.plugins, scene);
 			
 			return scene;
 		}
@@ -94,7 +98,14 @@ package models {
 		 * @return	The save data
 		 */
 		public function toSaveData() : Object {
-			return {path: path, startFrames: startFrames, endFrames: endFrames, firstStopFrames: firstStopFrames}
+			var saveData : Object = {};
+			saveData.path = ArrayUtil.vectorToArray(path);
+			saveData.startFrames = ArrayUtil.vectorToArray(startFrames);
+			saveData.endFrames = ArrayUtil.vectorToArray(endFrames);
+			saveData.firstStopFrames = ArrayUtil.vectorToArray(firstStopFrames);
+			saveData.plugins = plugins.toSaveData();
+			
+			return saveData;
 		}
 		
 		/**
@@ -108,7 +119,7 @@ package models {
 			clonedScene.endFrames = endFrames.slice();
 			clonedScene.firstStopFrames = firstStopFrames.slice();
 			
-			clonedScene.plugins = plugins.clone(plugins, clonedScene);
+			clonedScene.plugins = plugins.clone(clonedScene);
 			
 			return clonedScene;
 		}
@@ -170,8 +181,8 @@ package models {
 			mergeEvent.emit(_otherScene);
 		}
 		
-		/** 
-		 * Get the plugins for the scenes, which is a collection of additional functionality to the scene 
+		/**
+		 * Get the plugins for the scenes, which is a collection of additional functionality to the scene
 		 * @return The plugins model
 		 */
 		public function getPlugins() : ScenePluginsModel {
@@ -309,7 +320,7 @@ package models {
 			var didExitScene : Boolean = false;
 			
 			// Check if it's currently on a frame within the scene, if not, we want to exit it
-			for (i = 0; i < currentFrames.length; i++) {				
+			for (i = 0; i < currentFrames.length; i++) {
 				var isStopped : Boolean = currentFrames[i] == firstStopFrames[i];
 				var expectedMinFrame : Number = startFrames[i];
 				var expectedMaxFrame : Number = isStopped ? endFrames[i] : endFrames[i] + 1;
@@ -350,7 +361,7 @@ package models {
 			
 			var innerChildCurrentFrame : Number = currentFrames[lastChildIndex];
 			var innerChildLastFrame : Number = lastPlayingFrames[lastChildIndex];
-			var innerChildStartFrame: Number = startFrames[lastChildIndex];
+			var innerChildStartFrame : Number = startFrames[lastChildIndex];
 			
 			var updateStatus : String = SceneModel.UPDATE_STATUS_NORMAL;
 			

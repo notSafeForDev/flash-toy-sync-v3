@@ -1,6 +1,7 @@
 package models {
 	
 	import flash.geom.Point;
+	import utils.SaveDataUtil;
 	import utils.SceneScriptUtil;
 	
 	/**
@@ -117,6 +118,26 @@ package models {
 		public function getInterpolatedPosition(_positions : Vector.<Point>, _frame : Number) : Point {
 			var frameIndex : Number = _frame - firstRecordedInnerFrame;
 			return SceneScriptUtil.getInterpolatedPosition(_positions, frameIndex);
+		}
+		
+		public function toSaveData() : Object {
+			var saveData : Object = {};
+			saveData.firstRecordedInnerFrame = firstRecordedInnerFrame;
+			saveData.basePositions = SaveDataUtil.convertPointsToSaveData(basePositions);
+			saveData.stimPositions = SaveDataUtil.convertPointsToSaveData(stimPositions);
+			saveData.tipPositions = SaveDataUtil.convertPointsToSaveData(tipPositions);
+			
+			return saveData;
+		}
+		
+		public static function fromSaveData(_saveData : Object, _scene : SceneModel) : SceneScriptModel {
+			var script : SceneScriptModel = new SceneScriptModel(_scene);
+			script.firstRecordedInnerFrame = _saveData.firstRecordedInnerFrame;
+			script.basePositions = SaveDataUtil.getPointsFromSaveData(_saveData.basePositions);
+			script.stimPositions = SaveDataUtil.getPointsFromSaveData(_saveData.stimPositions);
+			script.tipPositions = SaveDataUtil.getPointsFromSaveData(_saveData.tipPositions);
+			
+			return script;
 		}
 		
 		protected function destroy() : void {

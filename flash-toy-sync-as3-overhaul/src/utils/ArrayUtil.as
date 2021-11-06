@@ -88,5 +88,20 @@ package utils {
 			
 			return _index;
 		}
+		
+		public static function vectorToArray(_vector : *) : Array {
+			var array : Array = [];
+			for (var i : Number = 0; i < _vector.length; i++) {
+				array.push(_vector[i]);
+			}
+			return array;
+		}
+		
+		public static function addValuesFromArrayToVector(_vector : *, _array : Array) : * {
+			for (var i : Number = 0; i < _array.length; i++) {
+				_vector.push(_array[i]);
+			}
+			return _vector;
+		}
 	}
 }
