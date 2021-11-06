@@ -4,7 +4,7 @@ package controllers {
 	import flash.geom.Point;
 	import models.SceneModel;
 	import models.SceneScriptModel;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import ui.Colors;
 	import ui.ScriptSampleMarker;
 	
@@ -74,8 +74,8 @@ package controllers {
 				return;
 			}
 			
-			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			var currentFrame : Number = activeChild != null ? activeChild.currentFrame : -1;
 			var script : SceneScriptModel = currentScene != null ? currentScene.getPlugins().getScript() : null;
 			var position : Point = marker.getPosition();

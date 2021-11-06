@@ -7,7 +7,7 @@ package utils {
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import states.AnimationInfoStates;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import states.HierarchyStates;
 	
 	/**
@@ -22,7 +22,7 @@ package utils {
 			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
 			var rootParent : TPDisplayObject = new TPDisplayObject(TPStage.stage);
 			
-			var child : TPDisplayObject = AnimationPlaybackStates.activeChild.value || root;
+			var child : TPDisplayObject = AnimationSceneStates.activeChild.value || root;
 			var children : Vector.<DisplayObject> = child.children;
 			var bounds : Rectangle = null;
 			var isCheckingDirectChildren : Boolean = true;

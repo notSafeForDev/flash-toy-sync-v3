@@ -2,8 +2,8 @@ package {
 	
 	import components.KeyboardInput;
 	import components.StateManager;
-	import controllers.AnimationPlaybackController;
-	import controllers.AnimationPlaybackEditorController;
+	import controllers.AnimationScenesController;
+	import controllers.AnimationScenesControllerEditor;
 	import controllers.AnimationSizeController;
 	import controllers.HierarchyPanelController;
 	import controllers.SaveDataController;
@@ -20,7 +20,7 @@ package {
 	import flash.ui.Mouse;
 	import flash.utils.getTimer;
 	import states.AnimationInfoStates;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import states.AnimationSizeStates;
 	import states.EditorStates;
 	import states.HierarchyStates;
@@ -50,13 +50,13 @@ package {
 		
 		private var animationInfoStates : AnimationInfoStates;
 		private var hierarchyStates : HierarchyStates;
-		private var animationPlaybackStates : AnimationPlaybackStates;
+		private var animationSceneStates : AnimationSceneStates;
 		private var animationSizeStates : AnimationSizeStates;
 		private var editorStates : EditorStates;
 		private var scriptTrackerStates : ScriptTrackerStates;
 		private var scriptRecordingStates : ScriptRecordingStates;
 		
-		private var animationPlaybackController : AnimationPlaybackController;
+		private var animationSceneController : AnimationScenesController;
 		private var animationSizeController : AnimationSizeController;
 		private var hierarchyPanelController : HierarchyPanelController;
 		private var saveDataController : SaveDataController;
@@ -246,7 +246,7 @@ package {
 		private function initializeStates() : void {
 			animationInfoStates = new AnimationInfoStates(stateManager);
 			hierarchyStates = new HierarchyStates(stateManager);
-			animationPlaybackStates = new AnimationPlaybackStates(stateManager);
+			animationSceneStates = new AnimationSceneStates(stateManager);
 			animationSizeStates = new AnimationSizeStates(stateManager);
 			editorStates = new EditorStates(stateManager);
 			scriptTrackerStates = new ScriptTrackerStates(stateManager);
@@ -255,9 +255,9 @@ package {
 		
 		private function initializeControllers() : void {
 			if (EditorStates.isEditor.value == true) {
-				animationPlaybackController = new AnimationPlaybackEditorController(animationPlaybackStates, hierarchyPanel, scenesPanel);
+				animationSceneController = new AnimationScenesControllerEditor(animationSceneStates, hierarchyPanel, scenesPanel);
 			} else {
-				animationPlaybackController = new AnimationPlaybackController(animationPlaybackStates);
+				animationSceneController = new AnimationScenesController(animationSceneStates);
 			}
 			
 			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
@@ -269,7 +269,7 @@ package {
 		private function updateControllers() : void {
 			hierarchyPanelController.update();
 			animationSizeController.update();
-			animationPlaybackController.update();
+			animationSceneController.update();
 			scriptTrackersController.update();
 			scriptRecordingController.update();
 		}

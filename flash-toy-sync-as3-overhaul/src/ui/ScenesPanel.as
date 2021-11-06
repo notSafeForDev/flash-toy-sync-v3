@@ -3,7 +3,7 @@ package ui {
 	import core.CustomEvent;
 	import core.TPMovieClip;
 	import models.SceneModel;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import utils.ArrayUtil;
 	
 	/**
@@ -29,17 +29,17 @@ package ui {
 			
 			uiList = new UIList(listContainer, contentWidth, contentHeight);
 			
-			AnimationPlaybackStates.listen(this, onSceneStatesChange, [AnimationPlaybackStates.currentScene, AnimationPlaybackStates.scenes]);
+			AnimationSceneStates.listen(this, onSceneStatesChange, [AnimationSceneStates.currentScene, AnimationSceneStates.scenes]);
 		}
 		
 		private function onListItemClick(_index : Number) : void {
-			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			var scenes : Array = AnimationSceneStates.scenes.value;
 			sceneSelectedEvent.emit(scenes[_index]);
 		}
 		
 		private function onSceneStatesChange() : void {
-			var scenes : Array = AnimationPlaybackStates.scenes.value;
-			var index : Number = ArrayUtil.indexOf(scenes, AnimationPlaybackStates.currentScene.value);
+			var scenes : Array = AnimationSceneStates.scenes.value;
+			var index : Number = ArrayUtil.indexOf(scenes, AnimationSceneStates.currentScene.value);
 			
 			if (index >= 0) {
 				uiList.scrollToItem(listItems[index], scenes.length);
@@ -47,8 +47,8 @@ package ui {
 		}
 		
 		public function update() : void {
-			var scenes : Array = AnimationPlaybackStates.scenes.value;
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var scenes : Array = AnimationSceneStates.scenes.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			
 			if (isMinimized() == true) {
 				uiList.hideItems();

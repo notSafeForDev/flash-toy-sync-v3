@@ -7,7 +7,7 @@ package controllers {
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import states.AnimationInfoStates;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import states.HierarchyStates;
 	import states.ScriptTrackerStates;
 	import ui.HierarchyPanel;
@@ -138,7 +138,7 @@ package controllers {
 				info.isExpandable = isChildExpandable;
 			}
 			
-			includeChildInInfoList(AnimationPlaybackStates.activeChild.value, infoList, includedChildren);
+			includeChildInInfoList(AnimationSceneStates.activeChild.value, infoList, includedChildren);
 			includeChildInInfoList(ScriptTrackerStates.baseTrackerAttachedTo.value, infoList, includedChildren);
 			includeChildInInfoList(ScriptTrackerStates.stimTrackerAttachedTo.value, infoList, includedChildren);
 			includeChildInInfoList(ScriptTrackerStates.tipTrackerAttachedTo.value, infoList, includedChildren);

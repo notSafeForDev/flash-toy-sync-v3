@@ -9,7 +9,7 @@ package controllers {
 	import models.SceneScriptModel;
 	import stateTypes.PointState;
 	import stateTypes.TPDisplayObjectState;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import ui.ScriptTrackerMarker;
@@ -50,7 +50,7 @@ package controllers {
 		}
 		
 		public function update() : void {
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			if (currentScene == null) {
 				globalPointState.setValue(null);
 				return;
@@ -121,7 +121,7 @@ package controllers {
 			
 			var attachedTo : TPDisplayObject = ScriptTrackerStates.childUnderDraggedMarker.value;
 			if (attachedTo == null) {
-				attachedTo = AnimationPlaybackStates.activeChild.value;
+				attachedTo = AnimationSceneStates.activeChild.value;
 			}
 			
 			if (attachedTo == null || attachedTo.isRemoved() == true) {

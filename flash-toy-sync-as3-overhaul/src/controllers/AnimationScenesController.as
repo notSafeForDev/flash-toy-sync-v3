@@ -1,18 +1,18 @@
 package controllers {
 	
 	import models.SceneModel;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	
 	/**
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class AnimationPlaybackController {
+	public class AnimationScenesController {
 		
-		protected var animationPlaybackStates : AnimationPlaybackStates;
+		protected var animationSceneStates : AnimationSceneStates;
 		
-		public function AnimationPlaybackController(_animationPlaybackStates : AnimationPlaybackStates) {
-			animationPlaybackStates = _animationPlaybackStates;
+		public function AnimationScenesController(_animationSceneStates : AnimationSceneStates) {
+			animationSceneStates = _animationSceneStates;
 		}
 		
 		public function update() : void {
@@ -20,7 +20,7 @@ package controllers {
 		}
 		
 		public function getActiveScene() : SceneModel {
-			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			var scenes : Array = AnimationSceneStates.scenes.value;
 			
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : SceneModel = scenes[i];

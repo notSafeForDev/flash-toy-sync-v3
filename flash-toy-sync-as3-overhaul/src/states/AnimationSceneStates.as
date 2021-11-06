@@ -14,7 +14,7 @@ package states {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class AnimationPlaybackStates {
+	public class AnimationSceneStates {
 		
 		private static var stateManager : StateManager;
 		
@@ -34,7 +34,7 @@ package states {
 		public var _scenes : ArrayState;
 		public static var scenes : ArrayStateReference;
 		
-		public function AnimationPlaybackStates(_stateManager : StateManager) {
+		public function AnimationSceneStates(_stateManager : StateManager) {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}

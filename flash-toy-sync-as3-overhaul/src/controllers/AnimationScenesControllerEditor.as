@@ -8,7 +8,7 @@ package controllers {
 	import flash.ui.Keyboard;
 	import models.SceneModel;
 	import states.AnimationInfoStates;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import states.HierarchyStates;
 	import states.ScriptRecordingStates;
 	import ui.HierarchyPanel;
@@ -21,7 +21,7 @@ package controllers {
 	 * ...
 	 * @author notSafeForDev
 	 */
-	public class AnimationPlaybackEditorController extends AnimationPlaybackController {
+	public class AnimationScenesControllerEditor extends AnimationScenesController {
 		
 		private var hierarchyPanel : HierarchyPanel;
 		private var scenesPanel : ScenesPanel;
@@ -29,8 +29,8 @@ package controllers {
 		private var activeChildPath : Vector.<String>;
 		private var activeChildParentsChainLength : Number = -1;
 		
-		public function AnimationPlaybackEditorController(_animationPlaybackStates : AnimationPlaybackStates, _hierarchyPanel : HierarchyPanel, _scenesPanel : ScenesPanel) {
-			super(_animationPlaybackStates);
+		public function AnimationScenesControllerEditor(_animationSceneStates : AnimationSceneStates, _hierarchyPanel : HierarchyPanel, _scenesPanel : ScenesPanel) {
+			super(_animationSceneStates);
 			
 			hierarchyPanel = _hierarchyPanel;
 			scenesPanel = _scenesPanel;
@@ -52,8 +52,8 @@ package controllers {
 		}
 		
 		public override function update() : void {
-			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			
 			var didActiveChildChange : Boolean = false;
 			
@@ -107,7 +107,7 @@ package controllers {
 				removeScene(sceneAtFrame);
 			}
 			
-			animationPlaybackStates._currentScene.setValue(currentScene);
+			animationSceneStates._currentScene.setValue(currentScene);
 			
 			if (currentScene == null) {
 				scenesPanel.update();
@@ -116,7 +116,7 @@ package controllers {
 			
 			var updateStatus : String = currentScene.update();
 			
-			animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
+			animationSceneStates._isForceStopped.setValue(currentScene.isForceStopped());
 			
 			if (updateStatus == SceneModel.UPDATE_STATUS_EXIT) {
 				exitCurrentScene();
@@ -144,7 +144,7 @@ package controllers {
 		}
 		
 		private function onTogglePlayingShortcut() : void {
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			if (currentScene == null) {
 				return;
 			}
@@ -155,22 +155,22 @@ package controllers {
 				currentScene.stop();
 			}
 			
-			animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
+			animationSceneStates._isForceStopped.setValue(currentScene.isForceStopped());
 		}
 		
 		private function onStepFramesShortcut(_frames : Number) : void {
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			if (currentScene != null) {
 				currentScene.stepFrames(_frames);
-				animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
+				animationSceneStates._isForceStopped.setValue(currentScene.isForceStopped());
 			}
 		}
 		
 		private function onRewindShortcut() : void {
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			if (currentScene != null) {
 				currentScene.gotoAndStop(currentScene.getStartFrames());
-				animationPlaybackStates._isForceStopped.setValue(currentScene.isForceStopped());
+				animationSceneStates._isForceStopped.setValue(currentScene.isForceStopped());
 			}
 		}
 		
@@ -206,7 +206,7 @@ package controllers {
 				return;
 			}
 			
-			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
+			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
 			if (activeChild != null && _child.sourceDisplayObject == activeChild.sourceDisplayObject) {
 				return;
 			}
@@ -216,7 +216,7 @@ package controllers {
 			
 			setActiveChild(activeChild);
 			
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			var sceneAtFrame : SceneModel = getSceneAtFrameForChild(activeChild);
 			
 			if (currentScene != null) {
@@ -233,7 +233,7 @@ package controllers {
 				
 				addScene(currentScene);
 				
-				animationPlaybackStates._currentScene.setValue(currentScene);
+				animationSceneStates._currentScene.setValue(currentScene);
 			}
 		}
 		
@@ -242,7 +242,7 @@ package controllers {
 		}
 		
 		private function onHierarchyPanelLockedChildrenStateChange() : void {
-			var activeChild : TPDisplayObject = AnimationPlaybackStates.activeChild.value;
+			var activeChild : TPDisplayObject = AnimationSceneStates.activeChild.value;
 			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
 			
 			if (activeChild != null && ArrayUtil.includes(lockedChildren, activeChild.sourceDisplayObject) == true) {
@@ -253,7 +253,7 @@ package controllers {
 		}
 		
 		private function switchToScene(_scene : SceneModel) : void {
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			if (_scene == currentScene) {
 				return;
 			}
@@ -262,7 +262,7 @@ package controllers {
 				exitCurrentScene();
 			}
 			
-			if (AnimationPlaybackStates.isForceStopped.value == true) {
+			if (AnimationSceneStates.isForceStopped.value == true) {
 				_scene.gotoAndStop(_scene.getStartFrames());
 			} else {
 				_scene.gotoAndPlay(_scene.getStartFrames());
@@ -275,11 +275,11 @@ package controllers {
 			
 			setActiveChild(childAtPath);
 			
-			animationPlaybackStates._currentScene.setValue(_scene);
+			animationSceneStates._currentScene.setValue(_scene);
 		}
 		
 		private function setActiveChild(_child : TPMovieClip) : void {
-			animationPlaybackStates._activeChild.setValue(_child);
+			animationSceneStates._activeChild.setValue(_child);
 			
 			if (_child == null) {
 				return;
@@ -294,7 +294,7 @@ package controllers {
 		}
 		
 		private function isActiveChildInDisplayList() : Boolean {
-			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
+			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
 			if (activeChild == null) {
 				return false;
 			}
@@ -310,7 +310,7 @@ package controllers {
 		}
 		
 		private function findActiveChildReplacement() : TPMovieClip {
-			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
+			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
 			
 			if (activeChildPath != null) {
 				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
@@ -322,13 +322,13 @@ package controllers {
 		}
 		
 		private function exitCurrentScene() : void {
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			currentScene.exit();
-			animationPlaybackStates._currentScene.setValue(null);
+			animationSceneStates._currentScene.setValue(null);
 		}
 		
 		private function addScene(_scene : SceneModel) : void {
-			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			var scenes : Array = AnimationSceneStates.scenes.value;
 			
 			scenes.push(_scene);
 			
@@ -352,20 +352,20 @@ package controllers {
 				return 0;
 			});
 			
-			animationPlaybackStates._scenes.setValue(scenes);
+			animationSceneStates._scenes.setValue(scenes);
 		}
 		
 		private function removeScene(_scene : SceneModel) : void {
-			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			var scenes : Array = AnimationSceneStates.scenes.value;
 			ArrayUtil.remove(scenes, _scene);
-			animationPlaybackStates._scenes.setValue(scenes);
+			animationSceneStates._scenes.setValue(scenes);
 		}
 		
 		private function getSceneAtFrameForChild(_child : TPMovieClip) : SceneModel {
 			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
 			var path : Vector.<String> = HierarchyUtil.getChildPath(root, _child);
 			var pathString : String = path.join(",");
-			var scenes : Array = AnimationPlaybackStates.scenes.value;
+			var scenes : Array = AnimationSceneStates.scenes.value;
 			
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : SceneModel = scenes[i];

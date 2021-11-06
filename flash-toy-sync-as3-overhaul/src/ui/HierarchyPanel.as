@@ -6,7 +6,7 @@ package ui {
 	import core.TPMovieClip;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
-	import states.AnimationPlaybackStates;
+	import states.AnimationSceneStates;
 	import states.HierarchyStates;
 	
 	/**
@@ -69,7 +69,7 @@ package ui {
 			
 			HierarchyStates.listen(this, onSelectedHierarchyChildStateChange, [HierarchyStates.selectedChild]);
 			HierarchyStates.listen(this, onHierachyInfoListStateChange, [HierarchyStates.hierarchyPanelInfoList]);
-			AnimationPlaybackStates.listen(this, onAnimationPlaybackActiveChildStateChange, [AnimationPlaybackStates.activeChild]);
+			AnimationSceneStates.listen(this, onAnimationSceneActiveChildStateChange, [AnimationSceneStates.activeChild]);
 		}
 		
 		private function onListItemSelectChild(_child : TPDisplayObject) : void {
@@ -130,12 +130,12 @@ package ui {
 			toggleLockEvent.emit();
 		}
 		
-		private function onAnimationPlaybackActiveChildStateChange() : void {			
+		private function onAnimationSceneActiveChildStateChange() : void {			
 			highlightListItemForActiveChild();
 		}
 		
 		private function highlightListItemForActiveChild() : void {
-			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
+			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
 			
 			for (var i : Number = 0; i < listItems.length; i++) {
 				if (listItems[i].isVisible() == false) {
