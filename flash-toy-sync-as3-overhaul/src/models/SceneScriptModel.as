@@ -1,6 +1,7 @@
 package models {
 	
 	import flash.geom.Point;
+	import utils.ArrayUtil;
 	import utils.SaveDataUtil;
 	import utils.SceneScriptUtil;
 	
@@ -48,6 +49,14 @@ package models {
 			return clonedScript;
 		}
 		
+		/**
+		 * Adds a set of positions at a given frame to the script
+		 * If a postion is null and there's already a position recorded for that frame, it won't overwrite the existing position
+		 * @param	_frame	The current frame to record
+		 * @param	_base	The base position for the "penis"
+		 * @param	_stim	The position where the stimulation takes place on the "penis"
+		 * @param	_tip	The tip position for the "penis"
+		 */
 		public function addPositions(_frame : Number, _base : Point, _stim : Point, _tip : Point) : void {
 			if (basePositions.length == 0) {
 				firstRecordedInnerFrame = _frame;
@@ -69,9 +78,9 @@ package models {
 			
 			var frameIndex : Number = _frame - firstRecordedInnerFrame;
 			
-			basePositions[frameIndex] = _base;
-			stimPositions[frameIndex] = _stim;
-			tipPositions[frameIndex] = _tip;
+			basePositions[frameIndex] = _base || basePositions[frameIndex];
+			stimPositions[frameIndex] = _stim || stimPositions[frameIndex];
+			tipPositions[frameIndex] = _tip || tipPositions[frameIndex];
 		}
 		
 		public function setBasePosition(_frame : Number, _position : Point) : void {
@@ -90,7 +99,17 @@ package models {
 		}
 		
 		public function isComplete() : Boolean {
-			return firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length == scene.getTotalInnerFrames();
+			var haveRecordedAllFrames : Boolean = firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length == scene.getTotalInnerFrames();
+			if (haveRecordedAllFrames == false) {
+				return false;
+			}
+			
+			var totalNullBasePositions : Number = ArrayUtil.count(basePositions, null);
+			var totalNullStimPositions : Number = ArrayUtil.count(stimPositions, null);
+			var totalNullTipPositions : Number = ArrayUtil.count(tipPositions, null);
+			
+			var hasAtLeast1PositionOfEach : Boolean = totalNullBasePositions != basePositions.length && totalNullStimPositions != stimPositions.length && totalNullTipPositions != tipPositions.length;
+			return hasAtLeast1PositionOfEach;
 		}
 		
 		public function getBasePositions() : Vector.<Point> {

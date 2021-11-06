@@ -11,12 +11,13 @@ package ui {
 		
 		private static var font : String = "Consolas";
 		
-		public static function applyErrorStyle(_text : TextElement) : void {
+		public static function applyStatusStyle(_text : TextElement) : void {
 			var textFormat : TextFormat = new TextFormat();
 			textFormat.font = font;
 			textFormat.size = 16;
 			textFormat.bold = true;
 			textFormat.color = 0xFFFFFF;
+			textFormat.align = TextElement.ALIGN_CENTER;
 			
 			_text.setTextFormat(textFormat);
 			

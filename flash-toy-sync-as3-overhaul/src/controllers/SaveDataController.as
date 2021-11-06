@@ -8,6 +8,7 @@ package controllers {
 	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
 	import states.AnimationSizeStates;
+	import states.SaveDataStates;
 	import ui.Shortcuts;
 	import utils.ArrayUtil;
 	
@@ -17,12 +18,14 @@ package controllers {
 	 */
 	public class SaveDataController {
 		
+		private var saveDataStates : SaveDataStates;
 		private var animationSizeStates : AnimationSizeStates;
 		private var animationSceneStates : AnimationSceneStates;
 		
 		private var sharedObject : SharedObject;
 		
-		public function SaveDataController(_animationSizeStates : AnimationSizeStates, _animationSceneStates : AnimationSceneStates) {
+		public function SaveDataController(_saveDataStates : SaveDataStates, _animationSizeStates : AnimationSizeStates, _animationSceneStates : AnimationSceneStates) {
+			saveDataStates = _saveDataStates;
 			animationSizeStates = _animationSizeStates;
 			animationSceneStates = _animationSceneStates;
 			
@@ -85,6 +88,10 @@ package controllers {
 			
 			// data is read only, so we can't assign it directly
 			updateSaveDataFromState(sharedObject.data);
+			
+			var saveDataList : Array = SaveDataStates.saveDataList.value;
+			saveDataList.push(sharedObject.data);
+			saveDataStates._saveDataList.setValue(saveDataList);
 		}
 		
 		private function load(_saveData : Object) : Boolean {

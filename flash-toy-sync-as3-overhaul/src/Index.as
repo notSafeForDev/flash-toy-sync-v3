@@ -24,6 +24,7 @@ package {
 	import states.AnimationSizeStates;
 	import states.EditorStates;
 	import states.HierarchyStates;
+	import states.SaveDataStates;
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import core.TPMovieClip;
@@ -36,6 +37,7 @@ package {
 	import visualComponents.Animation;
 	import visualComponents.Borders;
 	import visualComponents.StageElementHighlighter;
+	import visualComponents.StatusText;
 	
 	/**
 	 * ...
@@ -55,6 +57,7 @@ package {
 		private var editorStates : EditorStates;
 		private var scriptTrackerStates : ScriptTrackerStates;
 		private var scriptRecordingStates : ScriptRecordingStates;
+		private var saveDataStates : SaveDataStates;
 		
 		private var animationSceneController : AnimationScenesController;
 		private var animationSizeController : AnimationSizeController;
@@ -72,7 +75,7 @@ package {
 		private var mainMenu : MainMenu;
 		private var borders : Borders;
 		private var animation : Animation;
-		private var errorText : TextElement;
+		private var statusText : StatusText;
 		private var fpsText : TextElement;
 		
 		private var hierarchyPanel : HierarchyPanel;
@@ -101,7 +104,7 @@ package {
 			addTrackingMarkersContainer();
 			addPanels();
 			addMainMenu();
-			addErrorText();
+			addStatusText();
 			addFPSText();
 			
 			container.addEnterFrameListener(this, onEnterFrame);
@@ -131,8 +134,26 @@ package {
 			
 			animationInfoStates._animationRoot.setValue(new TPMovieClip(_swf));
 			animationInfoStates._isLoaded.setValue(true);
+			animationInfoStates._loadStatus.setValue("");
+			
+			hierarchyPanel.show();
+			scenesPanel.show();
 			
 			initializeControllers();
+		}
+		
+		private function onAnimationLoadError(_error : String) : void {
+			var missingAnimationStatus : String = "The selected file doesn't appear to be in the animations folder";
+			
+			// AS3
+			if (_error == "Error #2035" || _error.indexOf("URL Not Found") >= 0) {
+				animationInfoStates._loadStatus.setValue(missingAnimationStatus);
+			}
+			
+			// AS2
+			if (_error == "URLNotFound") {
+				animationInfoStates._loadStatus.setValue(missingAnimationStatus);
+			}
 		}
 		
 		private function onEnterFrame() : void {	
@@ -177,9 +198,6 @@ package {
 		private function onMainMenuEditAnimation() : void {
 			animation.load(AnimationInfoStates.name.value);
 			
-			hierarchyPanel.show();
-			scenesPanel.show();
-			
 			editorStates._isEditor.setValue(true);
 		}
 		
@@ -187,6 +205,7 @@ package {
 			animation = new Animation(container);
 			
 			animation.loadedEvent.listen(this, onAnimationLoaded);
+			animation.loadErrorEvent.listen(this, onAnimationLoadError);
 		}
 		
 		private function addBorders() : void {
@@ -225,21 +244,13 @@ package {
 			mainMenu.editAnimationEvent.listen(this, onMainMenuEditAnimation);
 		}
 		
-		private function addErrorText() : void {
-			errorText = new TextElement(container, "");
-			TextStyles.applyErrorStyle(errorText);
-			
-			var textFormat : TextFormat = errorText.getTextFormat();
-			textFormat.align = TextElement.ALIGN_CENTER;
-			errorText.setTextFormat(textFormat);
-			
-			errorText.element.y = TPStage.stageHeight - 80;
-			errorText.element.width = TPStage.stageWidth;
+		private function addStatusText() : void {
+			statusText = new StatusText(container);
 		}
 		
 		private function addFPSText() : void {
 			fpsText = new TextElement(container, "");
-			TextStyles.applyErrorStyle(fpsText);
+			TextStyles.applyStatusStyle(fpsText);
 			fpsText.element.width = 200;
 		}
 		
@@ -251,7 +262,7 @@ package {
 			editorStates = new EditorStates(stateManager);
 			scriptTrackerStates = new ScriptTrackerStates(stateManager);
 			scriptRecordingStates = new ScriptRecordingStates(stateManager);
-			saveDataController = new SaveDataController(animationSizeStates, animationSceneStates);
+			saveDataStates = new SaveDataStates(stateManager);
 		}
 		
 		private function initializeControllers() : void {
@@ -265,6 +276,7 @@ package {
 			animationSizeController = new AnimationSizeController(animationSizeStates);
 			scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
 			scriptRecordingController = new ScriptRecordingController(scriptRecordingStates, sampleMarkersContainer);
+			saveDataController = new SaveDataController(saveDataStates, animationSizeStates, animationSceneStates);
 		}
 		
 		private function updateControllers() : void {

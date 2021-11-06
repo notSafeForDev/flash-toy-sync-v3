@@ -28,6 +28,9 @@ package states {
 		public var _isLoaded : BooleanState;
 		public static var isLoaded : BooleanStateReference;
 		
+		public var _loadStatus : StringState;
+		public static var loadStatus : StringStateReference;
+		
 		public function AnimationInfoStates(_stateManager : StateManager) {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
@@ -44,6 +47,9 @@ package states {
 			
 			_isLoaded = _stateManager.addState(BooleanState, false);
 			isLoaded = _isLoaded.reference;
+			
+			_loadStatus = _stateManager.addState(StringState, "");
+			loadStatus = _loadStatus.reference;
 			
 			stateManager = _stateManager;
 		}

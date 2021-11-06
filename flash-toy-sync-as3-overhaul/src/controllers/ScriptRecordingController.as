@@ -79,9 +79,10 @@ package controllers {
 		}
 		
 		private function onTrackerAttachedToStatesChange() : void {
-			var canRecordDependencies : Array = [ScriptTrackerStates.baseGlobalTrackerPoint.value, ScriptTrackerStates.stimGlobalTrackerPoint.value, ScriptTrackerStates.tipGlobalTrackerPoint.value];
+			var trackerPoints : Array = [ScriptTrackerStates.baseGlobalTrackerPoint.value, ScriptTrackerStates.stimGlobalTrackerPoint.value, ScriptTrackerStates.tipGlobalTrackerPoint.value];
+			var totalNullValues : Number = ArrayUtil.count(trackerPoints, null);
 			
-			scriptRecordingStates._canRecord.setValue(ArrayUtil.includes(canRecordDependencies, null) == false);
+			scriptRecordingStates._canRecord.setValue(totalNullValues < trackerPoints.length);
 		}
 		
 		private function onCurrentSceneStateChange() : void {

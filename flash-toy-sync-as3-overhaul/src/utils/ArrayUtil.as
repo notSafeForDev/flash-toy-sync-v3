@@ -103,5 +103,15 @@ package utils {
 			}
 			return _vector;
 		}
+		
+		public static function count(_array : *, _searchElement : *) : Number {
+			var total : Number = 0;
+			for (var i : Number = 0; i < _array.length; i++) {
+				if (_array[i] == _searchElement) {
+					total++;
+				}
+			}
+			return total;
+		}
 	}
 }
