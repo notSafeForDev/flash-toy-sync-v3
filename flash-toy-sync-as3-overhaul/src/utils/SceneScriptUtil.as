@@ -49,7 +49,7 @@ package utils {
 			var offsetAfter : Number;
 			
 			for (i = 0; i < _positions.length; i++) {
-				var indexBefore : Number = MathUtil.wrap(_index - i, 0, _positions.length - 1);
+				var indexBefore : Number = ArrayUtil.getWrappedIndex(_index + i, _positions.length);
 				if (_positions[indexBefore] == null) {
 					continue;
 				}
@@ -60,7 +60,7 @@ package utils {
 			}
 			
 			for (i = 0; i < _positions.length; i++) {
-				var indexAfter : Number = MathUtil.wrap(_index + i, 0, _positions.length - 1);
+				var indexAfter : Number = ArrayUtil.getWrappedIndex(_index + i, _positions.length);
 				if (_positions[indexAfter] == null) {
 					continue;
 				}

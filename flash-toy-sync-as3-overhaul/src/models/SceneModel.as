@@ -195,6 +195,15 @@ package models {
 		}
 		
 		/**
+		 * Get the current frame for each child that is part of the scene, starting from the top most, ending with the inner child
+		 * Can only be called while the scene is active
+		 * @return An array of frames
+		 */
+		public function getCurrentFrames() : Vector.<Number> {
+			return getCurrentFramesWhileActive();
+		}
+		
+		/**
 		 * Get the start frame for the deepest nested child
 		 * @return
 		 */

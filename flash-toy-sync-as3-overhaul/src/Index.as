@@ -8,7 +8,6 @@ package {
 	import controllers.HierarchyPanelController;
 	import controllers.SaveDataController;
 	import controllers.ScriptRecordingController;
-	import controllers.ScriptSampleMarkerSubController;
 	import controllers.ScriptTrackersController;
 	import controllers.StrokerToyController;
 	import controllers.StrokerToyEditorController;
@@ -68,6 +67,7 @@ package {
 		
 		private var container : TPMovieClip;
 		private var panelsContainer : TPMovieClip;
+		private var sampleMarkersContainer : TPMovieClip;
 		private var trackingMarkersContainer : TPMovieClip;
 		private var mainMenu : MainMenu;
 		private var borders : Borders;
@@ -97,6 +97,7 @@ package {
 			addAnimation();
 			addBorders();
 			addStageElementHighlighter();
+			addSampleMarkersContainer();
 			addTrackingMarkersContainer();
 			addPanels();
 			addMainMenu();
@@ -196,6 +197,10 @@ package {
 			var stageElementHighlighter : StageElementHighlighter = new StageElementHighlighter(container);
 		}
 		
+		private function addSampleMarkersContainer() : void {
+			sampleMarkersContainer = TPMovieClip.create(container, "sampleMarkersContainer");
+		}
+		
 		private function addTrackingMarkersContainer() : void {
 			trackingMarkersContainer = TPMovieClip.create(container, "trackingMarkersContainer");
 		}
@@ -258,7 +263,7 @@ package {
 			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
 			animationSizeController = new AnimationSizeController(animationSizeStates);
 			scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
-			scriptRecordingController = new ScriptRecordingController(scriptRecordingStates);
+			scriptRecordingController = new ScriptRecordingController(scriptRecordingStates, sampleMarkersContainer);
 		}
 		
 		private function updateControllers() : void {
@@ -266,6 +271,7 @@ package {
 			animationSizeController.update();
 			animationPlaybackController.update();
 			scriptTrackersController.update();
+			scriptRecordingController.update();
 		}
 	}
 }

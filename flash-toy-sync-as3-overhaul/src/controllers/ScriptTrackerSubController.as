@@ -5,12 +5,16 @@ package controllers {
 	import core.CustomEvent;
 	import core.TPDisplayObject;
 	import flash.geom.Point;
+	import models.SceneModel;
+	import models.SceneScriptModel;
 	import stateTypes.PointState;
 	import stateTypes.TPDisplayObjectState;
 	import states.AnimationPlaybackStates;
+	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import ui.ScriptTrackerMarker;
 	import utils.ArrayUtil;
+	import utils.MathUtil;
 	
 	/**
 	 * ...
@@ -46,13 +50,41 @@ package controllers {
 		}
 		
 		public function update() : void {
+			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			if (currentScene == null) {
+				globalPointState.setValue(null);
+				return;
+			}
+			
 			if (attachedToDisplayObjectReference != null) {
 				attachedToDisplayObjectReference.update();
 			}
+
+			var markerPosition : Point = marker.getPosition();
 			
-			var point : Point = pointState.getValue();
+			var snapPoints : Vector.<Point> = new Vector.<Point>();
 			
-			if (marker.isDragging() == false && attachedToState.getValue() != null && point != null) {
+			if (marker.isDragging() == true) {
+				snapPoints.push(ScriptRecordingStates.interpolatedBasePoint.value);
+				snapPoints.push(ScriptRecordingStates.interpolatedStimPoint.value);
+				snapPoints.push(ScriptRecordingStates.interpolatedTipPoint.value);
+			}
+			
+			for (var i : Number = 0; i < snapPoints.length; i++) {
+				if (snapPoints[i] == null) {
+					continue;
+				}
+				
+				var distance : Number = MathUtil.distanceBetween(markerPosition, snapPoints[i]);
+				if (distance <= 3) {
+					markerPosition = snapPoints[i];
+					break;
+				}
+			}
+			
+			if (marker.isDragging() == true) {
+				marker.setPosition(markerPosition.x, markerPosition.y);
+			} else if (attachedToState.getValue() != null && pointState.getValue() != null) {
 				var attachedTo : TPDisplayObject = attachedToState.getValue();
 				var localPoint : Point = pointState.getValue();
 				var globalPoint : Point = attachedTo.localToGlobal(localPoint);

@@ -1,6 +1,7 @@
 package models {
 	
 	import flash.geom.Point;
+	import utils.SceneScriptUtil;
 	
 	/**
 	 * ...
@@ -74,6 +75,33 @@ package models {
 		
 		public function isComplete() : Boolean {
 			return firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length == scene.getTotalInnerFrames();
+		}
+		
+		public function getBasePositions() : Vector.<Point> {
+			return basePositions.slice();
+		}
+		
+		public function getStimPositions() : Vector.<Point> {
+			return stimPositions.slice();
+		}
+		
+		public function getTipPositions() : Vector.<Point> {
+			return tipPositions.slice();
+		}
+		
+		public function isFrameWithinRecordedFrames(_frame : Number) : Boolean {
+			var lastRecordedFrame : Number = firstRecordedInnerFrame + basePositions.length - 1;
+			return basePositions.length > 0 && _frame >= firstRecordedInnerFrame && _frame <= lastRecordedFrame;
+		}
+		
+		public function hasRecordedPositionOnFrame(_positions : Vector.<Point>, _frame : Number) : Boolean {
+			var frameIndex : Number = _frame - firstRecordedInnerFrame;
+			return _positions[frameIndex] != null;
+		}
+		
+		public function getInterpolatedPosition(_positions : Vector.<Point>, _frame : Number) : Point {
+			var frameIndex : Number = _frame - firstRecordedInnerFrame;
+			return SceneScriptUtil.getInterpolatedPosition(_positions, frameIndex);
 		}
 		
 		protected function destroy() : void {

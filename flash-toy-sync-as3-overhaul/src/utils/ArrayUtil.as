@@ -73,5 +73,20 @@ package utils {
 			
 			return true;
 		}
+		
+		public static function getWrappedIndex(_index : Number, _length : Number) : Number {
+			if (_length <= 0) {
+				return -1;
+			}
+			
+			while (_index < 0) {
+				_index += _length;
+			}
+			while (_index >= _length) {
+				_index -= _length;
+			}
+			
+			return _index;
+		}
 	}
 }

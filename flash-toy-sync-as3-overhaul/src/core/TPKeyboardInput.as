@@ -1,6 +1,7 @@
 package core {
 	
 	import flash.display.DisplayObject;
+	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
@@ -16,12 +17,16 @@ package core {
 		
 		private var keyUpHandler : Function;
 		
+		private var stage : Stage;
+		
 		public function TPKeyboardInput(_object : TPDisplayObject, _keyDownHandler : Function, _keyUpHandler : Function) {
 			pressedKeys = new Vector.<Number>();
 			
 			keyUpHandler = _keyUpHandler;
 			
-			_object.sourceDisplayObject.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) : void {
+			stage = _object.sourceDisplayObject.stage;
+			
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) : void {
 				// Control and Shift are handled differently 
 				// as certain combinations that includes those keys prevents keyboard events from getting triggered
 				if (e.ctrlKey == true && isKeyPressed(Keyboard.CONTROL) == false) {
@@ -38,7 +43,7 @@ package core {
 				}
 			});
 			
-			_object.sourceDisplayObject.stage.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) : void {
+			stage.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) : void {
 				var ctrlKeyIndex : int = pressedKeys.indexOf(Keyboard.CONTROL);
 				if (ctrlKeyIndex >= 0 && e.ctrlKey == false) {
 					pressedKeys.splice(ctrlKeyIndex, 1);
@@ -70,6 +75,10 @@ package core {
 		// When the focus is lost for the stage, it doesn't detect key events, 
 		// so to prevent keys from getting stuck as pressed, we release all currently pressed keys
 		private function onStageFocusLoss(e : Event) : void {
+			if (stage.focus != null) {
+				return;
+			}
+			
 			for (var i : Number = 0; i < pressedKeys.length; i++) {
 				keyUpHandler(pressedKeys[i]);
 			}

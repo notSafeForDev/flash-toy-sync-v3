@@ -1,4 +1,5 @@
 package controllers {
+	
 	import components.KeyboardInput;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
@@ -9,6 +10,7 @@ package controllers {
 	import states.AnimationInfoStates;
 	import states.AnimationPlaybackStates;
 	import states.HierarchyStates;
+	import states.ScriptRecordingStates;
 	import ui.HierarchyPanel;
 	import ui.ScenesPanel;
 	import ui.Shortcuts;
@@ -37,6 +39,7 @@ package controllers {
 			scenesPanel.sceneSelectedEvent.listen(this, onScenesPanelSceneSelected);
 			
 			HierarchyStates.listen(this, onHierarchyPanelLockedChildrenStateChange, [HierarchyStates.lockedChildren]);
+			ScriptRecordingStates.listen(this, onScriptRecordingIsRecordingStateChange, [ScriptRecordingStates.isRecording]);
 			
 			KeyboardInput.addShortcut(Shortcuts.togglePlaying1, this, onTogglePlayingShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.togglePlaying2, this, onTogglePlayingShortcut, []);
@@ -171,6 +174,24 @@ package controllers {
 			}
 		}
 		
+		private function onScriptRecordingIsRecordingStateChange() : void {
+			var recordingScene : SceneModel = ScriptRecordingStates.recordingScene.value;
+			var didFinishRecording : Boolean = ScriptRecordingStates.isRecording.value == false && recordingScene != null;
+			
+			if (didFinishRecording == false) {
+				return;
+			}
+			
+			var recordingStartFrames : Vector.<Number> = new Vector.<Number>();
+			for (var i : Number = 0; i < ScriptRecordingStates.recordingStartFrames.value.length; i++) {
+				recordingStartFrames.push(ScriptRecordingStates.recordingStartFrames.value[i]);
+			}
+			
+			switchToScene(recordingScene);
+			
+			recordingScene.gotoAndStop(recordingStartFrames);
+		}
+		
 		private function onHierarchyPanelChildSelected(_child : TPDisplayObject) : void {
 			if (KeyboardInput.areKeysPressed(Shortcuts.singleSelect) == true || KeyboardInput.areKeysPressed(Shortcuts.multiSelect) == true) {
 				return;
@@ -217,6 +238,21 @@ package controllers {
 		}
 		
 		private function onScenesPanelSceneSelected(_scene : SceneModel) : void {
+			switchToScene(_scene);
+		}
+		
+		private function onHierarchyPanelLockedChildrenStateChange() : void {
+			var activeChild : TPDisplayObject = AnimationPlaybackStates.activeChild.value;
+			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
+			
+			if (activeChild != null && ArrayUtil.includes(lockedChildren, activeChild.sourceDisplayObject) == true) {
+				setActiveChild(null);
+				activeChildPath = null;
+				activeChildParentsChainLength = -1;
+			}
+		}
+		
+		private function switchToScene(_scene : SceneModel) : void {
 			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
 			if (_scene == currentScene) {
 				return;
@@ -240,17 +276,6 @@ package controllers {
 			setActiveChild(childAtPath);
 			
 			animationPlaybackStates._currentScene.setValue(_scene);
-		}
-		
-		private function onHierarchyPanelLockedChildrenStateChange() : void {
-			var activeChild : TPDisplayObject = AnimationPlaybackStates.activeChild.value;
-			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
-			
-			if (activeChild != null && ArrayUtil.includes(lockedChildren, activeChild.sourceDisplayObject) == true) {
-				setActiveChild(null);
-				activeChildPath = null;
-				activeChildParentsChainLength = -1;
-			}
 		}
 		
 		private function setActiveChild(_child : TPMovieClip) : void {
