@@ -9,10 +9,8 @@ package controllers {
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import ui.Colors;
-	import ui.ScriptSampleMarker;
 	import ui.Shortcuts;
 	import utils.ArrayUtil;
-	import utils.SceneScriptUtil;
 	
 	/**
 	 * ...
@@ -22,9 +20,9 @@ package controllers {
 		
 		private var scriptRecordingStates : ScriptRecordingStates;
 		
-		private var baseMarker : ScriptSampleMarker;
-		private var stimMarker : ScriptSampleMarker;
-		private var tipMarker : ScriptSampleMarker;
+		private var baseMarkerSubController : ScriptSampleMarkerSubController;
+		private var stimMarkerSubController : ScriptSampleMarkerSubController;
+		private var tipMarkerSubController : ScriptSampleMarkerSubController;
 		
 		private var lastRecordedFrame : Number = -1;
 		
@@ -33,13 +31,9 @@ package controllers {
 			
 			var markerContainer : TPMovieClip = TPMovieClip.create(_container, "scriptSampleMarkersContainer");
 			
-			baseMarker = new ScriptSampleMarker(markerContainer, Colors.baseMarker, "B");
-			stimMarker = new ScriptSampleMarker(markerContainer, Colors.stimMarker, "S");
-			tipMarker = new ScriptSampleMarker(markerContainer, Colors.tipMarker, "T");
-			
-			baseMarker.hide();
-			stimMarker.hide();
-			tipMarker.hide();
+			baseMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_BASE, markerContainer);
+			stimMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_STIM, markerContainer);
+			tipMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_TIP, markerContainer);
 			
 			KeyboardInput.addShortcut(Shortcuts.recordFrame, this, onRecordFrameShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.recordScene, this, onRecordSceneShortcut, []);
@@ -79,41 +73,9 @@ package controllers {
 			scriptRecordingStates._interpolatedStimPoint.setValue(stimPoint);
 			scriptRecordingStates._interpolatedTipPoint.setValue(tipPoint);
 			
-			updateMarker(baseMarker, script, script ? script.getBasePositions() : null, basePoint, currentFrame);
-			updateMarker(stimMarker, script, script ? script.getStimPositions() : null, stimPoint, currentFrame);
-			updateMarker(tipMarker, script, script ? script.getTipPositions() : null, tipPoint, currentFrame);
-		}
-		
-		private function updateMarker(_marker : ScriptSampleMarker, _script : SceneScriptModel, _positions : Vector.<Point>, _position : Point, _currentFrame : Number) : void {
-			if (_position == null) {
-				_marker.hide();
-				return;
-			}
-			
-			var isKeyPosition : Boolean = _script.hasRecordedPositionOnFrame(_positions, _currentFrame);
-			
-			_marker.show();
-			_marker.setPosition(_position.x, _position.y);
-			
-			if (isKeyPosition == true) {
-				_marker.displayAsKeyPosition();
-			} else {
-				_marker.displayAsInterpolatedPosition();
-			}
-		}
-		
-		private function recordCurrentFrame() : void {
-			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
-			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
-			
-			var base : Point = ScriptTrackerStates.baseGlobalTrackerPoint.value;
-			var stim : Point = ScriptTrackerStates.stimGlobalTrackerPoint.value;
-			var tip : Point = ScriptTrackerStates.tipGlobalTrackerPoint.value;
-			
-			var script : SceneScriptModel = currentScene.getPlugins().getScript();
-			script.addPositions(activeChild.currentFrame, base, stim, tip);
-			
-			lastRecordedFrame = activeChild.currentFrame;
+			baseMarkerSubController.update(script, currentFrame);
+			stimMarkerSubController.update(script, currentFrame);
+			tipMarkerSubController.update(script, currentFrame);
 		}
 		
 		private function onTrackerAttachedToStatesChange() : void {
@@ -152,6 +114,20 @@ package controllers {
 			recordCurrentFrame();
 			
 			currentScene.play();
+		}
+		
+		private function recordCurrentFrame() : void {
+			var currentScene : SceneModel = AnimationPlaybackStates.currentScene.value;
+			var activeChild : TPMovieClip = AnimationPlaybackStates.activeChild.value;
+			
+			var base : Point = ScriptTrackerStates.baseGlobalTrackerPoint.value;
+			var stim : Point = ScriptTrackerStates.stimGlobalTrackerPoint.value;
+			var tip : Point = ScriptTrackerStates.tipGlobalTrackerPoint.value;
+			
+			var script : SceneScriptModel = currentScene.getPlugins().getScript();
+			script.addPositions(activeChild.currentFrame, base, stim, tip);
+			
+			lastRecordedFrame = activeChild.currentFrame;
 		}
 	}
 }

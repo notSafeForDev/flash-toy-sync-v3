@@ -48,8 +48,8 @@ package utils {
 			var offsetBefore : Number;
 			var offsetAfter : Number;
 			
-			for (i = 0; i < _positions.length; i++) {
-				var indexBefore : Number = ArrayUtil.getWrappedIndex(_index + i, _positions.length);
+			for (i = 1; i < _positions.length; i++) {
+				var indexBefore : Number = ArrayUtil.getWrappedIndex(_index - i, _positions.length);
 				if (_positions[indexBefore] == null) {
 					continue;
 				}
@@ -59,7 +59,7 @@ package utils {
 				break;
 			}
 			
-			for (i = 0; i < _positions.length; i++) {
+			for (i = 1; i < _positions.length; i++) {
 				var indexAfter : Number = ArrayUtil.getWrappedIndex(_index + i, _positions.length);
 				if (_positions[indexAfter] == null) {
 					continue;

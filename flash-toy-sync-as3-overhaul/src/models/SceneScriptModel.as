@@ -73,6 +73,21 @@ package models {
 			tipPositions[frameIndex] = _tip;
 		}
 		
+		public function setBasePosition(_frame : Number, _position : Point) : void {
+			var frameIndex : Number = _frame - firstRecordedInnerFrame;
+			basePositions[frameIndex] = _position;
+		}
+		
+		public function setStimPosition(_frame : Number, _position : Point) : void {
+			var frameIndex : Number = _frame - firstRecordedInnerFrame;
+			stimPositions[frameIndex] = _position;
+		}
+		
+		public function setTipPosition(_frame : Number, _position : Point) : void {
+			var frameIndex : Number = _frame - firstRecordedInnerFrame;
+			tipPositions[frameIndex] = _position;
+		}
+		
 		public function isComplete() : Boolean {
 			return firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length == scene.getTotalInnerFrames();
 		}
