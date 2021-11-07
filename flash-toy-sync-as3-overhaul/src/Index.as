@@ -136,8 +136,10 @@ package {
 			animationInfoStates._isLoaded.setValue(true);
 			animationInfoStates._loadStatus.setValue("");
 			
-			hierarchyPanel.show();
-			scenesPanel.show();
+			if (EditorStates.isEditor.value == true) {
+				hierarchyPanel.show();
+				scenesPanel.show();
+			}
 			
 			initializeControllers();
 		}
