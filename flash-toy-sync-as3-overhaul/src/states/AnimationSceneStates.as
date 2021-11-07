@@ -5,6 +5,8 @@ package states {
 	import stateTypes.ArrayStateReference;
 	import stateTypes.BooleanState;
 	import stateTypes.BooleanStateReference;
+	import stateTypes.NumberState;
+	import stateTypes.NumberStateReference;
 	import stateTypes.TPMovieClipState;
 	import stateTypes.TPMovieClipStateReference;
 	import stateTypes.SceneState;
@@ -34,6 +36,9 @@ package states {
 		public var _scenes : ArrayState;
 		public static var scenes : ArrayStateReference;
 		
+		public var _currentSceneLoopCount : NumberState;
+		public static var currentSceneLoopCount : NumberStateReference;
+		
 		public function AnimationSceneStates(_stateManager : StateManager) {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
@@ -50,6 +55,9 @@ package states {
 			
 			_scenes = _stateManager.addState(ArrayState, []);
 			scenes = _scenes.reference;
+			
+			_currentSceneLoopCount = _stateManager.addState(NumberState, -1);
+			currentSceneLoopCount = _currentSceneLoopCount.reference;
 			
 			stateManager = _stateManager;
 		}

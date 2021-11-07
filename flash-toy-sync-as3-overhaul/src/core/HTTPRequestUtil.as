@@ -4,6 +4,7 @@ package core {
 	import flash.events.IOErrorEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
 	
 	/**
 	 * ...
@@ -46,15 +47,15 @@ package core {
 			loader.load(urlRequest);
 		}
 		
-		private static function setupLoader(_scope : *, _responseHandler : Function, _errorHandler : Function, restArguments : Array) : URLLoader {
+		private static function setupLoader(_scope : *, _responseHandler : Function, _errorHandler : Function, _restArguments : Array) : URLLoader {
 			var loader : URLLoader = new URLLoader();
 			
 			var args : Array;
 			
 			loader.addEventListener(IOErrorEvent.IO_ERROR, function(e : IOErrorEvent) : void {
-				args = [e.text].concat(restArguments);
+				args = [e.text].concat(_restArguments);
 				if (_errorHandler != null) {
-					_errorHandler.apply(_scope args);
+					_errorHandler.apply(_scope, args);
 				}
 			});
 			
@@ -67,7 +68,7 @@ package core {
 					args = [data];
 				}
 				
-				args = args.concat(restArguments);
+				args = args.concat(_restArguments);
 				
 				if (_responseHandler != null) {
 					_responseHandler.apply(_scope, args);

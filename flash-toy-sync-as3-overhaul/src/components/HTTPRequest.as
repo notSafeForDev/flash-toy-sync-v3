@@ -7,8 +7,8 @@ package components {
 	 */
 	public class HTTPRequest {
 		
-		public static function CONTENT_TYPE_TEXT : String = "text/plain";
-		public static function CONTENT_TYPE_JSON : String = "application/json";
+		public static var CONTENT_TYPE_TEXT : String = "text/plain";
+		public static var CONTENT_TYPE_JSON : String = "application/json";
 		
 		/**
 		 * Make a get request
@@ -18,8 +18,8 @@ package components {
 		 * @param	_errorHandler		function(_text : String) - The callback when an error have been recieved
 		 * @param	...rest				Any values to pass as arguments to the callback
 		 */
-		public static function send(_url : String, _scope : *, _responseHandler : Function, _errorHandler : Function, ...rest) : void {
-			HTTPRequestUtil.send(_url, _scope, _responseHandler, _errorHandler, rest);
+		public static function send(_url : String, _scope : *, _responseHandler : Function, _errorHandler : Function, _restArguments : Array) : void {
+			HTTPRequestUtil.send(_url, _scope, _responseHandler, _errorHandler, _restArguments);
 		}
 		
 		/**
@@ -32,8 +32,8 @@ package components {
 		 * @param	_errorHandler		function(_text : String) - The callback when an error have been recieved
 		 * @param	...rest				Any values to pass as arguments to the callback
 		 */
-		public static function post(_url : String, _contentType : String, _body : String, _scope : *, _responseHandler : Function, _errorHandler : Function, ...rest) : void {
-			HTTPRequestUtil.post(_url, _body, _contentType, _scope, _responseHandler, _errorHandler, rest);
+		public static function post(_url : String, _contentType : String, _body : String, _scope : *, _responseHandler : Function, _errorHandler : Function, _restArguments : Array) : void {
+			HTTPRequestUtil.post(_url, _body, _contentType, _scope, _responseHandler, _errorHandler, _restArguments);
 		}
 	}
 }

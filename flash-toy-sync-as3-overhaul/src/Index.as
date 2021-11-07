@@ -29,6 +29,7 @@ package {
 	import states.ScriptTrackerStates;
 	import core.TPMovieClip;
 	import core.TPStage;
+	import states.ToyStates;
 	import ui.HierarchyPanel;
 	import ui.MainMenu;
 	import ui.ScenesPanel;
@@ -58,6 +59,7 @@ package {
 		private var scriptTrackerStates : ScriptTrackerStates;
 		private var scriptRecordingStates : ScriptRecordingStates;
 		private var saveDataStates : SaveDataStates;
+		private var toyStates : ToyStates;
 		
 		private var animationSceneController : AnimationScenesController;
 		private var animationSizeController : AnimationSizeController;
@@ -65,7 +67,6 @@ package {
 		private var scriptTrackersController : ScriptTrackersController;
 		private var scriptRecordingController : ScriptRecordingController;
 		private var strokerToyController : StrokerToyController;
-		private var strokerToyEditorController : StrokerToyControllerEditor;
 		private var saveDataController : SaveDataController;
 		
 		private var container : TPMovieClip;
@@ -82,6 +83,8 @@ package {
 		private var scenesPanel : ScenesPanel;
 		
 		private var previousFrameRates : Vector.<Number>;
+		
+		private var previousFrameTime : Number = 0;
 		
 		public function Index(_container : MovieClip) {
 			enterFrameEvent = new CustomEvent();
@@ -185,8 +188,12 @@ package {
 				total += previousFrameRates[i];
 			}
 			var average : Number = Math.floor((total / previousFrameRates.length) * 10) / 10;
+			var fps : Number = Math.ceil(1000 / Math.max(1, getTimer() - previousFrameTime));
 			
-			fpsText.text = "avg: " + average + "ms";
+			// fpsText.text = "avg: " + average + "ms";
+			fpsText.text = "fps: " + fps;
+			
+			previousFrameTime = getTimer();
 		}
 		
 		private function onMainMenuBrowseAnimation() : void {
@@ -201,6 +208,10 @@ package {
 			animation.load(AnimationInfoStates.name.value);
 			
 			editorStates._isEditor.setValue(true);
+		}
+		
+		private function onMainMenuTheHandyConnectionKeyChange(_key : String) : void {
+			toyStates._theHandyConnectionKey.setValue(_key);
 		}
 		
 		private function addAnimation() : void {
@@ -244,6 +255,7 @@ package {
 			mainMenu.browseAnimationEvent.listen(this, onMainMenuBrowseAnimation);
 			mainMenu.playAnimationEvent.listen(this, onMainMenuPlayAnimation);
 			mainMenu.editAnimationEvent.listen(this, onMainMenuEditAnimation);
+			mainMenu.theHandyConnectionKeyChangeEvent.listen(this, onMainMenuTheHandyConnectionKeyChange);
 		}
 		
 		private function addStatusText() : void {
@@ -265,6 +277,7 @@ package {
 			scriptTrackerStates = new ScriptTrackerStates(stateManager);
 			scriptRecordingStates = new ScriptRecordingStates(stateManager);
 			saveDataStates = new SaveDataStates(stateManager);
+			toyStates = new ToyStates(stateManager);
 		}
 		
 		private function initializeControllers() : void {
@@ -279,6 +292,12 @@ package {
 			scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
 			scriptRecordingController = new ScriptRecordingController(scriptRecordingStates, sampleMarkersContainer);
 			saveDataController = new SaveDataController(saveDataStates, animationSizeStates, animationSceneStates);
+			
+			if (EditorStates.isEditor.value == true) {
+				strokerToyController = new StrokerToyControllerEditor(toyStates);
+			} else {
+				strokerToyController = new StrokerToyController(toyStates);
+			}
 		}
 		
 		private function updateControllers() : void {

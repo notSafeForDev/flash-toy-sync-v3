@@ -451,7 +451,9 @@ function transpileActionScript3To2(actionscript) {
 
     // Remove protected
     replaceInActionScriptLines(lines, ["protected function"], "public function");
+    replaceInActionScriptLines(lines, ["protected static function"], "public static function");
     replaceInActionScriptLines(lines, ["protected var"], "public var");
+    replaceInActionScriptLines(lines, ["protected static var"], "public static var");
 
     // Replace : void with : Void
     replaceInActionScriptLines(lines, [":", "void"], ": Void", MUST_END_WITH_INVALID_VARIABLE_CHARACTER);

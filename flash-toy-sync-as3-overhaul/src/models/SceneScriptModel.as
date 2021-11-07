@@ -99,7 +99,7 @@ package models {
 		}
 		
 		public function isComplete() : Boolean {
-			var haveRecordedAllFrames : Boolean = firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length == scene.getTotalInnerFrames();
+			var haveRecordedAllFrames : Boolean = firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length >= scene.getTotalInnerFrames();
 			if (haveRecordedAllFrames == false) {
 				return false;
 			}
@@ -137,6 +137,21 @@ package models {
 		public function getInterpolatedPosition(_positions : Vector.<Point>, _frame : Number) : Point {
 			var frameIndex : Number = _frame - firstRecordedInnerFrame;
 			return SceneScriptUtil.getInterpolatedPosition(_positions, frameIndex);
+		}
+		
+		public function calculateDepths() : Vector.<Number> {
+			var depths : Vector.<Number> = new Vector.<Number>();
+			
+			for (var i : Number = 0; i < basePositions.length; i++) {
+				var base : Point = getInterpolatedPosition(basePositions, firstRecordedInnerFrame + i);
+				var stim : Point = getInterpolatedPosition(stimPositions, firstRecordedInnerFrame + i);
+				var tip : Point = getInterpolatedPosition(tipPositions, firstRecordedInnerFrame + i);
+				var depth : Number = SceneScriptUtil.caclulateDepth(base, stim, tip);
+				
+				depths.push(depth);
+			}
+			
+			return depths;
 		}
 		
 		public function toSaveData() : Object {

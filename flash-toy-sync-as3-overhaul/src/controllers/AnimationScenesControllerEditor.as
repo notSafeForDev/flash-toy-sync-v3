@@ -39,7 +39,7 @@ package controllers {
 			scenesPanel.sceneSelectedEvent.listen(this, onScenesPanelSceneSelected);
 			
 			HierarchyStates.listen(this, onHierarchyPanelLockedChildrenStateChange, [HierarchyStates.lockedChildren]);
-			ScriptRecordingStates.listen(this, onScriptRecordingIsRecordingStateChange, [ScriptRecordingStates.isRecording]);
+			ScriptRecordingStates.listen(this, onIsDoneRecordingScriptStateChange, [ScriptRecordingStates.isDoneRecording]);
 			
 			KeyboardInput.addShortcut(Shortcuts.togglePlaying1, this, onTogglePlayingShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.togglePlaying2, this, onTogglePlayingShortcut, []);
@@ -107,7 +107,7 @@ package controllers {
 				removeScene(sceneAtFrame);
 			}
 			
-			animationSceneStates._currentScene.setValue(currentScene);
+			setCurrentScene(currentScene);
 			
 			if (currentScene == null) {
 				scenesPanel.update();
@@ -127,7 +127,7 @@ package controllers {
 			var firstHalf : SceneModel;
 			
 			if (updateStatus == SceneModel.UPDATE_STATUS_COMPLETELY_STOPPED) {
-				if (currentScene.getTotalInnerFrames() > 1) {
+				if (activeChild.currentFrame > currentScene.getInnerStartFrame()) {
 					firstHalf = currentScene.split();
 					currentScene.isTemporary = false;
 					addScene(firstHalf);
@@ -138,6 +138,11 @@ package controllers {
 				firstHalf = currentScene.split();
 				currentScene.isTemporary = false;
 				addScene(firstHalf);
+			}
+			
+			if (updateStatus == SceneModel.UPDATE_STATUS_LOOP_START) {
+				var loopCount : Number = AnimationSceneStates.currentSceneLoopCount.value;
+				animationSceneStates._currentSceneLoopCount.setValue(loopCount + 1);
 			}
 			
 			scenesPanel.update();
@@ -174,18 +179,14 @@ package controllers {
 			}
 		}
 		
-		private function onScriptRecordingIsRecordingStateChange() : void {
-			var recordingScene : SceneModel = ScriptRecordingStates.recordingScene.value;
-			var didFinishRecording : Boolean = ScriptRecordingStates.isRecording.value == false && recordingScene != null;
-			
-			if (didFinishRecording == false) {
+		private function onIsDoneRecordingScriptStateChange() : void {
+			if (ScriptRecordingStates.isDoneRecording.value == false) {
 				return;
 			}
 			
+			var recordingScene : SceneModel = ScriptRecordingStates.recordingScene.value;
 			var recordingStartFrames : Vector.<Number> = new Vector.<Number>();
-			for (var i : Number = 0; i < ScriptRecordingStates.recordingStartFrames.value.length; i++) {
-				recordingStartFrames.push(ScriptRecordingStates.recordingStartFrames.value[i]);
-			}
+			ArrayUtil.addValuesFromArrayToVector(recordingStartFrames, ScriptRecordingStates.recordingStartFrames.value);
 			
 			switchToScene(recordingScene);
 			
@@ -232,8 +233,7 @@ package controllers {
 				currentScene.enter();
 				
 				addScene(currentScene);
-				
-				animationSceneStates._currentScene.setValue(currentScene);
+				setCurrentScene(currentScene);
 			}
 		}
 		
@@ -274,8 +274,7 @@ package controllers {
 			var childAtPath : TPMovieClip = HierarchyUtil.getMovieClipFromPath(root, _scene.getPath());
 			
 			setActiveChild(childAtPath);
-			
-			animationSceneStates._currentScene.setValue(_scene);
+			setCurrentScene(_scene);
 		}
 		
 		private function setActiveChild(_child : TPMovieClip) : void {
@@ -321,10 +320,16 @@ package controllers {
 			return null;
 		}
 		
+		private function setCurrentScene(_scene : SceneModel) : void {
+			animationSceneStates._currentScene.setValue(_scene);
+			animationSceneStates._currentSceneLoopCount.setValue(0);
+		}
+		
 		private function exitCurrentScene() : void {
 			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			currentScene.exit();
 			animationSceneStates._currentScene.setValue(null);
+			animationSceneStates._currentSceneLoopCount.setValue(-1);
 		}
 		
 		private function addScene(_scene : SceneModel) : void {

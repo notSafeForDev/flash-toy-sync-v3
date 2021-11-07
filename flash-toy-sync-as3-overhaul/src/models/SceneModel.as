@@ -34,6 +34,8 @@ package models {
 		
 		// The following events are mainly intended to be utilized by plugins
 		
+		/** Emitted when the frame have updated, along with the update status */
+		public var frameUpdateEvent : CustomEvent;
 		/** Emitted when the scene splits, along with the first half */
 		public var splitEvent : CustomEvent;
 		/** Emitted when the scene have been merged with another scene, along with the other scene it was merged with */
@@ -49,6 +51,7 @@ package models {
 		protected var startFrames : Vector.<Number> = null;
 		protected var endFrames : Vector.<Number> = null;
 		protected var firstStopFrames : Vector.<Number> = null;
+		protected var haveDeterminedEndFrames : Vector.<Boolean> = null;
 		
 		/** The last frames for each child that the animation was on, while not force stopped */
 		private var lastPlayingFrames : Vector.<Number> = null;
@@ -69,6 +72,7 @@ package models {
 			path = _path;
 			lastChildIndex = _path.length;
 			
+			frameUpdateEvent = new CustomEvent();
 			splitEvent = new CustomEvent();
 			mergeEvent = new CustomEvent();
 			
@@ -87,6 +91,7 @@ package models {
 			scene.startFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.startFrames);
 			scene.endFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.endFrames);
 			scene.firstStopFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.firstStopFrames);
+			scene.haveDeterminedEndFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Boolean>(), _saveData.haveDeterminedEndFrames);
 			
 			scene.plugins = ScenePluginsModel.fromSaveData(_saveData.plugins, scene);
 			
@@ -103,6 +108,7 @@ package models {
 			saveData.startFrames = ArrayUtil.vectorToArray(startFrames);
 			saveData.endFrames = ArrayUtil.vectorToArray(endFrames);
 			saveData.firstStopFrames = ArrayUtil.vectorToArray(firstStopFrames);
+			saveData.haveDeterminedEndFrames = ArrayUtil.vectorToArray(haveDeterminedEndFrames);
 			saveData.plugins = plugins.toSaveData();
 			
 			return saveData;
@@ -118,6 +124,7 @@ package models {
 			clonedScene.startFrames = startFrames.slice();
 			clonedScene.endFrames = endFrames.slice();
 			clonedScene.firstStopFrames = firstStopFrames.slice();
+			clonedScene.haveDeterminedEndFrames = haveDeterminedEndFrames.slice();
 			
 			clonedScene.plugins = plugins.clone(clonedScene);
 			
@@ -154,6 +161,7 @@ package models {
 			for (i = 0; i < currentFrames.length; i++) {
 				firstHalf.endFrames[i] = firstHalfEndFrames[i];
 				firstHalf.firstStopFrames[i] = firstStopFrames[i] <= firstHalfEndFrames[i] ? firstStopFrames[i] : -1;
+				firstHalf.haveDeterminedEndFrames[i] = true;
 				
 				startFrames[i] = currentFrames[i];
 			}
@@ -176,6 +184,7 @@ package models {
 				startFrames[i] = Math.min(startFrames[i], _otherScene.startFrames[i]);
 				endFrames[i] = Math.max(endFrames[i], _otherScene.endFrames[i]);
 				firstStopFrames[i] = Math.max(firstStopFrames[i], _otherScene.firstStopFrames[i]);
+				haveDeterminedEndFrames[i] = haveDeterminedEndFrames[i] || _otherScene.haveDeterminedEndFrames[i];
 			}
 			
 			mergeEvent.emit(_otherScene);
@@ -269,8 +278,10 @@ package models {
 			endFrames = currentFrames.slice();
 			
 			firstStopFrames = new Vector.<Number>();
+			haveDeterminedEndFrames = new Vector.<Boolean>();
 			for (var i : Number = 0; i < startFrames.length; i++) {
 				firstStopFrames.push(-1);
+				haveDeterminedEndFrames.push(false);
 			}
 		}
 		
@@ -284,7 +295,6 @@ package models {
 			
 			_isForceStopped = false;
 			lastPlayingFrames = null;
-			playingFramesHistory = null;
 			forceStoppedAtFrames = null;
 			
 			enteredScene = null;
@@ -295,13 +305,14 @@ package models {
 		 * @return A status code for what happened during the update
 		 */
 		public function update() : String {
-			if (lastPlayingFrames == null) {
+			if (enteredScene != this) {
 				throw new Error("Unable to update scene, the scene have not been entered correctly");
 			}
 			
 			// If it's force stopped, but the scene somehow isn't active anymore, exit it
 			if (_isForceStopped == true && isActive() == false) {
 				exit();
+				frameUpdateEvent.emit(SceneModel.UPDATE_STATUS_EXIT);
 				return SceneModel.UPDATE_STATUS_EXIT;
 			}
 			
@@ -312,20 +323,26 @@ package models {
 			
 			// If the scene wasn't resumed above, stop here
 			if (_isForceStopped == true) {
+				frameUpdateEvent.emit(SceneModel.UPDATE_STATUS_NORMAL);
 				return SceneModel.UPDATE_STATUS_NORMAL;
 			}
 			
 			var i : Number;
+			var currentFrame : Number;
+			var children : Vector.<TPMovieClip> = getChildrenWhileActive();
 			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
 			var didExitScene : Boolean = false;
+			var isActionsScript3 : Boolean = children[0].sourceDisplayObject["visible"] != undefined;
 			
 			// Check if it's currently on a frame within the scene, if not, we want to exit it
-			for (i = 0; i < currentFrames.length; i++) {
-				var isStopped : Boolean = currentFrames[i] == firstStopFrames[i];
+			for (i = 0; i < children.length; i++) {
+				currentFrame = children[i].currentFrame;
+				
+				var isStopped : Boolean = currentFrame == firstStopFrames[i];
 				var expectedMinFrame : Number = startFrames[i];
 				var expectedMaxFrame : Number = isStopped ? endFrames[i] : endFrames[i] + 1;
 				
-				if (currentFrames[i] < expectedMinFrame || currentFrames[i] > expectedMaxFrame) {
+				if (currentFrame < expectedMinFrame || currentFrame > expectedMaxFrame) {
 					didExitScene = true;
 					break;
 				}
@@ -334,6 +351,7 @@ package models {
 			// If it did exit it, we don't want to update anything about the scene and exit it
 			if (didExitScene == true) {
 				exit();
+				frameUpdateEvent.emit(SceneModel.UPDATE_STATUS_EXIT);
 				return SceneModel.UPDATE_STATUS_EXIT;
 			}
 			
@@ -341,25 +359,39 @@ package models {
 			
 			// If we're in the editor, update first stop frames and end frames
 			if (EditorStates.isEditor.value == true) {
-				for (i = 0; i < currentFrames.length; i++) {
-					if (haveDoneInitialUpdate == true && currentFrames[i] == lastPlayingFrames[i] && firstStopFrames[i] < 0) {
-						firstStopFrames[i] = currentFrames[i];
+				for (i = 0; i < children.length; i++) {
+					currentFrame = children[i].currentFrame;
+					var totalFrames : Number = children[i].totalFrames;
+					
+					if (haveDoneInitialUpdate == true && currentFrame == lastPlayingFrames[i] && firstStopFrames[i] < 0) {
+						firstStopFrames[i] = currentFrame;
+						haveDeterminedEndFrames[i] = true;
 					}
 					
-					endFrames[i] = Math.max(endFrames[i], currentFrames[i]);
-					if (currentFrames[i] == firstStopFrames[i]) {
+					if (currentFrame < lastPlayingFrames[i]) {
+						if (endFrames[i] != totalFrames && isActionsScript3 == true) {
+							endFrames[i] = lastPlayingFrames[i] - 1;
+						}
+						haveDeterminedEndFrames[i] = true;
+					}
+					
+					if (haveDeterminedEndFrames[i] == false) {
+						endFrames[i] = Math.max(endFrames[i], currentFrame);
+					}
+					
+					if (currentFrame == firstStopFrames[i]) {
 						totalStoppedChildren++;
 					}
 				}
 			}
 			
 			// If all the children are stopped, stop here
-			if (totalStoppedChildren == currentFrames.length) {
+			if (totalStoppedChildren == children.length) {
 				updateLastPlayingFrames(currentFrames);
 				return SceneModel.UPDATE_STATUS_COMPLETELY_STOPPED;
 			}
 			
-			var innerChildCurrentFrame : Number = currentFrames[lastChildIndex];
+			var innerChildCurrentFrame : Number = children[lastChildIndex].currentFrame;
 			var innerChildLastFrame : Number = lastPlayingFrames[lastChildIndex];
 			var innerChildStartFrame : Number = startFrames[lastChildIndex];
 			
@@ -378,6 +410,7 @@ package models {
 			
 			haveDoneInitialUpdate = true;
 			
+			frameUpdateEvent.emit(updateStatus);
 			return updateStatus;
 		}
 		

@@ -32,20 +32,6 @@ package ui {
 			AnimationSceneStates.listen(this, onSceneStatesChange, [AnimationSceneStates.currentScene, AnimationSceneStates.scenes]);
 		}
 		
-		private function onListItemClick(_index : Number) : void {
-			var scenes : Array = AnimationSceneStates.scenes.value;
-			sceneSelectedEvent.emit(scenes[_index]);
-		}
-		
-		private function onSceneStatesChange() : void {
-			var scenes : Array = AnimationSceneStates.scenes.value;
-			var index : Number = ArrayUtil.indexOf(scenes, AnimationSceneStates.currentScene.value);
-			
-			if (index >= 0) {
-				uiList.scrollToItem(listItems[index], scenes.length);
-			}
-		}
-		
 		public function update() : void {
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
@@ -59,15 +45,7 @@ package ui {
 			
 			for (i = 0; i < scenes.length; i++) {
 				if (i >= listItems.length) {
-					var container : TPMovieClip = uiList.getListItemsContainer();
-					var width : Number = contentWidth - uiList.getScrollbarWidth();
-					
-					var listItem : UIListItem = new UIListItem(container, width, i);
-					
-					listItem.clickEvent.listen(this, onListItemClick);
-					
-					listItems.push(listItem);
-					uiList.addListItem(listItem);
+					addListItem();
 				}
 			}
 			
@@ -81,6 +59,10 @@ package ui {
 				// var secondaryText : String = startFrames[startFrames.length - 1] + " - " + endFrames[endFrames.length - 1];
 				var secondaryText : String = startFrames.join(",") + " - " + endFrames[endFrames.length - 1];
 				
+				if (scene.isForceStopped() == true) {
+					primaryText += " | Stopped";
+				}
+				
 				listItems[i].setPrimaryText(primaryText);
 				listItems[i].setSecondaryText(secondaryText);
 				
@@ -90,6 +72,36 @@ package ui {
 					listItems[i].clearHighlight();
 				}
 			}
+		}
+		
+		private function onListItemClick(_index : Number) : void {
+			var scenes : Array = AnimationSceneStates.scenes.value;
+			sceneSelectedEvent.emit(scenes[_index]);
+		}
+		
+		private function onSceneStatesChange() : void {
+			var scenes : Array = AnimationSceneStates.scenes.value;
+			var index : Number = ArrayUtil.indexOf(scenes, AnimationSceneStates.currentScene.value);
+			
+			while (index >= listItems.length) {
+				addListItem();
+			}
+			
+			if (index >= 0) {
+				uiList.scrollToItem(listItems[index], scenes.length);
+			}
+		}
+		
+		private function addListItem() : void {
+			var container : TPMovieClip = uiList.getListItemsContainer();
+			var width : Number = contentWidth - uiList.getScrollbarWidth();
+			
+			var listItem : UIListItem = new UIListItem(container, width, listItems.length);
+			
+			listItem.clickEvent.listen(this, onListItemClick);
+			
+			listItems.push(listItem);
+			uiList.addListItem(listItem);
 		}
 	}
 }

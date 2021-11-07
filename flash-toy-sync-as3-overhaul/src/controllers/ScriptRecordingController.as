@@ -50,8 +50,9 @@ package controllers {
 			
 			var isRecording : Boolean = ScriptRecordingStates.isRecording.value;
 			
-			if (isRecording == true && (currentScene.isForceStopped() == true || currentFrame < lastRecordedFrame)) {
+			if (isRecording == true && (currentScene.isForceStopped() == true || currentFrame < lastRecordedFrame || currentFrame > currentScene.getInnerEndFrame())) {
 				scriptRecordingStates._isRecording.setValue(false);
+				scriptRecordingStates._isDoneRecording.setValue(true);
 				isRecording = false;
 			}
 			
@@ -86,7 +87,10 @@ package controllers {
 		}
 		
 		private function onCurrentSceneStateChange() : void {
-			scriptRecordingStates._isRecording.setValue(false);
+			if (ScriptRecordingStates.isRecording.value == true) {
+				scriptRecordingStates._isRecording.setValue(false);
+				scriptRecordingStates._isDoneRecording.setValue(true);
+			}
 		}
 		
 		private function onRecordFrameShortcut() : void {
@@ -109,6 +113,7 @@ package controllers {
 			}
 			
 			scriptRecordingStates._isRecording.setValue(true);
+			scriptRecordingStates._isDoneRecording.setValue(false);
 			scriptRecordingStates._recordingScene.setValue(currentScene);
 			scriptRecordingStates._recordingStartFrames.setValue(currentFramesArray);
 			

@@ -5,11 +5,11 @@
 class core.TPStage {
 	
 	private static var _stage : MovieClip;
-	private static var _frameRate : Number;
+	private static var fps : Number;
 		
 	public static function init(_object : MovieClip, _frameRate : Number) : Void {
 		_stage = _root;
-		_frameRate = _frameRate;
+		fps = _frameRate;
 	}
 	
 	public static function get stageWidth() : Number {
@@ -29,7 +29,7 @@ class core.TPStage {
 	}
 	
 	public static function get frameRate() : Number {
-		return _frameRate;
+		return fps;
 	}
 	
 	public static function set frameRate(_value : Number) : Void {

@@ -28,6 +28,9 @@ package states {
 		public var _isRecording : BooleanState;
 		public static var isRecording : BooleanStateReference;
 		
+		public var _isDoneRecording : BooleanState;
+		public static var isDoneRecording : BooleanStateReference;
+		
 		public var _recordingScene : SceneState;
 		public static var recordingScene : SceneStateReference;
 		
@@ -53,6 +56,9 @@ package states {
 			
 			_isRecording = _stateManager.addState(BooleanState, false);
 			isRecording = _isRecording.reference;
+			
+			_isDoneRecording = _stateManager.addState(BooleanState, false);
+			isDoneRecording = _isDoneRecording.reference;
 			
 			_recordingScene = _stateManager.addState(SceneState, null);
 			recordingScene = _recordingScene.reference;

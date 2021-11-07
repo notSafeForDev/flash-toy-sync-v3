@@ -8,6 +8,7 @@ package visualComponents {
 	import states.AnimationSceneStates;
 	import states.SaveDataStates;
 	import states.ScriptRecordingStates;
+	import states.ToyStates;
 	import ui.TextElement;
 	import ui.TextStyles;
 	
@@ -31,16 +32,26 @@ package visualComponents {
 			Index.enterFrameEvent.listen(this, onEnterFrame);
 			
 			SaveDataStates.listen(this, onSaveDataListStateChange, [SaveDataStates.saveDataList]);
-			AnimationInfoStates.listen(this, onAnimationLoadInfoStateChange, [AnimationInfoStates.loadStatus]);
+			AnimationInfoStates.listen(this, onAnimationLoadStatusStateChange, [AnimationInfoStates.loadStatus]);
+			ToyStates.listen(this, onToyStatesChange, [ToyStates.isScriptPrepared, ToyStates.error]);
 		}
 		
-		private function onAnimationLoadInfoStateChange() : void {
+		private function onAnimationLoadStatusStateChange() : void {
 			displayText(AnimationInfoStates.loadStatus.value);
 		}
 		
 		private function onSaveDataListStateChange() : void {
 			if (SaveDataStates.saveDataList.value.length != 0) {
 				displayTemporaryText("Saving...", 2);
+			}
+		}
+		
+		private function onToyStatesChange() : void {
+			if (ToyStates.isScriptPrepared.value == true) {
+				displayTemporaryText("Prepared script for toy", 3);
+			}
+			if (ToyStates.error.value != "") {
+				displayTemporaryText(ToyStates.error.value, 5);
 			}
 		}
 		
