@@ -28,6 +28,8 @@ package ui {
 		
 		public var sourceTextField : TextField;
 		
+		private var onChangeHandler : Function;
+		
 		public function TextElement(_parent : TPMovieClip, _text : String) {
 			sourceTextField = TPTextField.create(_parent);
 			
@@ -65,11 +67,20 @@ package ui {
 			return textFormat;
 		}
 		
-		public function convertToInputField(_scope : *, _onChangeHandler : Function) : void {
+		public function convertToInputField(_scope : * , _onChangeHandler : Function) : void {
+			onChangeHandler = function(_text : String) : void {
+				_onChangeHandler.apply(_scope, [_text]);
+			}
+			
 			sourceTextField.type = "input";
 			sourceTextField.selectable = true;
 			sourceTextField.mouseEnabled = true;
-			TPTextField.addOnChangeListener(sourceTextField, _scope, _onChangeHandler);
+			TPTextField.addOnChangeListener(sourceTextField, this, onInputTextChange);
+		}
+		
+		private function onInputTextChange(_text : String) : void {
+			setTextFormat(textFormat);
+			onChangeHandler(_text);
 		}
 	}
 }

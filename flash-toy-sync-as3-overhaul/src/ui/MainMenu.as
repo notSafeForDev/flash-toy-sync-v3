@@ -16,6 +16,7 @@ package ui {
 		public var browseAnimationEvent : CustomEvent;
 		public var playAnimationEvent : CustomEvent;
 		public var editAnimationEvent : CustomEvent;
+		public var theHandyConnectionKeyChangeEvent : CustomEvent;
 		
 		private var menuContainer : TPMovieClip;
 		
@@ -27,19 +28,22 @@ package ui {
 		private var playButton : UIButton;
 		private var editButton : UIButton;
 		
+		private var connectionKeyInputText : TextElement;
+		
 		public function MainMenu(_container : TPMovieClip) {
 			menuContainer = TPMovieClip.create(_container, "mainMenu");
 			
 			browseAnimationEvent = new CustomEvent();
 			playAnimationEvent = new CustomEvent();
 			editAnimationEvent = new CustomEvent();
+			theHandyConnectionKeyChangeEvent = new CustomEvent();
 			
 			selectedAnimationText = new TextElement(menuContainer, "");
 			TextStyles.applyListItemStyle(selectedAnimationText);
 			
 			browseButton = createButton(menuWidth, "Browse", browseAnimationEvent);
 			
-			selectedAnimationText.element.width = 250;
+			selectedAnimationText.element.width = menuWidth;
 			selectedAnimationText.element.y = 45;
 			
 			playButton = createButton(menuWidth / 2 - 5, "Play", playAnimationEvent);
@@ -48,6 +52,18 @@ package ui {
 			playButton.element.y = 80;
 			editButton.element.y = 80;
 			editButton.element.x = menuWidth / 2 + 5;
+			
+			var connectionKeyTitleText : TextElement = new TextElement(menuContainer, "theHandy Connection Key:");
+			TextStyles.applyListItemStyle(connectionKeyTitleText);
+			connectionKeyTitleText.element.y = 130;
+			connectionKeyTitleText.element.width = menuWidth;
+			
+			connectionKeyInputText = new TextElement(menuContainer, "");
+			TextStyles.applyInputStyle(connectionKeyInputText);
+			connectionKeyInputText.convertToInputField(this, onTheHandyConnectionKeyChange);
+			connectionKeyInputText.element.y = 150;
+			connectionKeyInputText.element.width = menuWidth;
+			connectionKeyInputText.element.height = 20;
 			
 			menuContainer.x = (TPStage.stageWidth - menuWidth) / 2;
 			menuContainer.y = (TPStage.stageHeight - menuContainer.height) / 2;
@@ -71,6 +87,10 @@ package ui {
 			} else {
 				menuContainer.visible = true;
 			}
+		}
+		
+		private function onTheHandyConnectionKeyChange(_key : String) : void {
+			theHandyConnectionKeyChangeEvent.emit(_key);
 		}
 		
 		private function createButton(_width : Number, _text : String, _event : CustomEvent) : UIButton {
