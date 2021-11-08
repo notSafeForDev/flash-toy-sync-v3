@@ -46,12 +46,13 @@ For VSCode there is the [Actionscript & MXML](https://github.com/BowlerHatLLC/vs
 
 <details>
   <summary>It closes as soon as you open the program:</summary>
-  Try opening a different script file.
+  Try opening a different script file through the folder.
 </details>
 
 <details>
   <summary>When attempting to test the project, it gives you an error: Exception: The process cannot access the file ... because it is being used by another process:</summary>
-  End the flash player process through the task manager (windows).
+  This usually happens if you get an exception before the flash player opens.
+  To fix it, end the flash player process through the task manager (windows) or activity monitor (mac).
 </details>
 
 <details>
@@ -61,7 +62,7 @@ For VSCode there is the [Actionscript & MXML](https://github.com/BowlerHatLLC/vs
 
 <details>
   <summary>Logs doesn't appear in the output panel:</summary>
-  Make sure that you have changed it from Release to Debug mode, at the top
+  Make sure that you have changed it from Release to Debug mode, at the top.
 </details>
 
 &nbsp;
