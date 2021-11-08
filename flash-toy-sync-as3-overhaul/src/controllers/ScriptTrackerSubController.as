@@ -31,6 +31,8 @@ package controllers {
 		private var globalPointState : PointState;
 		private var keyboardShortcut : Array;
 		
+		private var isHoldingShortcut : Boolean;
+		
 		private var attachedToDisplayObjectReference : DisplayObjectReference;
 		
 		public function ScriptTrackerSubController(_marker : ScriptTrackerMarker, _attachedToState : TPDisplayObjectState, _pointState : PointState, _globalPointState : PointState, _keyboardShortcut : Array) {
@@ -107,15 +109,23 @@ package controllers {
 			clearStates();
 			clearAttachedToObjectReference();
 			
-			marker.moveToCursor();
-			marker.startDrag();
-			marker.show();
+			if (isHoldingShortcut == true || marker.isVisible() == false) {
+				marker.moveToCursor();
+				marker.startDrag();
+				marker.show();
+			} else {
+				marker.hide();
+			}
+			
+			isHoldingShortcut = true;
 		}
 		
 		private function onKeyUp(_key : Number) : void {
 			if (marker.isDragging() == false || ArrayUtil.includes(keyboardShortcut, _key) == false) {
 				return;
 			}
+			
+			isHoldingShortcut = false;
 			
 			marker.stopDrag();
 			
