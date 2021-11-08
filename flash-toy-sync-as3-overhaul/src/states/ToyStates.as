@@ -17,6 +17,9 @@ package states {
 		public var _theHandyConnectionKey : StringState;
 		public static var theHandyConnectionKey : StringStateReference;
 		
+		public var _isPreparingScript : BooleanState;
+		public static var isPreparingScript : BooleanStateReference;
+		
 		public var _isScriptPrepared : BooleanState;
 		public static var isScriptPrepared : BooleanStateReference;
 		
@@ -30,6 +33,9 @@ package states {
 			
 			_theHandyConnectionKey = _stateManager.addState(StringState, "");
 			theHandyConnectionKey = _theHandyConnectionKey.reference;
+			
+			_isPreparingScript = _stateManager.addState(BooleanState, false);
+			isPreparingScript = _isPreparingScript.reference;
 			
 			_isScriptPrepared = _stateManager.addState(BooleanState, false);
 			isScriptPrepared = _isScriptPrepared.reference;

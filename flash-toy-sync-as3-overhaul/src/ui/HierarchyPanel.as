@@ -7,6 +7,7 @@ package ui {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import states.HierarchyStates;
 	
 	/**
@@ -81,6 +82,10 @@ package ui {
 		}
 		
 		private function onSelectedHierarchyChildStateChange() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			if (HierarchyStates.selectedChild.value == null) {
 				lockButton.disable();
 			} else {
@@ -89,7 +94,7 @@ package ui {
 		}
 		
 		private function onHierachyInfoListStateChange() : void {
-			if (isMinimized() == true) {
+			if (isMinimized() == true || EditorStates.isEditor.value == false) {
 				uiList.hideItems();
 				return;
 			}
@@ -130,11 +135,19 @@ package ui {
 			toggleLockEvent.emit();
 		}
 		
-		private function onAnimationSceneActiveChildStateChange() : void {			
+		private function onAnimationSceneActiveChildStateChange() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			highlightListItemForActiveChild();
 		}
 		
 		private function highlightListItemForActiveChild() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
 			
 			for (var i : Number = 0; i < listItems.length; i++) {

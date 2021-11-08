@@ -70,9 +70,9 @@ package {
 		private var saveDataController : SaveDataController;
 		
 		private var container : TPMovieClip;
-		private var panelsContainer : TPMovieClip;
 		private var sampleMarkersContainer : TPMovieClip;
 		private var trackingMarkersContainer : TPMovieClip;
+		private var panelsContainer : TPMovieClip;
 		private var mainMenu : MainMenu;
 		private var borders : Borders;
 		private var animation : Animation;
@@ -283,14 +283,16 @@ package {
 		private function initializeControllers() : void {
 			if (EditorStates.isEditor.value == true) {
 				animationSceneController = new AnimationScenesControllerEditor(animationSceneStates, hierarchyPanel, scenesPanel);
-			} else {
+				hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
+				animationSizeController = new AnimationSizeController(animationSizeStates);
+				scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
+				scriptRecordingController = new ScriptRecordingController(scriptRecordingStates, sampleMarkersContainer);
+			}
+			
+			if (EditorStates.isEditor.value == false) {
 				animationSceneController = new AnimationScenesController(animationSceneStates);
 			}
 			
-			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
-			animationSizeController = new AnimationSizeController(animationSizeStates);
-			scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
-			scriptRecordingController = new ScriptRecordingController(scriptRecordingStates, sampleMarkersContainer);
 			saveDataController = new SaveDataController(saveDataStates, animationSizeStates, animationSceneStates);
 			
 			if (EditorStates.isEditor.value == true) {
@@ -301,11 +303,17 @@ package {
 		}
 		
 		private function updateControllers() : void {
-			hierarchyPanelController.update();
-			animationSizeController.update();
+			if (EditorStates.isEditor.value == true) {
+				hierarchyPanelController.update();
+				animationSizeController.update();
+			}
+			
 			animationSceneController.update();
-			scriptTrackersController.update();
-			scriptRecordingController.update();
+			
+			if (EditorStates.isEditor.value == true) {
+				scriptTrackersController.update();
+				scriptRecordingController.update();
+			}
 		}
 	}
 }

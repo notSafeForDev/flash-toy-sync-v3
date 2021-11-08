@@ -9,6 +9,7 @@ package controllers {
 	import models.SceneModel;
 	import models.SceneScriptModel;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import states.ToyStates;
 	import utils.ArrayUtil;
 	import utils.StrokerToyUtil;
@@ -43,10 +44,28 @@ package controllers {
 			
 			AnimationSceneStates.listen(this, onCurrentSceneStateChange, [AnimationSceneStates.currentScene]);
 			AnimationSceneStates.listen(this, onSceneLoopCountStateChange, [AnimationSceneStates.currentSceneLoopCount]);
+			
+			if (EditorStates.isEditor.value == true) {
+				return;
+			}
+			
+			var scenes : Array = AnimationSceneStates.scenes.value;
+			var scripts : Vector.<SceneScriptModel> = new Vector.<SceneScriptModel>();
+			
+			for (var i : Number = 0; i < scenes.length; i++) {
+				var scene : SceneModel = scenes[i];
+				var script : SceneScriptModel = scene.getPlugins().getScript();
+				if (script.isComplete() == true) {
+					scripts.push(script);
+				}
+			}
+			
+			prepareScriptForScenes(scripts);
 		}
 		
 		protected function prepareScriptForScenes(_scripts : Vector.<SceneScriptModel>) : void {
 			toyStates._isScriptPrepared.setValue(false);
+			toyStates._isPreparingScript.setValue(true);
 			
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			var combinedPositions : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
@@ -91,6 +110,8 @@ package controllers {
 		
 		protected function clearPreparedScript() : void {
 			toyStates._isScriptPrepared.setValue(false);
+			toyStates._isPreparingScript.setValue(false);
+			
 			toyApi.clearPreparedScript();
 			sceneLoopCounts = null;
 			sceneStartTimes = null;
@@ -127,6 +148,7 @@ package controllers {
 		
 		private function onPrepareScriptResponse(_response : StrokerToyResponse) : void {
 			toyStates._isScriptPrepared.setValue(_response.success);
+			toyStates._isPreparingScript.setValue(false);
 			toyStates._error.setValue(_response.error);
 		}
 		

@@ -4,6 +4,7 @@ package ui {
 	import core.TPMovieClip;
 	import models.SceneModel;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import utils.ArrayUtil;
 	
 	/**
@@ -33,6 +34,10 @@ package ui {
 		}
 		
 		public function update() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			
@@ -80,6 +85,10 @@ package ui {
 		}
 		
 		private function onSceneStatesChange() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			var index : Number = ArrayUtil.indexOf(scenes, AnimationSceneStates.currentScene.value);
 			

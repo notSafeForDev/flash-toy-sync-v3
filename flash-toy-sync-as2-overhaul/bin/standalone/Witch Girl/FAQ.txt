@@ -1,0 +1,92 @@
+﻿=====================================================================================================================
+
+[Frequently Asked Questions]
+This shows a list of questions gathered via support forum (http://jbbs.livedoor.jp/otaku/14085/#3) and emails, and their answers.
+
+=====================================================================================================================
+
+Q. How can I get the password?
+
+A. You can get the password by clearing the game and view the gallery.
+There may be some other ways.
+
+=====================================================================================================================
+
+Q. How can I attack the boss "Succubus"?
+
+A. She is impervious to attacks while her barrier is up. But her barrier disappears when she attacks you.
+
+=====================================================================================================================
+
+Q. What is the meaning of the item "Abnormal" in the option screen?
+
+A. It will toggle the display of features that may be considered abnormal.
+
+=====================================================================================================================
+
+Q. After the enemy ejaculated, the character became immobile and received serial attacks. Is this a bug?
+
+A. The Pleasure gauge may have been full when you received the ejaculation.
+ In that case, you will suffer great damage and cannot rise for some time.
+ And other enemies will not leave you alone in that state.
+
+=====================================================================================================================
+
+Q. The player's character does not display.
+
+A. There are some possible causes.
+ [Unable to refer to the files]
+  Is the "data" folder exists in the "Witch Girl" folder?
+  Do files exist in the "data" folder?
+  If not, the compressed file may have failed to extract or download correctly. 
+  In this case, delete the "Witch Girl" folder. Try redownloading and extracting the product again.
+  Also, if you relocate some contents in the "Witch Girl" folder, the game may fail to load. Please take note.
+
+ [Problem with the location]
+  The game may fail to load correctly depending on the location of the "Witch Girl" folder.
+  Especially, placing it in a location with a long path may prevents it to start normally.
+  In this case, try placing the entire "Witch Girl" folder directly under your local disk (e.g. C:).
+
+ [Problem with the browsing environment]
+  The game may fail to load correctly when you use the stand-alone player.
+  Try starting with a browser (Firefox is recommended) or with software such as Gomplayer.
+
+ If none of the above solves the problem, please contact us with the details of your computer (OS, your browser, version of your flash player).
+ Administrator of KooooN Soft: Tokimori
+ Mail address: koooon@hotmail.co.jp
+
+=====================================================================================================================
+
+Q. It's too hard!
+
+A. You can change the difficulty from the option screen.
+ Also, displaying the Hit Area may help.
+
+=====================================================================================================================
+
+Q. I don't see the additional enemies. I cannot find them in the gallery either.
+
+A. Some enemies appear only in "True mode".
+   Such enemies become viewable in the gallery that will be enhanced after you clear the True mode.
+
+=====================================================================================================================
+
+――――――――――――――――――――――――――――――――――――――
+――――――――――――――――――――――――――――――――――――――
+――――――――――――――――――――――――――――――――――――――
+
+If you encounter trouble or defects while playing this game, we appreciate your taking the time to contact us at the following mail address.
+We also welcome your comments and opinions.
+
+[KooooN Soft]
+http://koooonsoft.jp/
+
+Mail address: koooon@hotmail.co.jp
+
+――――――――――――――――――――――――――――――――――――――
+――――――――――――――――――――――――――――――――――――――
+――――――――――――――――――――――――――――――――――――――
+
+
+Thank you for reading through to the end.
+

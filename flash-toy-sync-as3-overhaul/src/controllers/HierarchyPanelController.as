@@ -8,6 +8,7 @@ package controllers {
 	import flash.display.MovieClip;
 	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import states.HierarchyStates;
 	import states.ScriptTrackerStates;
 	import ui.HierarchyPanel;
@@ -40,7 +41,7 @@ package controllers {
 		}
 		
 		public function update() : void {
-			if (AnimationInfoStates.isLoaded.value == false) {
+			if (AnimationInfoStates.isLoaded.value == false || EditorStates.isEditor.value == false) {
 				return;
 			}
 			

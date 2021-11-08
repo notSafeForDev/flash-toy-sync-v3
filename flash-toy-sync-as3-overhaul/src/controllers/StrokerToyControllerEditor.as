@@ -1,11 +1,13 @@
 package controllers {
 	
+	import components.KeyboardInput;
 	import models.SceneModel;
 	import models.SceneScriptModel;
 	import states.AnimationSceneStates;
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import states.ToyStates;
+	import ui.Shortcuts;
 	
 	/**
 	 * ...
@@ -20,6 +22,8 @@ package controllers {
 			ScriptRecordingStates.listen(this, onScriptRecordingDoneStateChange, [ScriptRecordingStates.isDoneRecording]);
 			AnimationSceneStates.listen(this, onIsForceStoppedStateChange, [AnimationSceneStates.isForceStopped]);
 			ScriptTrackerStates.listen(this, onIsDraggingTrackerMarkerStateChange, [ScriptTrackerStates.isDraggingTrackerMarker]);
+			
+			KeyboardInput.addShortcut(Shortcuts.prepareScript, this, onPrepareScriptShortcut, []);
 		}
 		
 		private function onIsRecordingScriptStateChange() : void {
@@ -33,16 +37,7 @@ package controllers {
 				return;
 			}
 			
-			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
-			var script : SceneScriptModel = currentScene.getPlugins().getScript();
-			
-			if (script.isComplete() == false) {
-				return;
-			}
-		
-			var scripts : Vector.<SceneScriptModel> = new Vector.<SceneScriptModel>();
-			scripts.push(script);
-			prepareScriptForScenes(scripts);
+			prepareScriptForCurrentScene();
 		}
 		
 		private function onIsForceStoppedStateChange() : void {
@@ -63,6 +58,27 @@ package controllers {
 			if (ScriptTrackerStates.isDraggingTrackerMarker.value == true) {
 				clearPreparedScript();
 			}
+		}
+		
+		private function onPrepareScriptShortcut() : void {
+			if (toyApi.canConnect() == false) {
+				return;
+			}
+			
+			prepareScriptForCurrentScene();
+		}
+		
+		private function prepareScriptForCurrentScene() : void {
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
+			var script : SceneScriptModel = currentScene.getPlugins().getScript();
+			
+			if (script.isComplete() == false) {
+				return;
+			}
+		
+			var scripts : Vector.<SceneScriptModel> = new Vector.<SceneScriptModel>();
+			scripts.push(script);
+			prepareScriptForScenes(scripts);
 		}
 	}
 }

@@ -151,7 +151,12 @@ package utils {
 				
 				var childAsParent : DisplayObjectContainer = TPDisplayObject.asDisplayObjectContainer(child);
 				var childIndex : Number = parseInt(_path[i].substr(lastHashIndex + 1));
+				
 				child = TPDisplayObject.getChildAtIndex(childAsParent, childIndex);
+				if (child == null) {
+					return null;
+				}
+				
 				objects.push(new TPDisplayObject(child));
 			}
 			
@@ -172,6 +177,10 @@ package utils {
 			
 			var movieClips : Vector.<TPMovieClip> = new Vector.<core.TPMovieClip>();
 			for (var i : Number = 0; i < objects.length; i++) {
+				if (TPMovieClip.isMovieClip(objects[i].sourceDisplayObject) == false) {
+					return null;
+				}
+				
 				var movieClip : MovieClip = TPMovieClip.asMovieClip(objects[i].sourceDisplayObject);
 				movieClips.push(new TPMovieClip(movieClip));
 			}

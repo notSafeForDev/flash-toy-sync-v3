@@ -33,7 +33,7 @@ package visualComponents {
 			
 			SaveDataStates.listen(this, onSaveDataListStateChange, [SaveDataStates.saveDataList]);
 			AnimationInfoStates.listen(this, onAnimationLoadStatusStateChange, [AnimationInfoStates.loadStatus]);
-			ToyStates.listen(this, onToyStatesChange, [ToyStates.isScriptPrepared, ToyStates.error]);
+			ToyStates.listen(this, onToyStatesChange, [ToyStates.isPreparingScript, ToyStates.isScriptPrepared, ToyStates.error]);
 		}
 		
 		private function onAnimationLoadStatusStateChange() : void {
@@ -47,8 +47,11 @@ package visualComponents {
 		}
 		
 		private function onToyStatesChange() : void {
+			if (ToyStates.isPreparingScript.value == true) {
+				displayTemporaryText("Preparing script for toy...", 3);
+			}
 			if (ToyStates.isScriptPrepared.value == true) {
-				displayTemporaryText("Prepared script for toy", 3);
+				displayTemporaryText("Script successfully prepared", 3);
 			}
 			if (ToyStates.error.value != "") {
 				displayTemporaryText(ToyStates.error.value, 5);

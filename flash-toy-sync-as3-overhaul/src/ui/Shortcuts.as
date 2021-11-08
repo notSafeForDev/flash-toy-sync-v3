@@ -37,5 +37,7 @@ package ui {
 		public static var remove : Array = [Keyboard.BACKSPACE];
 		
 		public static var save : Array = [Keyboard.CONTROL, Keyboard.S];
+		
+		public static var prepareScript : Array = [Keyboard.P];
 	}
 }

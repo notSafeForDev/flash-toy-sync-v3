@@ -1,7 +1,11 @@
 package controllers {
 	
+	import core.TPMovieClip;
 	import models.SceneModel;
+	import models.SceneScriptModel;
+	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
+	import utils.HierarchyUtil;
 	
 	/**
 	 * ...
@@ -16,15 +20,49 @@ package controllers {
 		}
 		
 		public function update() : void {
+			var activeScene : SceneModel = getActiveScene();
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			
+			if (activeScene != currentScene) {
+				if (currentScene != null) {
+					currentScene.exit();
+				}
+				
+				currentScene = activeScene;
+				
+				if (currentScene != null) {
+					currentScene.enter();
+					
+					var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
+					var childAtPath : TPMovieClip = HierarchyUtil.getMovieClipFromPath(root, currentScene.getPath());
+					
+					animationSceneStates._activeChild.setValue(childAtPath);
+					animationSceneStates._currentScene.setValue(currentScene);
+					animationSceneStates._currentSceneLoopCount.setValue(0);
+				}
+			}
+			
+			if (currentScene == null) {
+				animationSceneStates._currentScene.setValue(null);
+				animationSceneStates._activeChild.setValue(null);
+				return;
+			}
+			
+			var updateStatus : String = currentScene.update();
+			
+			if (updateStatus == SceneModel.UPDATE_STATUS_LOOP_START) {
+				var loopCount : Number = AnimationSceneStates.currentSceneLoopCount.value;
+				animationSceneStates._currentSceneLoopCount.setValue(loopCount + 1);
+			}
 		}
 		
-		public function getActiveScene() : SceneModel {
+		protected function getActiveScene() : SceneModel {
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			
 			for (var i : Number = 0; i < scenes.length; i++) {
 				var scene : SceneModel = scenes[i];
-				if (scene.isActive() == true) {
+				var script : SceneScriptModel = scene.getPlugins().getScript();
+				if (scene.isActive() == true && script.isComplete() == true) {
 					return scene;
 				}
 			}

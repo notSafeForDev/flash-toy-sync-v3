@@ -8,6 +8,7 @@ package controllers {
 	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
 	import states.AnimationSizeStates;
+	import states.EditorStates;
 	import states.SaveDataStates;
 	import ui.Shortcuts;
 	import utils.ArrayUtil;
@@ -92,6 +93,8 @@ package controllers {
 			var saveDataList : Array = SaveDataStates.saveDataList.value;
 			saveDataList.push(sharedObject.data);
 			saveDataStates._saveDataList.setValue(saveDataList);
+			
+			sharedObject.flush();
 		}
 		
 		private function load(_saveData : Object) : Boolean {
