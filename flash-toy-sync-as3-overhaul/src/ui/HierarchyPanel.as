@@ -59,14 +59,15 @@ package ui {
 			lockButtonElement.graphics.drawRect(0, 0, 20, 20);
 			
 			lockButtonElement.graphics.beginFill(0xFFFFFF);
-			Icons.drawLockBody(lockButtonElement.graphics, 4, 4, 12, 12);
+			Icons.drawLockIcon(lockButtonElement.graphics, 4, 4, 12, 12);
+			/* Icons.drawLockBody(lockButtonElement.graphics, 4, 4, 12, 12);
 			
 			lockButtonElement.graphics.lineStyle(2, 0xFFFFFF);
 			lockButtonElement.graphics.beginFill(0xFFFFFF, 0);
 			Icons.drawLockShackle(lockButtonElement.graphics, 4, 4, 12, 12);
 			
 			lockButtonElement.graphics.beginFill(0x000000);
-			Icons.drawLockKeyHole(lockButtonElement.graphics, 4, 4, 12, 12);
+			Icons.drawLockKeyHole(lockButtonElement.graphics, 4, 4, 12, 12); */
 			
 			HierarchyStates.listen(this, onSelectedHierarchyChildStateChange, [HierarchyStates.selectedChild]);
 			HierarchyStates.listen(this, onHierachyInfoListStateChange, [HierarchyStates.hierarchyPanelInfoList]);
@@ -82,10 +83,6 @@ package ui {
 		}
 		
 		private function onSelectedHierarchyChildStateChange() : void {
-			if (EditorStates.isEditor.value == false) {
-				return;
-			}
-			
 			if (HierarchyStates.selectedChild.value == null) {
 				lockButton.disable();
 			} else {

@@ -54,6 +54,14 @@ package ui {
 			sourceTextField.setTextFormat(textFormat);
 		}
 		
+		public function get wordWrap() : Boolean {
+			return sourceTextField.wordWrap;
+		}
+		
+		public function set wordWrap(_value : Boolean) : void {
+			sourceTextField.wordWrap = _value;
+		}
+		
 		public function setTextFormat(_textFormat : TextFormat) : void {
 			textFormat = _textFormat;
 			sourceTextField.setTextFormat(textFormat);

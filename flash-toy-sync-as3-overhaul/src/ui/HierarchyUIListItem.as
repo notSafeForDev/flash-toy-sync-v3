@@ -56,7 +56,6 @@ package ui {
 			depth = _info.depth;
 			
 			updateBackgroundGraphics();
-			updateBackgroundGraphics();
 			
 			var prefix : String = " ";
 			
@@ -123,15 +122,8 @@ package ui {
 				return;
 			}
 			
-			background.graphics.beginFill(0xFFFFFF, 0.25);
-			Icons.drawLockBody(background.graphics, width - 16, 4, 12, 12);
-			
-			background.graphics.lineStyle(2, 0xFFFFFF, 0.25);
-			background.graphics.beginFill(0xFFFFFF, 0);
-			Icons.drawLockShackle(background.graphics, width - 16, 4, 12, 12);
-			
-			background.graphics.beginFill(0x000000);
-			Icons.drawLockKeyHole(background.graphics, width - 16, 4, 12, 12);
+			background.graphics.beginFill(0xFFFFFF, 0.5);
+			Icons.drawLockIcon(background.graphics, width - 16, 4, 12, 12);
 		}
 		
 		private function drawChildSelectionIndicator(_color : Number, _index : Number) : void {

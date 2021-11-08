@@ -19,6 +19,21 @@ package utils {
 		}
 		
 		/**
+		 * Get the indexes of multiple elements
+		 * @param	_array					The array to get the indexes from
+		 * @param	_searchElementsArray	The array of elements that is searched after
+		 * @return	An array of indexes
+		 */
+		public static function indexesOf(_array : * , _searchElementsArray : * ) : Vector.<Number> {
+			var indexes : Vector.<Number> = new Vector.<Number>();
+			for (var i : Number = 0; i < _searchElementsArray.length; i++) {
+				indexes.push(TPArrayUtil.indexOf(_array, _searchElementsArray[i]));
+			}
+			
+			return indexes;
+		}
+		
+		/**
 		 * Get the last index of a value in an array
 		 * @param	_array			The array to search through
 		 * @param	_searchElement	The value we are looking for

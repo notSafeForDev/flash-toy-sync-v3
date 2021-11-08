@@ -30,6 +30,7 @@ package {
 	import core.TPMovieClip;
 	import core.TPStage;
 	import states.ToyStates;
+	import ui.DialogueBox;
 	import ui.HierarchyPanel;
 	import ui.MainMenu;
 	import ui.ScenesPanel;
@@ -109,6 +110,8 @@ package {
 			addMainMenu();
 			addStatusText();
 			addFPSText();
+			
+			DialogueBox.init(container);
 			
 			container.addEnterFrameListener(this, onEnterFrame);
 			

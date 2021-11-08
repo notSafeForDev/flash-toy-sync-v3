@@ -36,6 +36,9 @@ package states {
 		public var _scenes : ArrayState;
 		public static var scenes : ArrayStateReference;
 		
+		public var _selectedScenes : ArrayState;
+		public static var selectedScenes : ArrayStateReference;
+		
 		public var _currentSceneLoopCount : NumberState;
 		public static var currentSceneLoopCount : NumberStateReference;
 		
@@ -55,6 +58,9 @@ package states {
 			
 			_scenes = _stateManager.addState(ArrayState, []);
 			scenes = _scenes.reference;
+			
+			_selectedScenes = _stateManager.addState(ArrayState, []);
+			selectedScenes = _selectedScenes.reference;
 			
 			_currentSceneLoopCount = _stateManager.addState(NumberState, -1);
 			currentSceneLoopCount = _currentSceneLoopCount.reference;

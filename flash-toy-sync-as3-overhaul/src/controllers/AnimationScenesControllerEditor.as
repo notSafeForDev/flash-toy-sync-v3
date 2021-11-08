@@ -11,6 +11,7 @@ package controllers {
 	import states.AnimationSceneStates;
 	import states.HierarchyStates;
 	import states.ScriptRecordingStates;
+	import ui.DialogueBox;
 	import ui.HierarchyPanel;
 	import ui.ScenesPanel;
 	import ui.Shortcuts;
@@ -37,6 +38,7 @@ package controllers {
 			
 			hierarchyPanel.selectEvent.listen(this, onHierarchyPanelChildSelected);
 			scenesPanel.sceneSelectedEvent.listen(this, onScenesPanelSceneSelected);
+			scenesPanel.deleteScenesEvent.listen(this, onScenesPanelDeleteScenes);
 			
 			HierarchyStates.listen(this, onHierarchyPanelLockedChildrenStateChange, [HierarchyStates.lockedChildren]);
 			ScriptRecordingStates.listen(this, onIsDoneRecordingScriptStateChange, [ScriptRecordingStates.isDoneRecording]);
@@ -243,7 +245,47 @@ package controllers {
 		}
 		
 		private function onScenesPanelSceneSelected(_scene : SceneModel) : void {
+			if (KeyboardInput.areKeysPressed(Shortcuts.singleSelect) == true) {
+				animationSceneStates._selectedScenes.setValue([_scene]);
+				return;
+			}
+			
+			if (KeyboardInput.areKeysPressed(Shortcuts.multiSelect) == true) {
+				var scenes : Array = AnimationSceneStates.selectedScenes.value;
+				if (ArrayUtil.includes(scenes, _scene) == true) {
+					ArrayUtil.remove(scenes, _scene);
+				} else {
+					scenes.push(_scene);
+				}
+				
+				animationSceneStates._selectedScenes.setValue(scenes);
+				return;
+			}
+			
+			animationSceneStates._selectedScenes.setValue([_scene]);
+			
 			switchToScene(_scene);
+		}
+		
+		private function onScenesPanelDeleteScenes() : void {
+			var text : String = "Are you sure you want to delete the scene?";
+			if (AnimationSceneStates.selectedScenes.value.length > 1) {
+				text = "Are you sure you want to delete the scenes?";
+			}
+			
+			DialogueBox.open(text, this, onConfirmDeleteScenes);
+		}
+		
+		private function onConfirmDeleteScenes() : void {
+			var scenes : Array = AnimationSceneStates.scenes.value;
+			var selectedScenes : Array = AnimationSceneStates.selectedScenes.value;
+			
+			for (var i : Number = 0; i < selectedScenes.length; i++) {
+				ArrayUtil.remove(scenes, selectedScenes[i]);
+			}
+			
+			animationSceneStates._scenes.setValue(scenes);
+			animationSceneStates._selectedScenes.setValue([]);
 		}
 		
 		private function onHierarchyPanelLockedChildrenStateChange() : void {

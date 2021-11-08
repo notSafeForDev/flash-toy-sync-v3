@@ -45,7 +45,7 @@ class core.TPGraphics{
 		graphics.moveTo(_x + _radius, _y); // Top left
 		graphics.lineTo(right - _radius, _y); // Top edge
 		graphics.curveTo(right, _y, right, _y + _radius); // Top right corner 
-		graphics.lineTo(right, _height - _radius); // Right edge
+		graphics.lineTo(right, _y + _height - _radius); // Right edge
 		graphics.curveTo(right, bottom, right - _radius, bottom); // Bottom right corner
 		graphics.lineTo(_x + _radius, bottom); // Bottom edge
 		graphics.curveTo(_x, bottom, _x, bottom - _radius); // Bottom left corner

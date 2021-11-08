@@ -65,10 +65,7 @@ package controllers {
 		}
 		
 		private function onSelect(_child : TPDisplayObject) : void {
-			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
-			if (ArrayUtil.includes(lockedChildren, _child.sourceDisplayObject) == false) {
-				hierarchyStates._selectedChild.setValue(_child);
-			}
+			hierarchyStates._selectedChild.setValue(_child);
 		}
 		
 		private function onToggleExpand(_child : TPDisplayObject) : void {

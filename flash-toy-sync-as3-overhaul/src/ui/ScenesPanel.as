@@ -15,22 +15,51 @@ package ui {
 		
 		/** Emitted when the user clicks on a scene in the panel, along with the sceneModel instance */
 		public var sceneSelectedEvent : CustomEvent;
+		/** Emitted when the user clicks on the delete button in the panel */
+		public var deleteScenesEvent : CustomEvent;
 		
-		private var listItems : Vector.<UIListItem>;
+		private var listItems : Vector.<ScenesUIListItem>;
 		private var uiList : UIList;
+		
+		private var deleteButton : UIButton;
 		
 		public function ScenesPanel(_parent : TPMovieClip, _contentWidth : Number, _contentHeight : Number) {
 			super(_parent, "Scenes", _contentWidth, _contentHeight);
 			
 			sceneSelectedEvent = new CustomEvent();
+			deleteScenesEvent = new CustomEvent();
+			
+			var iconsBarHeight : Number = 20;
+			var listHeight : Number = _contentHeight - iconsBarHeight;
 			
 			var listContainer : TPMovieClip = TPMovieClip.create(content, "listContainer");
 			
-			listItems = new Vector.<UIListItem>();
+			listItems = new Vector.<ScenesUIListItem>();
 			
-			uiList = new UIList(listContainer, contentWidth, contentHeight);
+			uiList = new UIList(listContainer, contentWidth, listHeight);
+			
+			var iconsBar : TPMovieClip = TPMovieClip.create(content, "iconsBar");
+			iconsBar.graphics.beginFill(0x000000, 0.25);
+			iconsBar.graphics.drawRect(0, 0, contentWidth, iconsBarHeight);
+			
+			iconsBar.graphics.lineStyle(1, 0xFFFFFF, 0.1);
+			iconsBar.graphics.moveTo(0, 0);
+			iconsBar.graphics.lineTo(contentWidth, 0);
+			
+			iconsBar.y = listHeight;
+			
+			var deleteButtonElement : TPMovieClip = TPMovieClip.create(iconsBar, "deleteButtonElement");
+			deleteButtonElement.graphics.beginFill(0xFFFFFF, 0);
+			deleteButtonElement.graphics.drawRect(0, 0, 20, 20);
+			deleteButtonElement.graphics.beginFill(0xFFFFFF);
+			
+			deleteButton = new UIButton(deleteButtonElement);
+			deleteButton.mouseClickEvent.listen(this, onDeleteButtonClick);
+			
+			Icons.drawDeleteIcon(deleteButtonElement.graphics, 4, 4, 12, 12);
 			
 			AnimationSceneStates.listen(this, onSceneStatesChange, [AnimationSceneStates.currentScene, AnimationSceneStates.scenes]);
+			AnimationSceneStates.listen(this, onSelectedScenesStateChange, [AnimationSceneStates.selectedScenes]);
 		}
 		
 		public function update() : void {
@@ -60,8 +89,7 @@ package ui {
 				var scene : SceneModel = scenes[i];
 				var startFrames : Vector.<Number> = scene.getStartFrames();
 				var endFrames : Vector.<Number> = scene.getEndFrames();
-				var primaryText : String = "Scene " + (i + 1);
-				// var secondaryText : String = startFrames[startFrames.length - 1] + " - " + endFrames[endFrames.length - 1];
+				var primaryText : String = "   Scene " + (i + 1);
 				var secondaryText : String = startFrames.join(",") + " - " + endFrames[endFrames.length - 1];
 				
 				if (scene.isForceStopped() == true) {
@@ -70,6 +98,7 @@ package ui {
 				
 				listItems[i].setPrimaryText(primaryText);
 				listItems[i].setSecondaryText(secondaryText);
+				listItems[i].update();
 				
 				if (scene == currentScene) {
 					listItems[i].highlight();
@@ -82,6 +111,18 @@ package ui {
 		private function onListItemClick(_index : Number) : void {
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			sceneSelectedEvent.emit(scenes[_index]);
+		}
+		
+		private function onSelectedScenesStateChange() : void {
+			if (AnimationSceneStates.selectedScenes.value.length > 0) {
+				deleteButton.enable();
+			} else {
+				deleteButton.disable();
+			}
+		}
+		
+		private function onDeleteButtonClick() : void {
+			deleteScenesEvent.emit();
 		}
 		
 		private function onSceneStatesChange() : void {
@@ -105,7 +146,7 @@ package ui {
 			var container : TPMovieClip = uiList.getListItemsContainer();
 			var width : Number = contentWidth - uiList.getScrollbarWidth();
 			
-			var listItem : UIListItem = new UIListItem(container, width, listItems.length);
+			var listItem : ScenesUIListItem = new ScenesUIListItem(container, width, listItems.length);
 			
 			listItem.clickEvent.listen(this, onListItemClick);
 			
