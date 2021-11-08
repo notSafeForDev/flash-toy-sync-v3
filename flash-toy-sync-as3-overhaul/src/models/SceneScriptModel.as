@@ -219,7 +219,9 @@ package models {
 			
 			fillInBlankPositionsAtBeginning(totalFillBeginning);
 			
-			firstRecordedInnerFrame = Math.min(firstRecordedInnerFrame, _otherScene.getInnerStartFrame());
+			if (otherScript.firstRecordedInnerFrame >= 0 && (otherScript.firstRecordedInnerFrame < firstRecordedInnerFrame || firstRecordedInnerFrame < 0)) {
+				firstRecordedInnerFrame = otherScript.firstRecordedInnerFrame;
+			}
 			
 			var i : Number;
 			for (i = 0; i < totalFillBeginning; i++) {

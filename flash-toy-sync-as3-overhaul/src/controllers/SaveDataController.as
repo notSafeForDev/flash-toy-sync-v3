@@ -4,6 +4,7 @@ package controllers {
 	import core.JSONLoader;
 	import core.TPMovieClip;
 	import flash.net.SharedObject;
+	import flash.system.System;
 	import models.SceneModel;
 	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
@@ -31,6 +32,7 @@ package controllers {
 			animationSceneStates = _animationSceneStates;
 			
 			KeyboardInput.addShortcut(Shortcuts.save, this, onSaveShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.copyJSONSaveData, this, onCopyJSONSaveDataShortcut, []);
 			
 			AnimationInfoStates.isLoaded.listen(this, onAnimationLoadedStateChange);
 		}
@@ -49,7 +51,15 @@ package controllers {
 			}
 			
 			var animationName : String = AnimationInfoStates.name.value;
-			JSONLoader.load(animationName.split(".swf")[0] + ".json", this, onJSONLoaded);
+			
+			var saveDataPath : String;
+			if (AnimationInfoStates.isStandalone.value == true) {
+				saveDataPath = animationName.split(".swf")[0] + ".json";
+			} else {
+				saveDataPath = "animations/" + animationName.split(".swf")[0] + ".json";
+			}
+			
+			JSONLoader.load(saveDataPath, this, onJSONLoaded);
 		}
 		
 		private function onJSONLoaded(_json : Object) : void {
@@ -62,6 +72,15 @@ package controllers {
 			if (AnimationInfoStates.isLoaded.value == true) {
 				save();
 			}
+		}
+		
+		private function onCopyJSONSaveDataShortcut() : void {
+			var saveData : Object = {};
+			updateSaveDataFromState(saveData);
+			var jsonString : String = JSON.stringify(saveData);
+			
+			System.setClipboard(jsonString);
+			saveDataStates._copiedJSON.setValue(jsonString);
 		}
 		
 		private function getLocalSharedObject() : SharedObject {

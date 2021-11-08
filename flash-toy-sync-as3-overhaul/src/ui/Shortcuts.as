@@ -39,5 +39,7 @@ package ui {
 		public static var save : Array = [Keyboard.CONTROL, Keyboard.S];
 		
 		public static var prepareScript : Array = [Keyboard.P];
+		
+		public static var copyJSONSaveData : Array = [Keyboard.J];
 	}
 }

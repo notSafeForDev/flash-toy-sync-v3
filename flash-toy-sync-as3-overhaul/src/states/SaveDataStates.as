@@ -19,6 +19,9 @@ package states {
 		public var _saveDataList : ArrayState;
 		public static var saveDataList : ArrayStateReference;
 		
+		public var _copiedJSON : StringState;
+		public static var copiedJSON : StringStateReference;
+		
 		public function SaveDataStates(_stateManager : StateManager) {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
@@ -26,6 +29,9 @@ package states {
 			
 			_saveDataList = _stateManager.addState(ArrayState, []);
 			saveDataList = _saveDataList.reference;
+			
+			_copiedJSON = _stateManager.addState(StringState, "");
+			copiedJSON = _copiedJSON.reference;
 			
 			stateManager = _stateManager;
 		}

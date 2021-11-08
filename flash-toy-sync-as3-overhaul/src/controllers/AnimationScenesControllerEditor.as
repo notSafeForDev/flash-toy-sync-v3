@@ -52,6 +52,11 @@ package controllers {
 		}
 		
 		public override function update() : void {
+			// TODO: Add some kind of indicator on in the scenes panel for the scene that will be active in play mode
+			/* super.update();
+			scenesPanel.update();
+			return; */
+			
 			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
 			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			
