@@ -277,11 +277,16 @@ package controllers {
 		}
 		
 		private function onConfirmDeleteScenes() : void {
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			var selectedScenes : Array = AnimationSceneStates.selectedScenes.value;
 			
 			for (var i : Number = 0; i < selectedScenes.length; i++) {
 				ArrayUtil.remove(scenes, selectedScenes[i]);
+			}
+			
+			if (ArrayUtil.includes(selectedScenes, currentScene) == true) {
+				exitCurrentScene();
 			}
 			
 			animationSceneStates._scenes.setValue(scenes);
