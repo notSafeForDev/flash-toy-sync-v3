@@ -156,12 +156,16 @@ package {
 			// AS3
 			if (_error == "Error #2035" || _error.indexOf("URL Not Found") >= 0) {
 				animationInfoStates._loadStatus.setValue(missingAnimationStatus);
+				return;
 			}
 			
 			// AS2
 			if (_error == "URLNotFound") {
 				animationInfoStates._loadStatus.setValue(missingAnimationStatus);
+				return;
 			}
+			
+			animationInfoStates._loadStatus.setValue(_error);
 		}
 		
 		private function onEnterFrame() : void {	
