@@ -36,7 +36,7 @@ package controllers {
 			var isActionScript3 : Boolean = VersionConfig.actionScriptVersion == 3;
 			
 			// Different setting save files are used for both versions as the AS3 version can't read data that have been modified by the AS2 version
-			settingsSharedData = SharedObject.getLocal("flash-toy-sync-settings-" + (isActionScript3 ? "as3" : "as2"));
+			settingsSharedData = SharedObject.getLocal("flash-toy-sync-settings-" + (isActionScript3 ? "as3" : "as2"), "/");
 			_toyStates._theHandyConnectionKey.setValue(settingsSharedData.data.theHandyConnectionKey || "");
 			
 			KeyboardInput.addShortcut(Shortcuts.save, this, onSaveShortcut, []);
