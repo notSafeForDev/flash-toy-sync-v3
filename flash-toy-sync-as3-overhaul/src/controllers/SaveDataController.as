@@ -11,6 +11,7 @@ package controllers {
 	import states.AnimationSizeStates;
 	import states.EditorStates;
 	import states.SaveDataStates;
+	import states.ToyStates;
 	import ui.Shortcuts;
 	import utils.ArrayUtil;
 	
@@ -24,28 +25,36 @@ package controllers {
 		private var animationSizeStates : AnimationSizeStates;
 		private var animationSceneStates : AnimationSceneStates;
 		
-		private var sharedObject : SharedObject;
+		private var animationSharedObject : SharedObject;
+		private var settingsSharedData : SharedObject;
 		
-		public function SaveDataController(_saveDataStates : SaveDataStates, _animationSizeStates : AnimationSizeStates, _animationSceneStates : AnimationSceneStates) {
+		public function SaveDataController(_saveDataStates : SaveDataStates, _animationSizeStates : AnimationSizeStates, _animationSceneStates : AnimationSceneStates, _toyStates : ToyStates) {
 			saveDataStates = _saveDataStates;
 			animationSizeStates = _animationSizeStates;
 			animationSceneStates = _animationSceneStates;
+			
+			var isActionScript3 : Boolean = VersionConfig.actionScriptVersion == 3;
+			
+			// Different setting save files are used for both versions as the AS3 version can't read data that have been modified by the AS2 version
+			settingsSharedData = SharedObject.getLocal("flash-toy-sync-settings-" + (isActionScript3 ? "as3" : "as2"));
+			_toyStates._theHandyConnectionKey.setValue(settingsSharedData.data.theHandyConnectionKey || "");
 			
 			KeyboardInput.addShortcut(Shortcuts.save, this, onSaveShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.copyJSONSaveData, this, onCopyJSONSaveDataShortcut, []);
 			
 			AnimationInfoStates.isLoaded.listen(this, onAnimationLoadedStateChange);
+			ToyStates.listen(this, onTheHandyConnectionKeyStateChange, [ToyStates.theHandyConnectionKey]);
 		}
 		
 		private function onAnimationLoadedStateChange() : void {
 			if (AnimationInfoStates.isLoaded.value == false) {
-				sharedObject = null;
+				animationSharedObject = null;
 				return;
 			}
 			
-			sharedObject = getLocalSharedObject();
+			animationSharedObject = getAnimationSharedObject();
 			
-			var isLoaded : Boolean = load(sharedObject.data);
+			var isLoaded : Boolean = load(animationSharedObject.data);
 			if (isLoaded == true) {
 				return;
 			}
@@ -60,6 +69,11 @@ package controllers {
 			}
 			
 			JSONLoader.load(saveDataPath, this, onJSONLoaded);
+		}
+		
+		private function onTheHandyConnectionKeyStateChange() : void {
+			// We don't call settingsSharedData.flush here as that would slow down the application while the user is typing the key
+			settingsSharedData.data.theHandyConnectionKey = ToyStates.theHandyConnectionKey.value;
 		}
 		
 		private function onJSONLoaded(_json : Object) : void {
@@ -83,13 +97,13 @@ package controllers {
 			saveDataStates._copiedJSON.setValue(jsonString);
 		}
 		
-		private function getLocalSharedObject() : SharedObject {
+		private function getAnimationSharedObject() : SharedObject {
 			// Taken from the documentation: https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/net/SharedObject.html#getLocal()
 			var invalidCharacters : Array = ["~", "%", "&", "\\", ";", ":", '"', "'", ",", "<", ">", "?", "#"];
 			
 			var animation : TPMovieClip = AnimationInfoStates.animationRoot.value;
 			var animationName : String = AnimationInfoStates.name.value.split(".")[0];
-			var isActionScript3 : Boolean = animation.sourceDisplayObject["visible"] != undefined;
+			var isActionScript3 : Boolean = VersionConfig.actionScriptVersion == 3;
 			
 			var sharedObjectName : String = animationName.split(".swf")[0];
 			
@@ -102,18 +116,18 @@ package controllers {
 		}
 		
 		private function save() : void {
-			if (sharedObject == null) {
-				sharedObject = getLocalSharedObject();
+			if (animationSharedObject == null) {
+				animationSharedObject = getAnimationSharedObject();
 			}
 			
 			// data is read only, so we can't assign it directly
-			updateSaveDataFromState(sharedObject.data);
+			updateSaveDataFromState(animationSharedObject.data);
 			
 			var saveDataList : Array = SaveDataStates.saveDataList.value;
-			saveDataList.push(sharedObject.data);
+			saveDataList.push(animationSharedObject.data);
 			saveDataStates._saveDataList.setValue(saveDataList);
 			
-			sharedObject.flush();
+			animationSharedObject.flush();
 		}
 		
 		private function load(_saveData : Object) : Boolean {

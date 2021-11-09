@@ -332,7 +332,7 @@ package models {
 			var children : Vector.<TPMovieClip> = getChildrenWhileActive();
 			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
 			var didExitScene : Boolean = false;
-			var isActionsScript3 : Boolean = children[0].sourceDisplayObject["visible"] != undefined;
+			var isActionsScript3 : Boolean = VersionConfig.actionScriptVersion == 3;
 			
 			// Check if it's currently on a frame within the scene, if not, we want to exit it
 			for (i = 0; i < children.length; i++) {

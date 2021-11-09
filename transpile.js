@@ -546,6 +546,6 @@ console.log("-------------------------------------------------------------------
 copyFolderRecursiveSync("flash-toy-sync-as3\\src", "flash-toy-sync-as2\\src", ["flash-toy-sync-as3\\src\\core"], ["flash-toy-sync-as3\\src\\Main.as"]);
 transpileActionScriptFiles("flash-toy-sync-as2\\src", ["flash-toy-sync-as2\\src\\core"], ["flash-toy-sync-as2\\src\\Main.as"]);
 console.log("--------------------------------------------------------------------------------");
-copyFolderRecursiveSync("flash-toy-sync-as3-overhaul\\src", "flash-toy-sync-as2-overhaul\\src", ["flash-toy-sync-as3-overhaul\\src\\core"], ["flash-toy-sync-as3-overhaul\\src\\Main.as"]);
-transpileActionScriptFiles("flash-toy-sync-as2-overhaul\\src", ["flash-toy-sync-as2-overhaul\\src\\core"], ["flash-toy-sync-as2-overhaul\\src\\Main.as"]);
+copyFolderRecursiveSync("flash-toy-sync-as3-overhaul\\src", "flash-toy-sync-as2-overhaul\\src", ["flash-toy-sync-as3-overhaul\\src\\core"], ["flash-toy-sync-as3-overhaul\\src\\Main.as", "flash-toy-sync-as3-overhaul\\src\\VersionConfig.as"]);
+transpileActionScriptFiles("flash-toy-sync-as2-overhaul\\src", ["flash-toy-sync-as2-overhaul\\src\\core"], ["flash-toy-sync-as2-overhaul\\src\\Main.as", "flash-toy-sync-as2-overhaul\\src\\VersionConfig.as"]);
 console.log("--------------------------------------------------------------------------------");

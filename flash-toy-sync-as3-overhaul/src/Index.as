@@ -101,6 +101,9 @@ package {
 			
 			initializeStates();
 			
+			// This is intentionally initialized outside of initializeControllers, as it updates states which the main menu depends on
+			saveDataController = new SaveDataController(saveDataStates, animationSizeStates, animationSceneStates, toyStates);
+			
 			addAnimation();
 			addBorders();
 			addStageElementHighlighter();
@@ -299,8 +302,6 @@ package {
 			if (EditorStates.isEditor.value == false) {
 				animationSceneController = new AnimationScenesController(animationSceneStates);
 			}
-			
-			saveDataController = new SaveDataController(saveDataStates, animationSizeStates, animationSceneStates);
 			
 			if (EditorStates.isEditor.value == true) {
 				strokerToyController = new StrokerToyControllerEditor(toyStates);

@@ -21,6 +21,7 @@ flash-toy-sync-as3-overhaul/obj
 
 !flash-toy-sync-as2-overhaul/src/core*
 !flash-toy-sync-as2-overhaul/src/Main.as
+!flash-toy-sync-as2-overhaul/src/VersionConfig.as
 
 todo.txt
 swf-sources.txt

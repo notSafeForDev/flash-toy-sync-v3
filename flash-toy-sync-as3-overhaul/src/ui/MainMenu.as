@@ -6,6 +6,7 @@ package ui {
 	import core.CustomEvent;
 	import flash.display.MovieClip;
 	import states.AnimationInfoStates;
+	import states.ToyStates;
 	
 	/**
 	 * ...
@@ -58,9 +59,9 @@ package ui {
 			connectionKeyTitleText.element.y = 130;
 			connectionKeyTitleText.element.width = menuWidth;
 			
-			connectionKeyInputText = new TextElement(menuContainer, "");
+			connectionKeyInputText = new TextElement(menuContainer, ToyStates.theHandyConnectionKey.value);
 			TextStyles.applyInputStyle(connectionKeyInputText);
-			connectionKeyInputText.convertToInputField(this, onTheHandyConnectionKeyChange);
+			connectionKeyInputText.convertToInputField(this, onTheHandyConnectionKeyInputTextChange);
 			connectionKeyInputText.element.y = 150;
 			connectionKeyInputText.element.width = menuWidth;
 			connectionKeyInputText.element.height = 20;
@@ -88,7 +89,7 @@ package ui {
 			}
 		}
 		
-		private function onTheHandyConnectionKeyChange(_key : String) : void {
+		private function onTheHandyConnectionKeyInputTextChange(_key : String) : void {
 			theHandyConnectionKeyChangeEvent.emit(_key);
 		}
 		
