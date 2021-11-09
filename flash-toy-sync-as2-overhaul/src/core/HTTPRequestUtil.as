@@ -18,7 +18,7 @@ class core.HTTPRequestUtil {
 	public static function post(_url : String, _body, _contentType : String, _scope, _responseHandler : Function, _errorHandler : Function, _restArguments : Array) : Void {
 		var loader : LoadVars = setupLoader(_scope, _responseHandler, _errorHandler, _restArguments);
 		loader.contentType = _contentType;
-		loader.addRequestHeader("body", _body.split("\n").join("\\n"));
+		loader.body = _body;
 		
 		loader.sendAndLoad(_url, loader, "POST");
 	}

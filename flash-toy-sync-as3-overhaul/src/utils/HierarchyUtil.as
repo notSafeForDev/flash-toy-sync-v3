@@ -141,6 +141,9 @@ package utils {
 				
 				if (lastHashIndex < 0) {
 					child = child[_path[i]];
+					if (child == null) {
+						return null;
+					}
 					objects.push(new TPDisplayObject(child));
 					continue;
 				}
