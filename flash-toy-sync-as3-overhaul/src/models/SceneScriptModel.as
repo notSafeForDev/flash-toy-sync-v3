@@ -112,6 +112,10 @@ package models {
 			return hasAtLeast1PositionOfEach;
 		}
 		
+		public function hasAnyRecordedPositions() : Boolean {
+			return basePositions != null && basePositions.length > 0;
+		}
+		
 		public function getBasePositions() : Vector.<Point> {
 			return basePositions.slice();
 		}

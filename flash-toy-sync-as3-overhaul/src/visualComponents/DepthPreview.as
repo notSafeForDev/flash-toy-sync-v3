@@ -3,6 +3,7 @@ package visualComponents {
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import flash.geom.Point;
+	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import utils.MathUtil;
 	import utils.SceneScriptUtil;
@@ -28,9 +29,9 @@ package visualComponents {
 				return;
 			}
 			
-			var base : Point = ScriptTrackerStates.baseGlobalTrackerPoint.value;
-			var stim : Point = ScriptTrackerStates.stimGlobalTrackerPoint.value;
-			var tip : Point = ScriptTrackerStates.tipGlobalTrackerPoint.value;
+			var base : Point = ScriptTrackerStates.baseGlobalTrackerPoint.value || ScriptRecordingStates.interpolatedBasePoint.value;
+			var stim : Point = ScriptTrackerStates.stimGlobalTrackerPoint.value || ScriptRecordingStates.interpolatedStimPoint.value;
+			var tip : Point = ScriptTrackerStates.tipGlobalTrackerPoint.value || ScriptRecordingStates.interpolatedTipPoint.value;
 			
 			if (base == null || tip == null) {
 				return;

@@ -56,8 +56,8 @@ package utils {
 		}
 		
 		public static function reducePositions(_positions : Vector.<StrokerToyScriptPosition>) : Vector.<StrokerToyScriptPosition> {
-			if (_positions.length == 0) {
-				return new Vector.<StrokerToyScriptPosition>();
+			if (_positions.length <= 1) {
+				return _positions.slice();
 			}
 			
 			var reduced : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();

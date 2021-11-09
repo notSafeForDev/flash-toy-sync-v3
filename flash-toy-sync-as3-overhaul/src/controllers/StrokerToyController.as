@@ -166,9 +166,9 @@ package controllers {
 			}
 			
 			var currentSceneIndex : Number = getCurrentSceneIndex();
-			if (currentSceneIndex >= 0 && currentSceneIndex < sceneStartTimes.length && sceneStartTimes[currentSceneIndex] >= 0) {
+			if (canPlayCurrentScene() == true) {
 				playCurrentScene();
-			} else {
+			} else if (toyApi.isPlayingScript() == true) {
 				stopCurrentScene();
 			}
 		}

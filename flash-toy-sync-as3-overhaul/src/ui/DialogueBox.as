@@ -19,7 +19,7 @@ package ui {
 			var boxWidth : Number = 400;
 			var boxHeight : Number = 200;
 			
-			var textWidth : Number = 250;
+			var textWidth : Number = 320;
 			
 			fade = TPMovieClip.create(_container, "dialogueBoxScreenFade");
 			fade.graphics.beginFill(0x000000, 0.25);
@@ -35,9 +35,9 @@ package ui {
 			text = new TextElement(box, "Placeholder");
 			text.element.width = textWidth;
 			text.element.x = -textWidth / 2;
-			text.element.y = -boxHeight * 0.3;
+			text.element.y = -boxHeight * 0.35;
 			text.wordWrap = true;
-			TextStyles.applyListItemStyle(text);
+			TextStyles.applyParagraphStyle(text);
 			
 			var confirmButton : UIButton = addButton("Confirm", 150);
 			confirmButton.element.x = -160;
@@ -52,6 +52,12 @@ package ui {
 			
 			box.visible = false;
 			fade.visible = false;
+			
+			var disclaimerText : TextElement = new TextElement(box, "(There's currently no way to undo this action)");
+			TextStyles.applyParagraphStyle(disclaimerText);
+			disclaimerText.element.width = boxWidth;
+			disclaimerText.element.x = -textWidth / 2;
+			disclaimerText.element.y = (boxHeight / 2) + 10;
 			
 			// Makes it so that the container can't be clicked through for AS2
 			MouseEvents.addOnMouseDown(fade, fade.sourceDisplayObject, function() : void {});
@@ -89,7 +95,7 @@ package ui {
 			buttonElement.graphics.drawRoundedRect(0, 0, _width, 30, 10);
 			
 			var text : TextElement = new TextElement(buttonElement, _text);
-			TextStyles.applyMainMenuButtonStyle(text);
+			TextStyles.applyMenuButtonStyle(text);
 			text.element.width = _width;
 			text.element.y = 4;
 			

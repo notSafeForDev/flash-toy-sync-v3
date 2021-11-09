@@ -12,6 +12,7 @@ package controllers {
 	import states.HierarchyStates;
 	import states.ScriptRecordingStates;
 	import ui.DialogueBox;
+	import ui.DialogueBoxes;
 	import ui.HierarchyPanel;
 	import ui.ScenesPanel;
 	import ui.Shortcuts;
@@ -38,6 +39,7 @@ package controllers {
 			
 			hierarchyPanel.selectEvent.listen(this, onHierarchyPanelChildSelected);
 			scenesPanel.sceneSelectedEvent.listen(this, onScenesPanelSceneSelected);
+			scenesPanel.mergeScenesEvent.listen(this, onScenesPanelMergeScenes);
 			scenesPanel.deleteScenesEvent.listen(this, onScenesPanelDeleteScenes);
 			
 			HierarchyStates.listen(this, onHierarchyPanelLockedChildrenStateChange, [HierarchyStates.lockedChildren]);
@@ -267,13 +269,21 @@ package controllers {
 			switchToScene(_scene);
 		}
 		
+		private function onScenesPanelMergeScenes() : void {
+			DialogueBoxes.openMergeScenesDialogueBox(this, onConfirmMergeScenes);
+		}
+		
 		private function onScenesPanelDeleteScenes() : void {
-			var text : String = "Are you sure you want to delete the scene?";
-			if (AnimationSceneStates.selectedScenes.value.length > 1) {
-				text = "Are you sure you want to delete the scenes?";
-			}
+			DialogueBoxes.openDeleteScenesDialogueBox(this, onConfirmDeleteScenes);
+		}
+		
+		private function onConfirmMergeScenes() : void {
+			var selectedScenes : Array = AnimationSceneStates.selectedScenes.value;
+			var scene1 : SceneModel = selectedScenes[0];
+			var scene2 : SceneModel = selectedScenes[1];
 			
-			DialogueBox.open(text, this, onConfirmDeleteScenes);
+			scene1.merge(scene2);
+			removeScene(scene2);
 		}
 		
 		private function onConfirmDeleteScenes() : void {

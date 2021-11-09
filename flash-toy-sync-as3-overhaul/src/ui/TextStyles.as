@@ -11,6 +11,14 @@ package ui {
 		
 		private static var font : String = "Consolas";
 		
+		public static function applyParagraphStyle(_text : TextElement) : void {
+			var textFormat : TextFormat = new TextFormat();
+			textFormat.font = font;
+			textFormat.color = 0xFFFFFF;
+			
+			_text.setTextFormat(textFormat);
+		}
+		
 		public static function applyStatusStyle(_text : TextElement) : void {
 			var textFormat : TextFormat = new TextFormat();
 			textFormat.font = font;
@@ -54,16 +62,17 @@ package ui {
 			_text.element.filters = [new GlowFilter(0x000000, 0.5, 2, 2, 255)];
 		}
 		
-		public static function applyButtonStyle(_text : TextElement) : void {
+		public static function applyPanelButtonStyle(_text : TextElement) : void {
 			var textFormat : TextFormat = new TextFormat();
 			textFormat.font = font;
 			textFormat.color = 0x000000;
 			textFormat.align = TextElement.ALIGN_CENTER;
 			
+			_text.element.height = 20; // TODO: Add some way to detect the actual height of the text
 			_text.setTextFormat(textFormat);
 		}
 		
-		public static function applyMainMenuButtonStyle(_text : TextElement) : void {			
+		public static function applyMenuButtonStyle(_text : TextElement) : void {			
 			var textFormat : TextFormat = new TextFormat();
 			textFormat.font = font;
 			textFormat.color = 0x000000;
@@ -71,6 +80,7 @@ package ui {
 			textFormat.size = 14;
 			textFormat.align = TextElement.ALIGN_CENTER;
 			
+			_text.element.height = 20; // TODO: Add some way to detect the actual height of the text
 			_text.setTextFormat(textFormat);
 		}
 		

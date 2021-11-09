@@ -26,7 +26,7 @@ package ui {
 			
 			if (ArrayUtil.includes(selectedSceneIndexes, index) == true) {
 				background.graphics.beginFill(0xFFFFFF);
-				Icons.drawListItemSelection(background.graphics, 6, 5, 6, 10);
+				Icons.drawListItemSelectionIcon(background.graphics, 6, 5, 6, 10);
 			}
 		}
 	}

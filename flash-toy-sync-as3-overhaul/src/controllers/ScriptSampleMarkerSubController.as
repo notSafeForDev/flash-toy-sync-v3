@@ -38,12 +38,11 @@ package controllers {
 		}
 		
 		public function update(_script : SceneScriptModel, _currentFrame : Number) : void {
+			marker.hide();
+			
 			if (_script == null || _script.isFrameWithinRecordedFrames(_currentFrame) == false) {
-				marker.hide();
 				return;
 			}
-			
-			marker.show();
 			
 			var positions : Vector.<Point>;
 			
@@ -55,8 +54,18 @@ package controllers {
 				positions = _script.getTipPositions();
 			}
 			
-			var isKeyPosition : Boolean = _script.hasRecordedPositionOnFrame(positions, _currentFrame);
+			if (positions == null) {
+				return;
+			}
+			
 			var position : Point = _script.getInterpolatedPosition(positions, _currentFrame);
+			if (position == null) {
+				return;
+			}
+			
+			marker.show();
+			
+			var isKeyPosition : Boolean = _script.hasRecordedPositionOnFrame(positions, _currentFrame);
 			
 			if (marker.isDragging() == false) {
 				marker.setPosition(position.x, position.y);

@@ -163,7 +163,7 @@ package ui {
 		
 		protected function createText(_parent : TPMovieClip, _text : String, _height : Number) : TextElement {
 			var textElement : TextElement = new TextElement(_parent, _text);
-			TextStyles.applyListItemStyle(textElement);
+			TextStyles.applyParagraphStyle(textElement);
 			textElement.sourceTextField.wordWrap = true;
 			textElement.element.height = _height;
 			textElement.element.width = contentWidth - layoutPadding * 2;
@@ -213,7 +213,7 @@ package ui {
 			button.element.x = layoutPadding;
 			
 			var text : TextElement = new TextElement(movieClip, _text);
-			TextStyles.applyButtonStyle(text);
+			TextStyles.applyPanelButtonStyle(text);
 			text.element.width = buttonWidth;
 			text.element.y = 6;
 			

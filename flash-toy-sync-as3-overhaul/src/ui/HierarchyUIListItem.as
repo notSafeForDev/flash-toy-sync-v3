@@ -100,7 +100,7 @@ package ui {
 			
 			if (HierarchyStates.selectedChild.value != null && child.sourceDisplayObject == HierarchyStates.selectedChild.value.sourceDisplayObject) {
 				background.graphics.beginFill(0xFFFFFF);
-				Icons.drawListItemSelection(background.graphics, 6, 5, 6, 10);
+				Icons.drawListItemSelectionIcon(background.graphics, 6, 5, 6, 10);
 			}
 			
 			var baseTrackerAttachedTo : TPDisplayObject = ScriptTrackerStates.baseTrackerAttachedTo.value;

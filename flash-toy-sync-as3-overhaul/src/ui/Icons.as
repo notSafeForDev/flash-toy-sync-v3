@@ -9,7 +9,7 @@ package ui {
 	public class Icons {
 		
 		/** Uses fill only */
-		public static function drawListItemSelection(_graphics : TPGraphics, _x : Number, _y : Number, _width : Number, _height : Number) : void {
+		public static function drawListItemSelectionIcon(_graphics : TPGraphics, _x : Number, _y : Number, _width : Number, _height : Number) : void {
 			_graphics.moveTo(_x, _y);
 			_graphics.lineTo(_x + _width * 0.3, _y);
 			_graphics.lineTo(_x + _width, _y + _height * 0.5);
@@ -40,6 +40,15 @@ package ui {
 			// Lines on container
 			_graphics.drawRect(_x + _width * 0.3, _y + _height * 0.4, _width * 0.1, _height * 0.4)
 			_graphics.drawRect(_x + _width * 0.6, _y + _height * 0.4, _width * 0.1, _height * 0.4);
+		}
+		
+		/** Uses fill only */
+		public static function drawMergeIcon(_graphics : TPGraphics, _x : Number, _y : Number, _width : Number, _height : Number) : void {
+			// Top left and bottom right squares
+			_graphics.drawRect(_x, _y, _width * 0.7, _height * 0.7);
+			_graphics.drawRect(_x + _width * 0.3, _y + _height * 0.3, _width * 0.7, _height * 0.7);
+			// Middle square
+			_graphics.drawRect(_x + _width * 0.4, _y + _height * 0.4, _width * 0.2, _height * 0.2);
 		}
 	}
 }

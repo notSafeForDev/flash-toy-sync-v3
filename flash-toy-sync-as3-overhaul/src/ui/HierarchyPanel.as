@@ -83,11 +83,7 @@ package ui {
 		}
 		
 		private function onSelectedHierarchyChildStateChange() : void {
-			if (HierarchyStates.selectedChild.value == null) {
-				lockButton.disable();
-			} else {
-				lockButton.enable();
-			}
+			lockButton.setEnabled(HierarchyStates.selectedChild.value != null);
 		}
 		
 		private function onHierachyInfoListStateChange() : void {

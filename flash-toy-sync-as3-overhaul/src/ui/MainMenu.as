@@ -39,7 +39,7 @@ package ui {
 			theHandyConnectionKeyChangeEvent = new CustomEvent();
 			
 			selectedAnimationText = new TextElement(menuContainer, "");
-			TextStyles.applyListItemStyle(selectedAnimationText);
+			TextStyles.applyParagraphStyle(selectedAnimationText);
 			
 			browseButton = createButton(menuWidth, "Browse", browseAnimationEvent);
 			
@@ -54,7 +54,7 @@ package ui {
 			editButton.element.x = menuWidth / 2 + 5;
 			
 			var connectionKeyTitleText : TextElement = new TextElement(menuContainer, "theHandy Connection Key:");
-			TextStyles.applyListItemStyle(connectionKeyTitleText);
+			TextStyles.applyParagraphStyle(connectionKeyTitleText);
 			connectionKeyTitleText.element.y = 130;
 			connectionKeyTitleText.element.width = menuWidth;
 			
@@ -74,13 +74,12 @@ package ui {
 		private function onAnimationInfoStatesChange() : void {
 			if (AnimationInfoStates.name.value == "") {
 				selectedAnimationText.text = "Animation: -";
-				playButton.disable();
-				editButton.disable();
 			} else {
 				selectedAnimationText.text = "Animation: " + AnimationInfoStates.name.value;
-				playButton.enable();
-				editButton.enable();
 			}
+			
+			playButton.setEnabled(AnimationInfoStates.name.value != "");
+			editButton.setEnabled(AnimationInfoStates.name.value != "");
 			
 			if (AnimationInfoStates.isLoaded.value == true) {
 				menuContainer.visible = false;
@@ -100,7 +99,7 @@ package ui {
 			buttonElement.graphics.drawRoundedRect(0, 0, _width, 30, 10);
 			
 			var textElement : TextElement = new TextElement(buttonElement, _text);
-			TextStyles.applyMainMenuButtonStyle(textElement);
+			TextStyles.applyMenuButtonStyle(textElement);
 			textElement.element.width = _width;
 			textElement.element.height = 20;
 			textElement.element.y = 4;

@@ -15,6 +15,8 @@ package ui {
 		
 		/** Emitted when the user clicks on a scene in the panel, along with the sceneModel instance */
 		public var sceneSelectedEvent : CustomEvent;
+		/** Emitted when the user clicks on the merge button in the panel */
+		public var mergeScenesEvent : CustomEvent;
 		/** Emitted when the user clicks on the delete button in the panel */
 		public var deleteScenesEvent : CustomEvent;
 		
@@ -22,11 +24,13 @@ package ui {
 		private var uiList : UIList;
 		
 		private var deleteButton : UIButton;
+		private var mergeButton : UIButton;
 		
 		public function ScenesPanel(_parent : TPMovieClip, _contentWidth : Number, _contentHeight : Number) {
 			super(_parent, "Scenes", _contentWidth, _contentHeight);
 			
 			sceneSelectedEvent = new CustomEvent();
+			mergeScenesEvent = new CustomEvent();
 			deleteScenesEvent = new CustomEvent();
 			
 			var iconsBarHeight : Number = 20;
@@ -48,15 +52,26 @@ package ui {
 			
 			iconsBar.y = listHeight;
 			
+			var mergeButtonElement : TPMovieClip = TPMovieClip.create(iconsBar, "mergeButtonElement");
+			mergeButtonElement.graphics.beginFill(0xFFFFFF, 0);
+			mergeButtonElement.graphics.drawRect(0, 0, 20, 20);
+			mergeButtonElement.graphics.beginFill(0xFFFFFF);
+			
+			Icons.drawMergeIcon(mergeButtonElement.graphics, 4, 4, 12, 12);
+			
+			mergeButton = new UIButton(mergeButtonElement);
+			mergeButton.mouseClickEvent.listen(this, onMergeButtonClick);
+			
 			var deleteButtonElement : TPMovieClip = TPMovieClip.create(iconsBar, "deleteButtonElement");
 			deleteButtonElement.graphics.beginFill(0xFFFFFF, 0);
 			deleteButtonElement.graphics.drawRect(0, 0, 20, 20);
 			deleteButtonElement.graphics.beginFill(0xFFFFFF);
+			deleteButtonElement.x = 20;
+			
+			Icons.drawDeleteIcon(deleteButtonElement.graphics, 4, 4, 12, 12);
 			
 			deleteButton = new UIButton(deleteButtonElement);
 			deleteButton.mouseClickEvent.listen(this, onDeleteButtonClick);
-			
-			Icons.drawDeleteIcon(deleteButtonElement.graphics, 4, 4, 12, 12);
 			
 			AnimationSceneStates.listen(this, onSceneStatesChange, [AnimationSceneStates.currentScene, AnimationSceneStates.scenes]);
 			AnimationSceneStates.listen(this, onSelectedScenesStateChange, [AnimationSceneStates.selectedScenes]);
@@ -114,11 +129,14 @@ package ui {
 		}
 		
 		private function onSelectedScenesStateChange() : void {
-			if (AnimationSceneStates.selectedScenes.value.length > 0) {
-				deleteButton.enable();
-			} else {
-				deleteButton.disable();
-			}
+			var selectedSceneCount : Number = AnimationSceneStates.selectedScenes.value.length;
+			
+			deleteButton.setEnabled(selectedSceneCount > 0);
+			mergeButton.setEnabled(selectedSceneCount == 2);
+		}
+		
+		private function onMergeButtonClick() : void {
+			mergeScenesEvent.emit();
 		}
 		
 		private function onDeleteButtonClick() : void {

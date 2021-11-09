@@ -59,6 +59,10 @@ package utils {
 				break;
 			}
 			
+			if (positionBefore == null) {
+				return null;
+			}
+			
 			for (i = 1; i < _positions.length; i++) {
 				var indexAfter : Number = ArrayUtil.getWrappedIndex(_index + i, _positions.length);
 				if (_positions[indexAfter] == null) {
@@ -68,10 +72,6 @@ package utils {
 				positionAfter = _positions[indexAfter];
 				offsetAfter = i;
 				break;
-			}
-			
-			if (positionAfter == null) {
-				throw new Error("Unable to get interpolated position, there are no valid positions");
 			}
 			
 			var progress : Number = MathUtil.getPercentage(0, offsetBefore, offsetAfter);
