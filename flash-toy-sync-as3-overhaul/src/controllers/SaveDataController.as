@@ -99,7 +99,7 @@ package controllers {
 		
 		private function getAnimationSharedObject() : SharedObject {
 			// Taken from the documentation: https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/net/SharedObject.html#getLocal()
-			var invalidCharacters : Array = ["~", "%", "&", "\\", ";", ":", '"', "'", ",", "<", ">", "?", "#"];
+			var invalidCharacters : Array = [" ", "~", "%", "&", "\\", ";", ":", '"', "'", ",", "<", ">", "?", "#"];
 			
 			var animation : TPMovieClip = AnimationInfoStates.animationRoot.value;
 			var animationName : String = AnimationInfoStates.name.value.split(".")[0];
