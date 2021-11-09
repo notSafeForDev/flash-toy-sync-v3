@@ -18,6 +18,7 @@ package visualComponents {
 		public var loadErrorEvent : CustomEvent;
 		
 		private var container : TPMovieClip;
+		private var loadedSWF : TPMovieClip;
 		
 		public function Animation(_container : TPMovieClip) {
 			container = TPMovieClip.create(_container, "animationContainer");
@@ -26,6 +27,8 @@ package visualComponents {
 			loadErrorEvent = new CustomEvent();
 			
 			AnimationSizeStates.listen(this, onAnimationSizeStatesChange, [AnimationSizeStates.width, AnimationSizeStates.height]);
+			
+			Index.enterFrameEvent.listen(this, onEnterFrame);
 		}
 		
 		public function browse(_scope : *, _onSelectHandler : Function) : void {
@@ -58,6 +61,7 @@ package visualComponents {
 		}
 		
 		private function onLoaded(_swf : MovieClip, _stageWidth : Number, _stageHeight : Number, _frameRate : Number) : void {
+			loadedSWF = new TPMovieClip(_swf);
 			loadedEvent.emit(_swf, _stageWidth, _stageHeight, _frameRate);
 		}
 		
@@ -66,6 +70,45 @@ package visualComponents {
 		}
 		
 		private function onAnimationSizeStatesChange() : void {
+			updatePositionAndSizeBasedOnState();
+		}
+		
+		private function onEnterFrame() : void {
+			if (loadedSWF == null) {
+				return;
+			}
+			
+			var maxScale : Number = Math.max(loadedSWF.scaleX, loadedSWF.scaleY);
+			var minScale : Number = Math.min(loadedSWF.scaleX, loadedSWF.scaleY);
+			
+			var targetScale : Number = getTargetScale();
+			var animationWidth : Number = AnimationSizeStates.width.value;
+			var animationHeight : Number = AnimationSizeStates.height.value;
+			
+			// Handle when the loadedSWF have been scaled up on it's own, such as when there's a camera zoom effect as part of the animation
+			if (maxScale > targetScale) {
+				var scaledUpWidth : Number = animationWidth * loadedSWF.scaleX;
+				var scaledUpHeight : Number = animationHeight * loadedSWF.scaleY;
+				
+				// we use minScale in order to make sure that it scales up uniformally on x and y
+				var correctedScaledUpWidth : Number = animationWidth * minScale;
+				var correctedScaledUpHeight : Number = animationHeight * minScale;
+				
+				loadedSWF.scaleX = minScale;
+				loadedSWF.scaleY = minScale;
+				
+				// Offset the x and y position so that the center of the screen ends up in the same place as it were before correcting it's scale
+				loadedSWF.x -= (correctedScaledUpWidth - scaledUpWidth) * 0.5;
+				loadedSWF.y -= (correctedScaledUpHeight - scaledUpHeight) * 0.5;
+			}
+			
+			// Handle when the loadedSWF have been scaled down on it's own, such as when it resets a camera zoom effect
+			if (maxScale <= targetScale) {
+				updatePositionAndSizeBasedOnState();
+			}
+		}
+		
+		private function updatePositionAndSizeBasedOnState() : void {
 			var width : Number = AnimationSizeStates.width.value;
 			var height : Number = AnimationSizeStates.height.value;
 			var scale : Number = getTargetScale();
