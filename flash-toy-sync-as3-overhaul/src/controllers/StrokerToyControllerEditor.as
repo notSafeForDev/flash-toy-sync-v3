@@ -1,9 +1,11 @@
 package controllers {
 	
 	import components.KeyboardInput;
+	import components.KeyboardShortcut;
 	import models.SceneModel;
 	import models.SceneScriptModel;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import states.ToyStates;
@@ -23,7 +25,7 @@ package controllers {
 			AnimationSceneStates.listen(this, onIsForceStoppedStateChange, [AnimationSceneStates.isForceStopped]);
 			ScriptTrackerStates.listen(this, onIsDraggingTrackerMarkerStateChange, [ScriptTrackerStates.isDraggingTrackerMarker]);
 			
-			KeyboardInput.addShortcut(Shortcuts.prepareScript, this, onPrepareScriptShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.prepareScript, this, onPrepareScriptShortcut, []);
 		}
 		
 		private function onIsRecordingScriptStateChange() : void {
@@ -41,6 +43,10 @@ package controllers {
 		}
 		
 		private function onIsForceStoppedStateChange() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			var currentSceneIndex : Number = getCurrentSceneIndex();
 			
 			if (canPlayCurrentScene() == true && AnimationSceneStates.isForceStopped.value == false) {
@@ -51,7 +57,14 @@ package controllers {
 		}
 		
 		protected override function onCurrentSceneStateChange() : void {
-			clearPreparedScript();
+			if (EditorStates.isEditor.value == false) {
+				super.onCurrentSceneStateChange();
+				return;
+			}
+			
+			if (ScriptRecordingStates.isRecording.value == false) {
+				clearPreparedScript();
+			}
 		}
 		
 		private function onIsDraggingTrackerMarkerStateChange() : void {
@@ -75,7 +88,7 @@ package controllers {
 			if (script.isComplete() == false) {
 				return;
 			}
-		
+			
 			var scripts : Vector.<SceneScriptModel> = new Vector.<SceneScriptModel>();
 			scripts.push(script);
 			prepareScriptForScenes(scripts);

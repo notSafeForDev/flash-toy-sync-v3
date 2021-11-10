@@ -6,6 +6,7 @@ package {
 	import controllers.AnimationScenesControllerEditor;
 	import controllers.AnimationSizeController;
 	import controllers.HierarchyPanelController;
+	import controllers.KeyboardShortcutsController;
 	import controllers.SaveDataController;
 	import controllers.ScriptRecordingController;
 	import controllers.ScriptTrackersController;
@@ -35,6 +36,7 @@ package {
 	import ui.MainMenu;
 	import ui.MenuBar;
 	import ui.ScenesPanel;
+	import ui.Shortcuts;
 	import ui.TextElement;
 	import ui.TextStyles;
 	import visualComponents.Animation;
@@ -70,6 +72,7 @@ package {
 		private var scriptRecordingController : ScriptRecordingController;
 		private var strokerToyController : StrokerToyController;
 		private var saveDataController : SaveDataController;
+		private var keyboardShortcutsController : KeyboardShortcutsController;
 		
 		private var container : TPMovieClip;
 		private var sampleMarkersContainer : TPMovieClip;
@@ -102,9 +105,6 @@ package {
 			
 			initializeStates();
 			
-			// This is intentionally initialized outside of initializeControllers, as it updates states which the main menu depends on
-			saveDataController = new SaveDataController(saveDataStates, animationSizeStates, animationSceneStates, toyStates);
-			
 			addAnimation();
 			addBorders();
 			addStageElementHighlighter();
@@ -117,6 +117,8 @@ package {
 			addMenuBar();
 			
 			DialogueBox.init(container);
+			
+			initializeControllers();
 			
 			container.addEnterFrameListener(this, onEnterFrame);
 			
@@ -150,8 +152,6 @@ package {
 			if (EditorStates.isEditor.value == true) {
 				panelsContainer.visible = true;
 			}
-			
-			initializeControllers();
 		}
 		
 		private function onAnimationLoadError(_error : String) : void {
@@ -314,23 +314,14 @@ package {
 		}
 		
 		private function initializeControllers() : void {
-			if (EditorStates.isEditor.value == true) {
-				animationSceneController = new AnimationScenesControllerEditor(animationSceneStates, hierarchyPanel, scenesPanel);
-				hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
-				animationSizeController = new AnimationSizeController(animationSizeStates);
-				scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
-				scriptRecordingController = new ScriptRecordingController(scriptRecordingStates, sampleMarkersContainer);
-			}
-			
-			if (EditorStates.isEditor.value == false) {
-				animationSceneController = new AnimationScenesController(animationSceneStates);
-			}
-			
-			if (EditorStates.isEditor.value == true) {
-				strokerToyController = new StrokerToyControllerEditor(toyStates);
-			} else {
-				strokerToyController = new StrokerToyController(toyStates);
-			}
+			saveDataController = new SaveDataController(saveDataStates, animationSizeStates, animationSceneStates, toyStates);
+			animationSceneController = new AnimationScenesControllerEditor(animationSceneStates, hierarchyPanel, scenesPanel);
+			hierarchyPanelController = new HierarchyPanelController(hierarchyStates, hierarchyPanel);
+			animationSizeController = new AnimationSizeController(animationSizeStates);
+			scriptTrackersController = new ScriptTrackersController(scriptTrackerStates, trackingMarkersContainer);
+			scriptRecordingController = new ScriptRecordingController(scriptRecordingStates, sampleMarkersContainer);
+			strokerToyController = new StrokerToyControllerEditor(toyStates);
+			keyboardShortcutsController = new KeyboardShortcutsController();
 		}
 		
 		private function updateControllers() : void {

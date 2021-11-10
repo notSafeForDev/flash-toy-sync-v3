@@ -70,6 +70,7 @@ package ui {
 			menuContainer.y = (TPStage.stageHeight - menuContainer.height) / 2;
 			
 			AnimationInfoStates.listen(this, onAnimationInfoStatesChange, [AnimationInfoStates.name, AnimationInfoStates.isLoaded]);
+			ToyStates.listen(this, onTheHandyConnectionKeyStateChange, [ToyStates.theHandyConnectionKey]);
 		}
 		
 		private function onAnimationInfoStatesChange() : void {
@@ -91,6 +92,10 @@ package ui {
 		
 		private function onTheHandyConnectionKeyInputTextChange(_key : String) : void {
 			theHandyConnectionKeyChangeEvent.emit(_key);
+		}
+		
+		private function onTheHandyConnectionKeyStateChange() : void {
+			connectionKeyInputText.text = ToyStates.theHandyConnectionKey.value;
 		}
 		
 		private function createButton(_width : Number, _text : String, _event : CustomEvent) : UIButton {

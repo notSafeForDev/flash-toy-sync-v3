@@ -14,11 +14,10 @@ package api {
 		private var theHandyAPIUrl : String = "https://www.handyfeeling.com/api/v1/";
 		
 		private var serverTimeDelta : Number;
+		private var isServerTimeDeltaSet : Boolean = false;
 		
 		public function TheHandyApi() {
 			super();
-			
-			ToyStates.listen(this, onTheHandyConnectionKeyStateChange, [ToyStates.theHandyConnectionKey]);
 		}
 		
 		public override function canConnect() : Boolean {
@@ -26,6 +25,15 @@ package api {
 		}
 		
 		public override function prepareScript(_positions : Vector.<StrokerToyScriptPosition>, _scope : *, _responseHandler : Function) : void {
+			var connectionKey : String = ToyStates.theHandyConnectionKey.value;
+			if (connectionKey == "") {
+				throw new Error("Unable to prepare script for theHandy, no connection key have been set");
+			}
+			
+			if (isServerTimeDeltaSet == false) {
+				HTTPRequest.send(theHandyAPIUrl + connectionKey + "/getServerTime", this, onGetServerTimeResponse, null, []);
+			}
+			
 			super.prepareScript(_positions, _scope, _responseHandler);
 			
 			var csv : String = "\n";
@@ -66,17 +74,10 @@ package api {
 			totalAPICalls++;
 		}
 		
-		private function onTheHandyConnectionKeyStateChange() : void {
-			var connectionKey : String = ToyStates.theHandyConnectionKey.value;
-			
-			if (connectionKey != "") {
-				HTTPRequest.send(theHandyAPIUrl + connectionKey + "/getServerTime", this, onGetServerTimeResponse, null, []);
-			}
-		}
-		
 		private function onGetServerTimeResponse(_response : Object) : void {
 			var date : Date = new Date();
 			serverTimeDelta = _response.serverTime - date.getTime();
+			isServerTimeDeltaSet = true;
 		}
 		
 		private function onPrepareScriptHTTPResponse(_response : Object, _scope : * , _responseHandler : Function) : void {

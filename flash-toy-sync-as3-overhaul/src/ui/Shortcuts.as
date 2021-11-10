@@ -8,6 +8,10 @@ package ui {
 	 */
 	public class Shortcuts {
 		
+		public static var ANY_MODE : String = "ANY_MODE";
+		public static var PLAYER_ONLY : String = "PLAYER_ONLY";
+		public static var EDITOR_ONLY : String = "EDITOR_ONLY";
+		
 		public static var singleSelect : Array = [Keyboard.E];
 		public static var multiSelect : Array = [Keyboard.SHIFT];
 		

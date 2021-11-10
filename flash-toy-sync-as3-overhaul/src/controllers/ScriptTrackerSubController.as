@@ -15,6 +15,7 @@ package controllers {
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import ui.ScriptTrackerMarker;
+	import ui.Shortcuts;
 	import utils.ArrayUtil;
 	import utils.MathUtil;
 	
@@ -49,7 +50,7 @@ package controllers {
 			marker.hide();
 			marker.stopDragEvent.listen(this, onMarkerStopDrag);
 			
-			KeyboardInput.addShortcut(_keyboardShortcut, this, onGrabMarkerShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, _keyboardShortcut, this, onGrabMarkerShortcut, []);
 			KeyboardInput.keyUpEvent.listen(this, onKeyUp);
 			
 			AnimationInfoStates.listen(this, onAnimationLoadedStateChange, [AnimationInfoStates.isLoaded]);

@@ -8,6 +8,7 @@ package controllers {
 	import core.TPStage;
 	import models.SceneModel;
 	import models.SceneScriptModel;
+	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
 	import states.EditorStates;
 	import states.ToyStates;
@@ -44,8 +45,15 @@ package controllers {
 			
 			AnimationSceneStates.listen(this, onCurrentSceneStateChange, [AnimationSceneStates.currentScene]);
 			AnimationSceneStates.listen(this, onSceneLoopCountStateChange, [AnimationSceneStates.currentSceneLoopCount]);
+			AnimationInfoStates.listen(this, onAnimationLoadedStateChange, [AnimationInfoStates.isLoaded]);
+		}
+		
+		private function onAnimationLoadedStateChange() : void {
+			if (AnimationInfoStates.isLoaded.value == false || EditorStates.isEditor.value == true) {
+				return;
+			}
 			
-			if (EditorStates.isEditor.value == true) {
+			if (toyApi.canConnect() == false) {
 				return;
 			}
 			
@@ -161,7 +169,7 @@ package controllers {
 		}
 		
 		protected function onCurrentSceneStateChange() : void {
-			if (toyApi.isScriptPrepared() == false) {
+			if (toyApi.isScriptPrepared() == false || EditorStates.isEditor.value == true) {
 				return;
 			}
 			

@@ -48,14 +48,14 @@ package controllers {
 			
 			AnimationSceneStates.activeChild.listen(this, onActiveChildStateChange);
 			
-			KeyboardInput.addShortcut(Shortcuts.togglePlaying1, this, onTogglePlayingShortcut, []);
-			KeyboardInput.addShortcut(Shortcuts.togglePlaying2, this, onTogglePlayingShortcut, []);
-			KeyboardInput.addShortcut(Shortcuts.stepFrameBackwards1, this, onStepFramesShortcut, [-1]);
-			KeyboardInput.addShortcut(Shortcuts.stepFrameBackwards2, this, onStepFramesShortcut, [-1]);
-			KeyboardInput.addShortcut(Shortcuts.stepFrameForwards1, this, onStepFramesShortcut, [1]);
-			KeyboardInput.addShortcut(Shortcuts.stepFrameForwards2, this, onStepFramesShortcut, [1]);
-			KeyboardInput.addShortcut(Shortcuts.rewind1, this, onRewindShortcut, []);
-			KeyboardInput.addShortcut(Shortcuts.rewind2, this, onRewindShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.togglePlaying1, this, onTogglePlayingShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.togglePlaying2, this, onTogglePlayingShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.stepFrameBackwards1, this, onStepFramesShortcut, [-1]);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.stepFrameBackwards2, this, onStepFramesShortcut, [-1]);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.stepFrameForwards1, this, onStepFramesShortcut, [1]);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.stepFrameForwards2, this, onStepFramesShortcut, [1]);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.rewind1, this, onRewindShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.rewind2, this, onRewindShortcut, []);
 		}
 		
 		public override function update() : void {
@@ -433,8 +433,13 @@ package controllers {
 		
 		private function removeScene(_scene : SceneModel) : void {
 			var scenes : Array = AnimationSceneStates.scenes.value;
+			var selectedScenes : Array = AnimationSceneStates.selectedScenes.value;
+			
 			ArrayUtil.remove(scenes, _scene);
+			ArrayUtil.remove(selectedScenes, _scene);
+			
 			animationSceneStates._scenes.setValue(scenes);
+			animationSceneStates._selectedScenes.setValue(selectedScenes);
 		}
 		
 		private function getSceneAtFrameForChild(_child : TPMovieClip) : SceneModel {

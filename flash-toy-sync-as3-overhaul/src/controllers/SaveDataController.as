@@ -39,8 +39,8 @@ package controllers {
 			settingsSharedData = SharedObject.getLocal("flash-toy-sync-settings-" + (isActionScript3 ? "as3" : "as2"), "/");
 			_toyStates._theHandyConnectionKey.setValue(settingsSharedData.data.theHandyConnectionKey || "");
 			
-			KeyboardInput.addShortcut(Shortcuts.save, this, onSaveShortcut, []);
-			KeyboardInput.addShortcut(Shortcuts.copyJSONSaveData, this, onCopyJSONSaveDataShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.save, this, onSaveShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.copyJSONSaveData, this, onCopyJSONSaveDataShortcut, []);
 			
 			AnimationInfoStates.isLoaded.listen(this, onAnimationLoadedStateChange);
 			ToyStates.listen(this, onTheHandyConnectionKeyStateChange, [ToyStates.theHandyConnectionKey]);

@@ -36,8 +36,8 @@ package controllers {
 			stimMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_STIM, markerContainer);
 			tipMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_TIP, markerContainer);
 			
-			KeyboardInput.addShortcut(Shortcuts.recordFrame, this, onRecordFrameShortcut, []);
-			KeyboardInput.addShortcut(Shortcuts.recordScene, this, onRecordSceneShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.recordFrame, this, onRecordFrameShortcut, []);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.recordScene, this, onRecordSceneShortcut, []);
 			
 			ScriptTrackerStates.listen(this, onTrackerAttachedToStatesChange, [ScriptTrackerStates.baseTrackerAttachedTo, ScriptTrackerStates.stimTrackerAttachedTo, ScriptTrackerStates.tipTrackerAttachedTo]);
 			AnimationSceneStates.currentScene.listen(this, onCurrentSceneStateChange);

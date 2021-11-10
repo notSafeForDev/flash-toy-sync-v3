@@ -16,10 +16,10 @@ package controllers {
 		public function AnimationSizeController(_animationSizeStates : AnimationSizeStates) {
 			animationSizeStates = _animationSizeStates;
 			
-			KeyboardInput.addShortcut(Shortcuts.increaseAnimationWidth, this, onIncreaseWidthShortcut, null);
-			KeyboardInput.addShortcut(Shortcuts.decreaseAnimationWidth, this, onDecreaseWidthShortcut, null);
-			KeyboardInput.addShortcut(Shortcuts.increaseAnimationHeight, this, onIncreaseHeightShortcut, null);
-			KeyboardInput.addShortcut(Shortcuts.decreaseAnimationHeight, this, onDecreaseHeightShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.increaseAnimationWidth, this, onIncreaseWidthShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.decreaseAnimationWidth, this, onDecreaseWidthShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.increaseAnimationHeight, this, onIncreaseHeightShortcut, null);
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.decreaseAnimationHeight, this, onDecreaseHeightShortcut, null);
 		}
 		
 		public function update() : void {
