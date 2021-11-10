@@ -3,6 +3,7 @@ package controllers {
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import flash.ui.Keyboard;
+	import states.EditorStates;
 	import states.ScriptTrackerStates;
 	import ui.Colors;
 	import ui.ScriptTrackerMarker;

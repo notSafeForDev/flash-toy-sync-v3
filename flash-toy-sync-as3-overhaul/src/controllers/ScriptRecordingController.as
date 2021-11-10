@@ -6,6 +6,7 @@ package controllers {
 	import models.SceneModel;
 	import models.SceneScriptModel;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import ui.Colors;
@@ -43,6 +44,10 @@ package controllers {
 		}
 		
 		public function update() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
 			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			var currentFrame : Number = activeChild != null ? activeChild.currentFrame : -1;

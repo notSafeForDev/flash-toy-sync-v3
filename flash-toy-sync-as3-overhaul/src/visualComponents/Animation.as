@@ -4,7 +4,7 @@ package visualComponents {
 	import core.TPStage;
 	import flash.display.MovieClip;
 	import core.TPMovieClip;
-	import core.SWFLoaderUtil;
+	import core.SWFLoader;
 	import states.AnimationInfoStates;
 	import states.AnimationSizeStates;
 	
@@ -18,10 +18,12 @@ package visualComponents {
 		public var loadErrorEvent : CustomEvent;
 		
 		private var container : TPMovieClip;
+		private var loader : SWFLoader;
 		private var loadedSWF : TPMovieClip;
 		
 		public function Animation(_container : TPMovieClip) {
 			container = TPMovieClip.create(_container, "animationContainer");
+			loader = new SWFLoader();
 			
 			loadedEvent = new CustomEvent();
 			loadErrorEvent = new CustomEvent();
@@ -32,7 +34,7 @@ package visualComponents {
 		}
 		
 		public function browse(_scope : *, _onSelectHandler : Function) : void {
-			SWFLoaderUtil.browse(_scope, _onSelectHandler, "swf (in animations folder)");
+			loader.browse(_scope, _onSelectHandler, "swf (in animations folder)");
 		}
 		
 		/**
@@ -47,7 +49,7 @@ package visualComponents {
 				path = "animations/" + _name;
 			}
 			
-			SWFLoaderUtil.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
+			loader.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
 		}
 		
 		/**
@@ -57,7 +59,11 @@ package visualComponents {
 		public function loadStandalone(_name : String) : void {
 			var path : String = _name;
 			
-			SWFLoaderUtil.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
+			loader.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
+		}
+		
+		public function unload() : void {
+			loader.unload();
 		}
 		
 		private function onLoaded(_swf : MovieClip, _stageWidth : Number, _stageHeight : Number, _frameRate : Number) : void {

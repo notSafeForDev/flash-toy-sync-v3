@@ -4,7 +4,9 @@ package controllers {
 	import flash.geom.Point;
 	import models.SceneModel;
 	import models.SceneScriptModel;
+	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import ui.Colors;
 	import ui.ScriptSampleMarker;
 	
@@ -35,9 +37,15 @@ package controllers {
 			marker.hide();
 			
 			marker.stopDragEvent.listen(this, onMarkerStopDrag);
+			
+			AnimationInfoStates.listen(this, onAnimationLoadedStateChange, [AnimationInfoStates.isLoaded]);
 		}
 		
 		public function update(_script : SceneScriptModel, _currentFrame : Number) : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			marker.hide();
 			
 			if (_script == null || _script.isFrameWithinRecordedFrames(_currentFrame) == false) {
@@ -75,6 +83,12 @@ package controllers {
 				marker.displayAsKeyPosition();
 			} else {
 				marker.displayAsInterpolatedPosition();
+			}
+		}
+		
+		private function onAnimationLoadedStateChange() : void {
+			if (AnimationInfoStates.isLoaded.value == false) {
+				marker.hide();
 			}
 		}
 		

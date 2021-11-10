@@ -33,6 +33,7 @@ package {
 	import ui.DialogueBox;
 	import ui.HierarchyPanel;
 	import ui.MainMenu;
+	import ui.MenuBar;
 	import ui.ScenesPanel;
 	import ui.TextElement;
 	import ui.TextStyles;
@@ -113,6 +114,7 @@ package {
 			addMainMenu();
 			addStatusText();
 			addFPSText();
+			addMenuBar();
 			
 			DialogueBox.init(container);
 			
@@ -146,8 +148,7 @@ package {
 			animationInfoStates._loadStatus.setValue("");
 			
 			if (EditorStates.isEditor.value == true) {
-				hierarchyPanel.show();
-				scenesPanel.show();
+				panelsContainer.visible = true;
 			}
 			
 			initializeControllers();
@@ -224,6 +225,23 @@ package {
 			toyStates._theHandyConnectionKey.setValue(_key);
 		}
 		
+		private function onMenuBarExit() : void {
+			var theHandyConnectionKey : String = ToyStates.theHandyConnectionKey.value;
+			
+			// We set is loaded to false before resetting all states, to give controllers the chance to reset things based on the current states 
+			animationInfoStates._isLoaded.setValue(false);
+			
+			animation.unload();
+			stateManager.resetToInitialStates();
+			panelsContainer.visible = false;
+			
+			toyStates._theHandyConnectionKey.setValue(theHandyConnectionKey);
+		}
+		
+		private function onMenuBarShowKeyboardShortcuts() : void {
+			
+		}
+		
 		private function addAnimation() : void {
 			animation = new Animation(container);
 			
@@ -255,8 +273,7 @@ package {
 			scenesPanel = new ScenesPanel(panelsContainer, 240, 120);
 			scenesPanel.setPosition(0, 300);
 			
-			hierarchyPanel.hide();
-			scenesPanel.hide();
+			panelsContainer.visible = false;
 		}
 		
 		private function addMainMenu() : void {
@@ -276,6 +293,12 @@ package {
 			fpsText = new TextElement(container, "");
 			TextStyles.applyStatusStyle(fpsText);
 			fpsText.element.width = 200;
+		}
+		
+		private function addMenuBar() : void {
+			var menuBar : MenuBar = new MenuBar(container);
+			menuBar.exitEvent.listen(this, onMenuBarExit);
+			menuBar.showKeyboardShortcutsEvent.listen(this, onMenuBarShowKeyboardShortcuts);
 		}
 		
 		private function initializeStates() : void {

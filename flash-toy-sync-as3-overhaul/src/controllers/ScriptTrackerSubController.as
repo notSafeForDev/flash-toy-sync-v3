@@ -9,7 +9,9 @@ package controllers {
 	import models.SceneScriptModel;
 	import stateTypes.PointState;
 	import stateTypes.TPDisplayObjectState;
+	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import states.ScriptRecordingStates;
 	import states.ScriptTrackerStates;
 	import ui.ScriptTrackerMarker;
@@ -49,6 +51,8 @@ package controllers {
 			
 			KeyboardInput.addShortcut(_keyboardShortcut, this, onGrabMarkerShortcut, []);
 			KeyboardInput.keyUpEvent.listen(this, onKeyUp);
+			
+			AnimationInfoStates.listen(this, onAnimationLoadedStateChange, [AnimationInfoStates.isLoaded]);
 		}
 		
 		public function update() : void {
@@ -177,6 +181,12 @@ package controllers {
 			clearStates();
 			clearAttachedToObjectReference();
 			marker.hide();
+		}
+		
+		private function onAnimationLoadedStateChange() : void {
+			if (AnimationInfoStates.isLoaded.value == false) {
+				marker.hide();
+			}
 		}
 		
 		private function clearStates() : void {

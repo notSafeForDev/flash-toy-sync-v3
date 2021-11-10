@@ -107,6 +107,12 @@ package components {
 			}
 		}
 		
+		public function resetToInitialStates() : void {
+			for (var i : Number = 0; i < statesList.length; i++) {
+				statesList[i].reset();
+			}
+		}
+		
 		/**
 		 * Triggers each listener's function if it provided at least one reference to a state that was changed, or no references
 		 */

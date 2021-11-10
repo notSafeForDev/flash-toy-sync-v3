@@ -28,6 +28,7 @@ package core {
 		
 		/**
 		 * Make a post request, note that in the AS2 version, the body of the post request gets sent as FlashVars
+		 * So when it gets to the server, the body will start with "body=", then the actual body, then "&" along with other parameters that are part of FlashVars
 		 * @param	_url				The url to make the request to
 		 * @param	_body				The content to send in the request
 		 * @param	_contentType		The type for the contrent to send

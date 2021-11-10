@@ -17,6 +17,8 @@ package controllers {
 		
 		public function AnimationScenesController(_animationSceneStates : AnimationSceneStates) {
 			animationSceneStates = _animationSceneStates;
+			
+			AnimationInfoStates.isLoaded.listen(this, onAnimationLoadedStateChange);
 		}
 		
 		public function update() : void {
@@ -68,6 +70,17 @@ package controllers {
 			}
 			
 			return null;
+		}
+		
+		protected function onAnimationLoadedStateChange() : void {
+			if (AnimationInfoStates.isLoaded.value == true) {
+				return;
+			}
+			
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
+			if (currentScene != null) {
+				currentScene.exit();
+			}
 		}
 	}
 }

@@ -9,6 +9,7 @@ package controllers {
 	import models.SceneModel;
 	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
+	import states.EditorStates;
 	import states.HierarchyStates;
 	import states.ScriptRecordingStates;
 	import ui.DialogueBox;
@@ -45,6 +46,8 @@ package controllers {
 			HierarchyStates.listen(this, onHierarchyPanelLockedChildrenStateChange, [HierarchyStates.lockedChildren]);
 			ScriptRecordingStates.listen(this, onIsDoneRecordingScriptStateChange, [ScriptRecordingStates.isDoneRecording]);
 			
+			AnimationSceneStates.activeChild.listen(this, onActiveChildStateChange);
+			
 			KeyboardInput.addShortcut(Shortcuts.togglePlaying1, this, onTogglePlayingShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.togglePlaying2, this, onTogglePlayingShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.stepFrameBackwards1, this, onStepFramesShortcut, [-1]);
@@ -56,6 +59,11 @@ package controllers {
 		}
 		
 		public override function update() : void {
+			if (EditorStates.isEditor.value == false) {
+				super.update();
+				return;
+			}
+			
 			// TODO: Add some kind of indicator on in the scenes panel for the scene that will be active in play mode
 			/* super.update();
 			scenesPanel.update();
@@ -68,7 +76,7 @@ package controllers {
 			
 			if (isActiveChildInDisplayList() == false) {
 				activeChild = findActiveChildReplacement();
-				setActiveChild(activeChild);
+				animationSceneStates._activeChild.setValue(activeChild);
 				didActiveChildChange = true;
 			}
 			
@@ -224,7 +232,7 @@ package controllers {
 			var movieClip : MovieClip = TPMovieClip.asMovieClip(_child.sourceDisplayObject);
 			activeChild = new TPMovieClip(movieClip);
 			
-			setActiveChild(activeChild);
+			animationSceneStates._activeChild.setValue(activeChild);
 			
 			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			var sceneAtFrame : SceneModel = getSceneAtFrameForChild(activeChild);
@@ -303,12 +311,28 @@ package controllers {
 			animationSceneStates._selectedScenes.setValue([]);
 		}
 		
+		private function onActiveChildStateChange() : void {
+			var child : TPMovieClip = AnimationSceneStates.activeChild.value;
+			if (child == null) {
+				activeChildPath = null;
+				activeChildParentsChainLength = -1;
+				return;
+			}
+			
+			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
+			var path : Vector.<String> = HierarchyUtil.getChildPath(root, child);
+			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(child.sourceDisplayObject);
+			
+			activeChildPath = path;
+			activeChildParentsChainLength = parents.length;
+		}
+		
 		private function onHierarchyPanelLockedChildrenStateChange() : void {
 			var activeChild : TPDisplayObject = AnimationSceneStates.activeChild.value;
 			var lockedChildren : Array = HierarchyStates.lockedChildren.value;
 			
 			if (activeChild != null && ArrayUtil.includes(lockedChildren, activeChild.sourceDisplayObject) == true) {
-				setActiveChild(null);
+				animationSceneStates._activeChild.setValue(null);
 				activeChildPath = null;
 				activeChildParentsChainLength = -1;
 			}
@@ -335,23 +359,8 @@ package controllers {
 			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
 			var childAtPath : TPMovieClip = HierarchyUtil.getMovieClipFromPath(root, _scene.getPath());
 			
-			setActiveChild(childAtPath);
+			animationSceneStates._activeChild.setValue(childAtPath);
 			setCurrentScene(_scene);
-		}
-		
-		private function setActiveChild(_child : TPMovieClip) : void {
-			animationSceneStates._activeChild.setValue(_child);
-			
-			if (_child == null) {
-				return;
-			}
-			
-			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
-			var path : Vector.<String> = HierarchyUtil.getChildPath(root, _child);
-			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(_child.sourceDisplayObject);
-			
-			activeChildPath = path;
-			activeChildParentsChainLength = parents.length;
 		}
 		
 		private function isActiveChildInDisplayList() : Boolean {

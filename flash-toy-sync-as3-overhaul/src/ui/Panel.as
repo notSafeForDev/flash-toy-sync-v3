@@ -52,7 +52,7 @@ package ui {
 			
 			var draggable : DraggableObject = new DraggableObject(container, titleBar);
 			draggable.bringToFrontOnDrag = true;
-			draggable.dragBounds = new Rectangle(0, 0, TPStage.stageWidth - contentWidth, TPStage.stageHeight - titleBarHeight);
+			draggable.dragBounds = new Rectangle(0, MenuBar.height, TPStage.stageWidth - contentWidth, TPStage.stageHeight - titleBarHeight - MenuBar.height);
 			
 			updateBackground();
 		}
