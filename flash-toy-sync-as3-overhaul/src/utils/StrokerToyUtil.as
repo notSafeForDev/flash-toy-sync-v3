@@ -31,10 +31,9 @@ package utils {
 			var frameRate : Number = TPStage.frameRate;
 			var singleFrameDuration : Number = getMilisecondsAtFrame(1);
 			var scriptDuration : Number = (_positions[_positions.length - 1].time - _positions[0].time) + singleFrameDuration;
-			var loopPadding : Number = singleFrameDuration * 2;
 			
 			for (var i : Number = 0; i < _repeatCount; i++) {
-				var startTime : Number = (i * scriptDuration) + (i * loopPadding);
+				var startTime : Number = i * scriptDuration;
 				var loop : Vector.<StrokerToyScriptPosition> = offsetTimeForPositions(_positions, startTime);
 				if (i > 0) {
 					loop = loop.slice(1);
@@ -50,6 +49,23 @@ package utils {
 			
 			for (var i : Number = 0; i < _positions.length; i++) {
 				output.push(new StrokerToyScriptPosition(_positions[i].position, _positions[i].time + _offset));
+			}
+			
+			return output;
+		}
+		
+		public static function timeStretchPositions(_positions : Vector.<StrokerToyScriptPosition>, _stretchAmount : Number) : Vector.<StrokerToyScriptPosition> {
+			var output : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
+			if (_positions.length == 0) {
+				return output;
+			}
+			
+			var startTime : Number = _positions[0].time;
+			
+			for (var i : Number = 0; i < _positions.length; i++) {
+				var elapsedTime : Number = _positions[i].time - startTime;
+				var stretchedElapsedTime : Number = Math.round(elapsedTime * _stretchAmount);
+				output.push(new StrokerToyScriptPosition(_positions[i].position, startTime + stretchedElapsedTime));
 			}
 			
 			return output;
@@ -112,6 +128,10 @@ package utils {
 						reduced.push(new StrokerToyScriptPosition(currentPeakPosition, currentPeakTime));
 					}
 				}
+			}
+			
+			if (reduced[0].time != _positions[0].time) {
+				reduced.unshift(new StrokerToyScriptPosition(_positions[0].position, _positions[0].time));
 			}
 			
 			return reduced;

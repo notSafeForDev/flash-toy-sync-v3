@@ -233,6 +233,10 @@ class core.TPDisplayObject {
 		return typeof _object == "movieclip" || _object["_visible"] != undefined;
 	}
 	
+	public static function isShape(_object) : Boolean {
+		return false;
+	}
+	
 	public static function isDisplayObjectContainer(_object) : Boolean {
 		return typeof _object == "movieclip";
 	}

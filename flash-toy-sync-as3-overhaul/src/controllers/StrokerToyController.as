@@ -101,6 +101,7 @@ package controllers {
 				
 				positions = StrokerToyUtil.reducePositions(positions);
 				positions = StrokerToyUtil.getRepeatedPositions(positions, loopCount);
+				positions = StrokerToyUtil.timeStretchPositions(positions, 1.03); // To account for a slight bit of lag
 				
 				var frameDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(1);
 				var lastPosition : StrokerToyScriptPosition = positions[positions.length - 1];

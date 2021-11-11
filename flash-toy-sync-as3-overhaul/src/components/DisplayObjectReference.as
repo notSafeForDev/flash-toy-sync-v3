@@ -49,12 +49,6 @@ package components {
 			
 			path = HierarchyUtil.getChildPath(root, object);
 			
-			// ORIGINAL v
-			/* if (DisplayObjectUtil.isShape(object) == false) {
-			   path = DisplayObjectUtil.getChildPath(root, object);
-			} */
-			// ORIGINAL ^
-			
 			originalParent = new TPDisplayObject(_object.parent);
 			parentsChainLength = parents.length;
 			bounds = object.getBounds(originalParent);
@@ -110,13 +104,23 @@ package components {
 				return false;
 			}
 			
-			// TODO: Check if this also works for the AS2 version, or if we have to compare parents chain length
-			// ORIGINAL v
-			// var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(object.sourceDisplayObject);
-			// return object.parent != null && parents.length == parentsChainLength;
-			// ORIGINAL ^
-			
 			return object.isRemoved() == false;
+		}
+		
+		private function calculateBoundDifferences(_a : Rectangle, _b : Rectangle) : Number {
+			var minWidth : Number = Math.min(_a.width, _b.width);
+			var maxWidth : Number = Math.max(_a.width, _b.width);
+			var minHeight : Number = Math.min(_a.height, _b.height);
+			var maxHeight : Number = Math.max(_a.height, _b.height);
+			
+			// We use max width/height to ensure the value is calculated based on relativity
+			var differences : Number = 0;
+			differences += Math.abs((minWidth / maxWidth) - 1);
+			differences += Math.abs((minHeight / maxHeight) - 1);
+			differences += Math.abs(_a.x - _b.x) / maxWidth;
+			differences += Math.abs(_a.y - _b.y) / maxHeight;
+			
+			return differences;
 		}
 		
 		private function handleParentLoss() : void {
@@ -125,23 +129,25 @@ package components {
 				return;
 			}
 			
-			var children : Vector.<DisplayObject> = originalParent.children;
+			var replacement : TPDisplayObject = null;
+			var replacementBoundDifferences : Number = -1;
+			var minDifferenceForStopping : Number = 0.05;
+			var minDifferenceForValid : Number = 0.5;
 			
-			// Was like that in the original, as the path was only set if the isnt a shape
-			// if (DisplayObjectUtil.isShape(object) == false) {
-				var childFromPath : TPDisplayObject = HierarchyUtil.getChildFromPath(root, path);
-				if (childFromPath != null) {
+			var childFromPath : TPDisplayObject = HierarchyUtil.getChildFromPath(root, path);
+			if (childFromPath != null) {
+				var childFromPathBounds : Rectangle = childFromPath.getBounds(originalParent);
+				var childFromPathBoundDifferences : Number = calculateBoundDifferences(bounds, childFromPathBounds);
+				
+				if (childFromPathBoundDifferences <= minDifferenceForValid) {
 					object = childFromPath;
 					bounds = childFromPath.getBounds(originalParent);
 					objectUpdateEvent.emit();
 					return;
 				}
-			// }
+			}
 			
-			var replacement : TPDisplayObject = null;
-			var replacementBoundDifferences : Number = -1;
-			var minDifferenceForStopping : Number = 0.05;
-			var minDifferenceForValid : Number = 0.5;
+			var children : Vector.<DisplayObject> = originalParent.children;
 			
 			for (var i : Number = 0; i < children.length; i++) {
 				var child : TPDisplayObject = new TPDisplayObject(children[i]);
@@ -151,19 +157,9 @@ package components {
 					continue;
 				}
 				
-				var minWidth : Number = Math.min(bounds.width, childBounds.width);
-				var maxWidth : Number = Math.max(bounds.width, childBounds.width);
-				var minHeight : Number = Math.min(bounds.height, childBounds.height);
-				var maxHeight : Number = Math.max(bounds.height, childBounds.height);
+				var boundDifferences : Number = calculateBoundDifferences(bounds, childBounds);
 				
-				// We use max width/height to ensure the value is calculated based on relativity
-				var boundDifferences : Number = 0;
-				boundDifferences += Math.abs((minWidth / maxWidth) - 1);
-				boundDifferences += Math.abs((minHeight / maxHeight) - 1);
-				boundDifferences += Math.abs(bounds.x - childBounds.x) / maxWidth;
-				boundDifferences += Math.abs(bounds.y - childBounds.y) / maxHeight;
-				
-				if (replacementBoundDifferences < 0 || boundDifferences < replacementBoundDifferences) {
+				if (boundDifferences < replacementBoundDifferences || (replacementBoundDifferences < 0 && boundDifferences < boundDifferences)) {
 					replacement = child;
 					replacementBoundDifferences = boundDifferences;
 				}
@@ -175,9 +171,7 @@ package components {
 			
 			if (replacement != null && replacementBoundDifferences <= minDifferenceForValid) {
 				object = replacement;
-				// if (DisplayObjectUtil.isShape(replacement) == false && path == null) { // ORIGINAL
-					path = HierarchyUtil.getChildPath(root, object);
-				// }
+				path = HierarchyUtil.getChildPath(root, object);
 				objectUpdateEvent.emit();
 			} else {
 				objectLossEvent.emit();

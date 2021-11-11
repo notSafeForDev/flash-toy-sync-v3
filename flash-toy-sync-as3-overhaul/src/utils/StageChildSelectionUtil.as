@@ -64,7 +64,7 @@ package utils {
 						continue;
 					}
 					// If it's a shape, and the bounds are very similar to the current parents bounds, skip it, that way we prioritize movieClips
-					/* if (DisplayObjectUtil.isShape(children[i]) == true && shouldIgnoreShape(children[i]) == true) {
+					/* if (TPDisplayObject.isShape(children[i]) == true && shouldIgnoreShape(tpDisplayObject, child) == true) {
 						continue;
 					} */
 					// If it's a match, check how far away the center of it's bounds are and compare it to the closest found so far
@@ -108,14 +108,9 @@ package utils {
 			return false;
 		}
 		
-		private static function shouldIgnoreShape(_shape : DisplayObject) : Boolean {
-			var parent : DisplayObjectContainer = DisplayObjectUtil.getParent(_shape);
-			if (parent == null) {
-				return true;
-			}
-			
-			var shapeBounds : Rectangle = DisplayObjectUtil.getBounds(_shape);
-			var parentBounds : Rectangle = DisplayObjectUtil.getBounds(parent);
+		private static function shouldIgnoreShape(_child : TPDisplayObject, _parent : TPDisplayObject) : Boolean {			
+			var shapeBounds : Rectangle = _child.getBounds(_child);
+			var parentBounds : Rectangle = _parent.getBounds(_parent);
 			
 			var shapeBoundsArea : Number = shapeBounds.width * shapeBounds.height;
 			var parentBoundsArea : Number  = parentBounds.width * parentBounds.height;

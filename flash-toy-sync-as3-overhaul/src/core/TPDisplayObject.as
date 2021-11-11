@@ -3,6 +3,7 @@ package core {
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
+	import flash.display.Shape;
 	import flash.events.Event;
 	import flash.geom.ColorTransform;
 	import flash.geom.Point;
@@ -242,6 +243,10 @@ package core {
 		
 		public static function isDisplayObjectContainer(_object : *) : Boolean {
 			return _object is DisplayObjectContainer;
+		}
+		
+		public static function isShape(_object : * ) : Boolean {
+			return _object is Shape;
 		}
 		
 		public static function asDisplayObjectContainer(_object : *) : DisplayObjectContainer {

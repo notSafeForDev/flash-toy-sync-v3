@@ -172,14 +172,18 @@ package controllers {
 		
 		private function onAttachedToObjectUpdate() : void {
 			attachedToState.setValue(attachedToDisplayObjectReference.getObject());
+			if (attachedToState.getValue() != null) {
+				marker.show();
+			}
 		}
 		
 		private function onAttachedToObjectLoss() : void {
 			attachedToState.setValue(null);
+			marker.hide();
 		}
 		
 		private function onAttachedToParentLoss() : void {
-			clearStates();
+ 			clearStates();
 			clearAttachedToObjectReference();
 			marker.hide();
 		}
