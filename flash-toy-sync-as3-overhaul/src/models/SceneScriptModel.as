@@ -57,24 +57,24 @@ package models {
 		 * @param	_stim	The position where the stimulation takes place on the "penis"
 		 * @param	_tip	The tip position for the "penis"
 		 */
-		public function addPositions(_frame : Number, _base : Point, _stim : Point, _tip : Point) : void {
+		public function addPositions(_frame : Number, _base : Point, _stim : Point, _tip : Point) : void {			
 			if (basePositions.length == 0) {
-				firstRecordedInnerFrame = _frame;
-				basePositions.push(_base);
-				stimPositions.push(_stim);
-				tipPositions.push(_tip);
-				return;
+				for (var i : Number = 0; i < scene.getTotalInnerFrames(); i++) {
+					basePositions.push(null);
+					stimPositions.push(null);
+					tipPositions.push(null);
+				}
 			}
+			
+			firstRecordedInnerFrame = scene.getInnerStartFrame();
 			
 			var lastFrameForPositions : Number = firstRecordedInnerFrame + (basePositions.length - 1);
 			
-			var totalFillBeginning : Number = Math.max(0, firstRecordedInnerFrame - _frame);
-			var totalFillEnd : Number = Math.max(0, _frame - lastFrameForPositions);
+			var totalFillBeginning : Number = Math.max(0, firstRecordedInnerFrame - scene.getInnerStartFrame());
+			var totalFillEnd : Number = Math.max(0, scene.getInnerEndFrame() - lastFrameForPositions);
 			
 			fillInBlankPositionsAtBeginning(totalFillBeginning);
 			fillInBlankPositionsAtEnd(totalFillEnd);
-			
-			firstRecordedInnerFrame = Math.min(firstRecordedInnerFrame, _frame);
 			
 			var frameIndex : Number = _frame - firstRecordedInnerFrame;
 			
@@ -99,7 +99,7 @@ package models {
 		}
 		
 		public function isComplete() : Boolean {
-			var haveRecordedAllFrames : Boolean = firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length >= scene.getTotalInnerFrames();
+			var haveRecordedAllFrames : Boolean = firstRecordedInnerFrame == scene.getInnerStartFrame() && basePositions.length == scene.getTotalInnerFrames();
 			if (haveRecordedAllFrames == false) {
 				return false;
 			}

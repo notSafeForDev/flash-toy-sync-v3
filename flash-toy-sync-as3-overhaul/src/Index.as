@@ -143,6 +143,10 @@ package {
 				animationSizeStates._height.setValue(_stageHeight);
 			}
 			
+			if (VersionConfig.actionScriptVersion == 3) {
+				TPStage.frameRate = _frameRate;
+			}
+			
 			animationSizeStates._isUsingInitialSize.setValue(true);
 			
 			animationInfoStates._animationRoot.setValue(new TPMovieClip(_swf));

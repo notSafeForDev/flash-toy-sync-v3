@@ -98,10 +98,11 @@ package controllers {
 				var loopCount : Number = Math.ceil(minSceneDuration / loopDuration);
 				var depths : Vector.<Number> = script.calculateDepths();
 				var positions : Vector.<StrokerToyScriptPosition> = StrokerToyUtil.depthsToPositions(depths, startTime);
+				var timeStretch : Number = loopDuration < 5000 ? 1.03 : 1;
 				
 				positions = StrokerToyUtil.reducePositions(positions);
 				positions = StrokerToyUtil.getRepeatedPositions(positions, loopCount);
-				positions = StrokerToyUtil.timeStretchPositions(positions, 1.03); // To account for a slight bit of lag
+				positions = StrokerToyUtil.timeStretchPositions(positions, timeStretch); // To account for a slight bit of lag when it loops
 				
 				var frameDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(1);
 				var lastPosition : StrokerToyScriptPosition = positions[positions.length - 1];
