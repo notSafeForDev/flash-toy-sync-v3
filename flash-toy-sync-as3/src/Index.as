@@ -177,7 +177,7 @@ package {
 		}
 		
 		private function onEnterFrame() : void {	
-			var startTime : Number = getTimer();
+			// var startTime : Number = getTimer();
 			// TEMP ^
 			
 			if (AnimationInfoStates.isLoaded.value == true) {
@@ -193,7 +193,7 @@ package {
 			enterFrameEvent.emit();
 			
 			// TEMP v
-			previousFrameRates.push(getTimer() - startTime);
+			/* previousFrameRates.push(getTimer() - startTime);
 			if (previousFrameRates.length > 30) {
 				previousFrameRates.shift();
 			}
@@ -208,7 +208,7 @@ package {
 			// fpsText.text = "avg: " + average + "ms";
 			fpsText.text = "fps: " + fps;
 			
-			previousFrameTime = getTimer();
+			previousFrameTime = getTimer(); */
 		}
 		
 		private function onMainMenuBrowseAnimation() : void {

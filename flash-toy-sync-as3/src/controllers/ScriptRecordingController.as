@@ -32,9 +32,9 @@ package controllers {
 			
 			var markerContainer : TPMovieClip = TPMovieClip.create(_container, "scriptSampleMarkersContainer");
 			
-			baseMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_BASE, markerContainer);
-			stimMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_STIM, markerContainer);
-			tipMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_TIP, markerContainer);
+			baseMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_BASE, markerContainer, scriptRecordingStates._isDraggingSampleMarker);
+			stimMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_STIM, markerContainer, scriptRecordingStates._isDraggingSampleMarker);
+			tipMarkerSubController = new ScriptSampleMarkerSubController(ScriptSampleMarkerSubController.MARKER_TYPE_TIP, markerContainer, scriptRecordingStates._isDraggingSampleMarker);
 			
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.recordFrame, this, onRecordFrameShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.recordScene, this, onRecordSceneShortcut, []);

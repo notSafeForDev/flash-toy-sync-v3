@@ -4,6 +4,7 @@ package controllers {
 	import flash.geom.Point;
 	import models.SceneModel;
 	import models.SceneScriptModel;
+	import stateTypes.BooleanState;
 	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
 	import states.EditorStates;
@@ -19,12 +20,16 @@ package controllers {
 		public static var MARKER_TYPE_BASE : String = "MARKER_TYPE_BASE";
 		public static var MARKER_TYPE_STIM : String = "MARKER_TYPE_STIM";
 		public static var MARKER_TYPE_TIP : String = "MARKER_TYPE_TIP";
+
+		private var isDraggingSampleMarkerState : BooleanState;
 		
 		private var type : String;
 		private var marker : ScriptSampleMarker;
 		
-		public function ScriptSampleMarkerSubController(_type : String, _container : TPMovieClip) {
+		public function ScriptSampleMarkerSubController(_type : String, _container : TPMovieClip, _isDraggingSampleMarkerState : BooleanState) {
 			type = _type;
+			
+			isDraggingSampleMarkerState = _isDraggingSampleMarkerState;
 			
 			if (_type == MARKER_TYPE_BASE) {
 				marker = new ScriptSampleMarker(_container, Colors.baseMarker, "B");
@@ -36,6 +41,7 @@ package controllers {
 			
 			marker.hide();
 			
+			marker.startDragEvent.listen(this, onMarkerStartDrag);
 			marker.stopDragEvent.listen(this, onMarkerStopDrag);
 			
 			AnimationInfoStates.listen(this, onAnimationLoadedStateChange, [AnimationInfoStates.isLoaded]);
@@ -92,7 +98,13 @@ package controllers {
 			}
 		}
 		
+		private function onMarkerStartDrag() : void {
+			isDraggingSampleMarkerState.setValue(true);
+		}
+		
 		private function onMarkerStopDrag() : void {
+			isDraggingSampleMarkerState.setValue(false);
+			
 			if (marker.isVisible() == false) {
 				return;
 			}

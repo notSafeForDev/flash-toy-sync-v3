@@ -74,6 +74,7 @@ package controllers {
 		protected function prepareScriptForScenes(_scripts : Vector.<SceneScriptModel>) : void {
 			toyStates._isScriptPrepared.setValue(false);
 			toyStates._isPreparingScript.setValue(true);
+			toyStates._error.setValue("");
 			
 			var scenes : Array = AnimationSceneStates.scenes.value;
 			var combinedPositions : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
@@ -160,14 +161,26 @@ package controllers {
 			toyStates._isScriptPrepared.setValue(_response.success);
 			toyStates._isPreparingScript.setValue(false);
 			toyStates._error.setValue(_response.error);
+			
+			if (_response.success && canPlayCurrentScene()) {
+				playCurrentScene();
+			}
 		}
 		
 		private function onPlayScriptResponse(_response : StrokerToyResponse) : void {
 			currentSceneLoopCount = 0;
+			
+			if (_response.error != "") {
+				clearPreparedScript();
+				toyStates._error.setValue(_response.error);
+			}
 		}
 		
 		private function onStopScriptResponse(_response : StrokerToyResponse) : void {
-			
+			if (_response.error != "") {
+				clearPreparedScript();
+				toyStates._error.setValue(_response.error);
+			}
 		}
 		
 		protected function onCurrentSceneStateChange() : void {

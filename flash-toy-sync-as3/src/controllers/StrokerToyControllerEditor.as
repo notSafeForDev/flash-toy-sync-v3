@@ -24,6 +24,7 @@ package controllers {
 			ScriptRecordingStates.listen(this, onScriptRecordingDoneStateChange, [ScriptRecordingStates.isDoneRecording]);
 			AnimationSceneStates.listen(this, onIsForceStoppedStateChange, [AnimationSceneStates.isForceStopped]);
 			ScriptTrackerStates.listen(this, onIsDraggingTrackerMarkerStateChange, [ScriptTrackerStates.isDraggingTrackerMarker]);
+			ScriptRecordingStates.listen(this, onIsDraggingSampleMarkerStateChange, [ScriptRecordingStates.isDraggingSampleMarker]);
 			
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.prepareScript, this, onPrepareScriptShortcut, []);
 		}
@@ -35,11 +36,14 @@ package controllers {
 		}
 		
 		private function onScriptRecordingDoneStateChange() : void {
-			if (ScriptRecordingStates.isDoneRecording.value == false || toyApi.canConnect() == false) {
+			if (ScriptRecordingStates.isDoneRecording.value == false || toyApi.canConnect() == false || ToyStates.error.value != "") {
 				return;
 			}
 			
-			prepareScriptForCurrentScene();
+			// When recording a scene which doesn't loop, it ends by changing scenes, which causes the prepared script to get cleared
+			// So to make sure that the behaviour is consistent, automatically preparing the script is disabled
+			// TODO: See if there's a good solution to this problem
+			// prepareScriptForCurrentScene();	
 		}
 		
 		private function onIsForceStoppedStateChange() : void {
@@ -62,13 +66,17 @@ package controllers {
 				return;
 			}
 			
-			if (ScriptRecordingStates.isRecording.value == false) {
-				clearPreparedScript();
-			}
+			clearPreparedScript();
 		}
 		
 		private function onIsDraggingTrackerMarkerStateChange() : void {
 			if (ScriptTrackerStates.isDraggingTrackerMarker.value == true) {
+				clearPreparedScript();
+			}
+		}
+		
+		private function onIsDraggingSampleMarkerStateChange() : void {
+			if (ScriptRecordingStates.isDraggingSampleMarker.value == true) {
 				clearPreparedScript();
 			}
 		}
@@ -79,6 +87,10 @@ package controllers {
 			}
 			
 			prepareScriptForCurrentScene();
+		}
+		
+		protected override function canPlayCurrentScene() : Boolean {
+			return super.canPlayCurrentScene() && AnimationSceneStates.isForceStopped.value == false;
 		}
 		
 		private function prepareScriptForCurrentScene() : void {

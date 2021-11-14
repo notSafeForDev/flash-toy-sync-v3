@@ -22,6 +22,9 @@ package states {
 		
 		private static var stateManager : StateManager;
 		
+		public var _isDraggingSampleMarker : BooleanState;
+		public static var isDraggingSampleMarker : BooleanStateReference;
+		
 		public var _canRecord : BooleanState;
 		public static var canRecord : BooleanStateReference;
 		
@@ -50,6 +53,9 @@ package states {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}
+			
+			_isDraggingSampleMarker = _stateManager.addState(BooleanState, false);
+			isDraggingSampleMarker = _isDraggingSampleMarker.reference;
 			
 			_canRecord = _stateManager.addState(BooleanState, false);
 			canRecord = _canRecord.reference;
