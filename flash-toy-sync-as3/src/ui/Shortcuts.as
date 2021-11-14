@@ -40,7 +40,8 @@ package ui {
 		
 		public static var remove : Array = [Keyboard.BACKSPACE];
 		
-		public static var save : Array = [Keyboard.CONTROL, Keyboard.S];
+		public static var save1 : Array = [Keyboard.CONTROL, Keyboard.S];
+		public static var save2 : Array = [Keyboard.COMMAND, Keyboard.S];
 		
 		public static var prepareScript : Array = [Keyboard.P];
 		

@@ -40,6 +40,7 @@ package {
 	import ui.TextElement;
 	import ui.TextStyles;
 	import visualComponents.Animation;
+	import visualComponents.ApplicationBorders;
 	import visualComponents.Borders;
 	import visualComponents.StageElementHighlighter;
 	import visualComponents.StatusText;
@@ -106,6 +107,7 @@ package {
 			initializeStates();
 			
 			addAnimation();
+			addApplicationBorders();
 			addBorders();
 			addStageElementHighlighter();
 			addSampleMarkersContainer();
@@ -251,6 +253,10 @@ package {
 			
 			animation.loadedEvent.listen(this, onAnimationLoaded);
 			animation.loadErrorEvent.listen(this, onAnimationLoadError);
+		}
+		
+		private function addApplicationBorders() : void {
+			var borders : ApplicationBorders = new ApplicationBorders(container);
 		}
 		
 		private function addBorders() : void {

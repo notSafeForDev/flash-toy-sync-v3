@@ -1,0 +1,22 @@
+Keys		Action			Description
+
+
+M + Arrow Keys	Change borders		Only necessary for the AS2 version, used in order to make the animation centered and fit inside the application window
+
+Space/Enter	Toggle playing scene	With a scene selected, this will toggle playing of that scene, wether a scene is stopped is indicated in the scenes panel
+
+Left/Right		Step Frame		Steps a single frame in a scene
+Shift + Left	Rewind scene 		Steps to the beginning of a scene
+
+B/S/T		Attach/Detach trackers	Click to remove an existing tracker
+					Hold to move a scripting tracker. When released, the tracker attaches to the animated element under the cursor		
+
+R		Record single frame		Records the tracker positions for a single frame
+Shift + R		Record multiple frames	Records from the current frame forwards
+
+Control/CMD + S	Save			Saves the current scenes and recorded scripts
+
+P		Prepare script		Prepares the script for the current scene, to be played with a toy
+
+E		Single select		Either by clicking on a scene or a child in the hierarchy, this is used to select something, without changing the active child/scene
+Shift		Multi select		Similar to single select, but for multiple elements
