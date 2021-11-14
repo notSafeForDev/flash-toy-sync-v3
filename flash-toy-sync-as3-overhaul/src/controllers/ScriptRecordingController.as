@@ -58,6 +58,7 @@ package controllers {
 			if (isRecording == true && (currentScene.isForceStopped() == true || currentFrame < lastRecordedFrame || currentFrame > currentScene.getInnerEndFrame())) {
 				scriptRecordingStates._isRecording.setValue(false);
 				scriptRecordingStates._isDoneRecording.setValue(true);
+				script.trimPositions();
 				isRecording = false;
 			}
 			

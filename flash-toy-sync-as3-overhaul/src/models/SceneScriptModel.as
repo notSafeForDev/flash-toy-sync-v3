@@ -83,6 +83,15 @@ package models {
 			tipPositions[frameIndex] = _tip || tipPositions[frameIndex];
 		}
 		
+		public function trimPositions() : void {
+			var start : Number = Math.max(0, scene.getInnerStartFrame() - firstRecordedInnerFrame);
+			var end : Number = start + scene.getTotalInnerFrames();
+			
+			basePositions = basePositions.slice(start, end);
+			stimPositions = stimPositions.slice(start, end);
+			tipPositions = tipPositions.slice(start, end);
+		}
+		
 		public function setBasePosition(_frame : Number, _position : Point) : void {
 			var frameIndex : Number = _frame - firstRecordedInnerFrame;
 			basePositions[frameIndex] = _position;
@@ -188,29 +197,13 @@ package models {
 				return;
 			}
 			
-			var totalRemovedFromBeginning : Number = Math.max(0, scene.getInnerStartFrame() - firstRecordedInnerFrame);
-			
-			basePositions.splice(0, totalRemovedFromBeginning);
-			stimPositions.splice(0, totalRemovedFromBeginning);
-			tipPositions.splice(0, totalRemovedFromBeginning);
-			
-			if (basePositions.length > 0) {
-				firstRecordedInnerFrame = Math.max(firstRecordedInnerFrame, scene.getInnerStartFrame());
-			} else {
-				firstRecordedInnerFrame = -1;
-			}
+			firstRecordedInnerFrame = scene.getInnerStartFrame();
+			trimPositions();
 			
 			var firstHalfScript : SceneScriptModel = _firstHalf.getPlugins().getScript();
 			
-			var firstHalfTotalRecoredFrames : Number = Math.max(0, _firstHalf.getInnerEndFrame() - firstHalfScript.firstRecordedInnerFrame + 1);
-			
-			firstHalfScript.basePositions = firstHalfScript.basePositions.slice(0, firstHalfTotalRecoredFrames);
-			firstHalfScript.stimPositions = firstHalfScript.stimPositions.slice(0, firstHalfTotalRecoredFrames);
-			firstHalfScript.tipPositions = firstHalfScript.tipPositions.slice(0, firstHalfTotalRecoredFrames);
-			
-			if (firstHalfScript.basePositions.length == 0) {
-				firstHalfScript.firstRecordedInnerFrame = -1;
-			}
+			firstHalfScript.firstRecordedInnerFrame = _firstHalf.getInnerStartFrame();
+			firstHalfScript.trimPositions();
 		}
 		
 		private function onSceneMerged(_otherScene : SceneModel) : void {

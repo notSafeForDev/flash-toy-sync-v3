@@ -74,15 +74,42 @@ package controllers {
 			
 			var didActiveChildChange : Boolean = false;
 			
-			if (isActiveChildInDisplayList() == false) {
+			if (activeChild != null && isActiveChildInDisplayList() == false) {
 				activeChild = findActiveChildReplacement();
 				animationSceneStates._activeChild.setValue(activeChild);
 				didActiveChildChange = true;
 			}
 			
-			if (didActiveChildChange && currentScene != null) {
+			if (activeChild == null && currentScene != null) {
+				animationSceneStates._recoveryChildPath.setValue(ArrayUtil.vectorToArray(currentScene.getPath()));
+			}
+			
+			if (didActiveChildChange == true && currentScene != null) {
 				exitCurrentScene();
 				currentScene = null;
+			}
+			
+			// While no child have been selected find one that is potentially part of an existing scene
+			/* if (activeChild == null) {
+				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
+				var scenes : Array = AnimationSceneStates.scenes.value;
+				for (var i : Number = 0; i < scenes.length; i++) {
+					var scene : SceneModel = scenes[i];
+					var childFromPath : TPMovieClip = HierarchyUtil.getMovieClipFromPath(root, scene.getPath());
+					if (childFromPath != null) {
+						activeChild = childFromPath;
+						animationSceneStates._activeChild.setValue(activeChild);
+					}
+				}
+			} */
+			
+			// Similar to above, but only try to find a child based on the previously selected one
+			// TODO: Add advanced scene options for this
+			if (activeChild == null && AnimationSceneStates.recoveryChildPath.value != null) {
+				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
+				var recoveryChildPath : Vector.<String> = ArrayUtil.addValuesFromArrayToVector(new Vector.<String>(), AnimationSceneStates.recoveryChildPath.value);
+				activeChild = HierarchyUtil.getMovieClipFromPath(root, recoveryChildPath);
+				animationSceneStates._activeChild.setValue(activeChild);
 			}
 			
 			if (activeChild == null) {
@@ -141,18 +168,12 @@ package controllers {
 				return;
 			}
 			
-			var firstHalf : SceneModel;
+			var shouldSplit : Boolean = updateStatus == SceneModel.UPDATE_STATUS_COMPLETELY_STOPPED && activeChild.currentFrame > currentScene.getInnerStartFrame();
+			shouldSplit = shouldSplit || updateStatus == SceneModel.UPDATE_STATUS_LOOP_MIDDLE;
+			shouldSplit = shouldSplit && ScriptRecordingStates.isRecording.value == false
 			
-			if (updateStatus == SceneModel.UPDATE_STATUS_COMPLETELY_STOPPED) {
-				if (activeChild.currentFrame > currentScene.getInnerStartFrame()) {
-					firstHalf = currentScene.split();
-					currentScene.isTemporary = false;
-					addScene(firstHalf);
-				}
-			}
-			
-			if (updateStatus == SceneModel.UPDATE_STATUS_LOOP_MIDDLE) {
-				firstHalf = currentScene.split();
+			if (shouldSplit == true) {
+				var firstHalf : SceneModel = currentScene.split();
 				currentScene.isTemporary = false;
 				addScene(firstHalf);
 			}
@@ -305,10 +326,12 @@ package controllers {
 			
 			if (ArrayUtil.includes(selectedScenes, currentScene) == true) {
 				exitCurrentScene();
+				animationSceneStates._activeChild.setValue(null);
 			}
 			
 			animationSceneStates._scenes.setValue(scenes);
 			animationSceneStates._selectedScenes.setValue([]);
+			animationSceneStates._recoveryChildPath.setValue(null);
 		}
 		
 		private function onActiveChildStateChange() : void {

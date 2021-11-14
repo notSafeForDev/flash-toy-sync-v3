@@ -101,6 +101,10 @@ package ui {
 			uiList.showItemsAtScrollPosition(scenes.length);
 			
 			for (i = 0; i < scenes.length; i++) {
+				if (listItems[i].isVisible() == false) {
+					continue;
+				}
+				
 				var scene : SceneModel = scenes[i];
 				var startFrames : Vector.<Number> = scene.getStartFrames();
 				var endFrames : Vector.<Number> = scene.getEndFrames();

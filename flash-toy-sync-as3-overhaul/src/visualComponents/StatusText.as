@@ -31,7 +31,8 @@ package visualComponents {
 			
 			Index.enterFrameEvent.listen(this, onEnterFrame);
 			
-			SaveDataStates.listen(this, onSaveDataStatesChange, [SaveDataStates.saveDataList, SaveDataStates.copiedJSON]);
+			SaveDataStates.listen(this, onCopiedJSONStateChange, [SaveDataStates.copiedJSON]);
+			SaveDataStates.listen(this, onSaveDataListStateChange, [SaveDataStates.saveDataList]);
 			AnimationInfoStates.listen(this, onAnimationLoadStatusStateChange, [AnimationInfoStates.loadStatus]);
 			ToyStates.listen(this, onToyStatesChange, [ToyStates.isPreparingScript, ToyStates.isScriptPrepared, ToyStates.error]);
 		}
@@ -40,12 +41,15 @@ package visualComponents {
 			displayText(AnimationInfoStates.loadStatus.value);
 		}
 		
-		private function onSaveDataStatesChange() : void {
-			if (SaveDataStates.saveDataList.value.length != 0) {
-				displayTemporaryText("Saving...", 2);
-			}
+		private function onCopiedJSONStateChange() : void {
 			if (SaveDataStates.copiedJSON.value != "") {
 				displayTemporaryText("Copied save data JSON to clipboard...", 3);
+			}
+		}
+		
+		private function onSaveDataListStateChange() : void {
+			if (SaveDataStates.saveDataList.value.length != 0) {
+				displayTemporaryText("Saving...", 2);
 			}
 		}
 		

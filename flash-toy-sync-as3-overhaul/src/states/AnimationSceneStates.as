@@ -25,6 +25,11 @@ package states {
 		/** The inner child of the current scene */
 		public static var activeChild : TPMovieClipStateReference;
 		
+		/** The path to a child that will automatically be selected if no other child is selected */
+		public var _recoveryChildPath : ArrayState;
+		/** The path to a child that will automatically be selected if no other child is selected */
+		public static var recoveryChildPath : ArrayStateReference;
+		
 		/** If the inner child of the current scene have been stopped through the editor */
 		public var _isForceStopped : BooleanState;
 		/** If the inner child of the current scene have been stopped through the editor */
@@ -49,6 +54,9 @@ package states {
 			
 			_activeChild = _stateManager.addState(TPMovieClipState, null);
 			activeChild = _activeChild.reference;
+			
+			_recoveryChildPath = _stateManager.addState(ArrayState, null);
+			recoveryChildPath = _recoveryChildPath.reference;
 			
 			_isForceStopped = _stateManager.addState(BooleanState, false);
 			isForceStopped = _isForceStopped.reference;
