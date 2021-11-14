@@ -25,7 +25,7 @@ package visualComponents {
 		private function onEnterFrame() : void {
 			overlayContainer.graphics.clear();
 			
-			if (ScriptTrackerStates.isDraggingTrackerMarker.value == false) {
+			if (ScriptTrackerStates.isDraggingTrackerMarker.value == false && ScriptRecordingStates.isDraggingSampleMarker.value == false) {
 				return;
 			}
 			

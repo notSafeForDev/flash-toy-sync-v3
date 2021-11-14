@@ -279,6 +279,7 @@ package {
 			panelsContainer = TPMovieClip.create(container, "panelsContainer");
 			
 			hierarchyPanel = new HierarchyPanel(panelsContainer, 240, 200);
+			hierarchyPanel.setPosition(0, 50);
 			
 			scenesPanel = new ScenesPanel(panelsContainer, 240, 120);
 			scenesPanel.setPosition(0, 300);
