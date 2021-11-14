@@ -1,19 +1,14 @@
-flash-toy-sync-as2/bin/flash-toy-sync-as2.swf
-flash-toy-sync-as2/bin/flash-toy-sync-as2.exe
-flash-toy-sync-as3/bin/flash-toy-sync-as3.swf
-flash-toy-sync-as3/bin/flash-toy-sync-as3.exe
+*.swf
+*.exe
+*.zip
 
-flash-toy-sync-as2-overhaul/bin/flash-toy-sync-as2.swf
-flash-toy-sync-as2-overhaul/bin/flash-toy-sync-as2.exe
-flash-toy-sync-as3-overhaul/bin/flash-toy-sync-as3.swf
-flash-toy-sync-as3-overhaul/bin/flash-toy-sync-as3.exe
+flash-toy-sync-as2-overhaul/bin
+flash-toy-sync-as3-overhaul/bin
 
 flash-toy-sync-as2/src/*
-
 flash-toy-sync-as2-overhaul/src/*
 
 flash-toy-sync-as3/obj
-
 flash-toy-sync-as3-overhaul/obj
 
 !flash-toy-sync-as2/src/core*
