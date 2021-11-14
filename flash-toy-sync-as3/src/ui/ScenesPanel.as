@@ -108,15 +108,15 @@ package ui {
 				var scene : SceneModel = scenes[i];
 				var startFrames : Vector.<Number> = scene.getStartFrames();
 				var endFrames : Vector.<Number> = scene.getEndFrames();
-				var primaryText : String = "   Scene " + (i + 1) + " | ";
+				var primaryText : String = "  " + (i + 1) + " | ";
 				var secondaryText : String = startFrames.join(",") + " - " + endFrames[endFrames.length - 1];
 				
 				if (scene != currentScene) {
 					primaryText += "  ";
 				} else if (scene.isForceStopped() == true) {
-					primaryText += "◾ ";
+					primaryText += "⯀ ";
 				} else {
-					primaryText += "► ";
+					primaryText += "⯈ ";
 				}
 				
 				if (scene.getPlugins().getScript().isComplete() == true) {

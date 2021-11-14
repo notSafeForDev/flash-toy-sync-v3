@@ -43,7 +43,7 @@ package controllers {
 			// When recording a scene which doesn't loop, it ends by changing scenes, which causes the prepared script to get cleared
 			// So to make sure that the behaviour is consistent, automatically preparing the script is disabled
 			// TODO: See if there's a good solution to this problem
-			// prepareScriptForCurrentScene();	
+			// prepareScriptForCurrentScene();
 		}
 		
 		private function onIsForceStoppedStateChange() : void {
