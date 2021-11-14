@@ -2,22 +2,15 @@
 *.exe
 *.zip
 
-flash-toy-sync-as2-overhaul/bin
-flash-toy-sync-as3-overhaul/bin
+**/bin
 
 flash-toy-sync-as2/src/*
-flash-toy-sync-as2-overhaul/src/*
 
 flash-toy-sync-as3/obj
-flash-toy-sync-as3-overhaul/obj
 
 !flash-toy-sync-as2/src/core*
 !flash-toy-sync-as2/src/Main.as
-
-!flash-toy-sync-as2-overhaul/src/core*
-!flash-toy-sync-as2-overhaul/src/Main.as
-!flash-toy-sync-as2-overhaul/src/VersionConfig.as
+!flash-toy-sync-as2/src/VersionConfig.as
 
 todo.txt
 swf-sources.txt
-flash-toy-sync-as2-overhaul/bin/saveJSON.html
