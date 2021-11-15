@@ -61,12 +61,14 @@ package controllers {
 			}
 			
 			var animationName : String = AnimationInfoStates.name.value;
+			var isActionScript3 : Boolean = VersionConfig.actionScriptVersion == 3;
+			var versionFolderPostfix : String = isActionScript3 ? "as3" : "as2";
 			
 			var saveDataPath : String;
 			if (AnimationInfoStates.isStandalone.value == true) {
 				saveDataPath = animationName.split(".swf")[0] + ".json";
 			} else {
-				saveDataPath = "animations/" + animationName.split(".swf")[0] + ".json";
+				saveDataPath = "animations-" + versionFolderPostfix + "/" + animationName.split(".swf")[0] + ".json";
 			}
 			
 			JSONLoader.load(saveDataPath, this, onJSONLoaded);

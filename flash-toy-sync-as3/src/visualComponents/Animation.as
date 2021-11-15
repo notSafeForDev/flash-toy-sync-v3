@@ -42,11 +42,14 @@ package visualComponents {
 		 * @param	_name	The name of the swf file, including the .swf extension
 		 */
 		public function load(_name : String) : void {
+			var isActionScript3 : Boolean = VersionConfig.actionScriptVersion == 3;
+			var versionFolderPostfix : String = isActionScript3 ? "as3" : "as2";
+			
 			var path : String;
 			if (AnimationInfoStates.isStandalone.value == true) {
 				path = _name;
 			} else {
-				path = "animations/" + _name;
+				path = "animations-" + versionFolderPostfix + "/" + _name;
 			}
 			
 			loader.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
