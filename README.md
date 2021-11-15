@@ -35,7 +35,7 @@ node transpile
 When it comes to writting and debugging the code and compiling the project, [FlashDevelop](https://www.flashdevelop.org/) is recommended as it was made specifically for flash development.
 For VSCode there is the [Actionscript & MXML](https://github.com/BowlerHatLLC/vscode-as3mxml) extension. (I haven't used it as I wasn't able to get it to work.)
 
-... I will add more instructions later.
+... I will add more instructions later. Probably as wiki pages.
 
 
 &nbsp;
