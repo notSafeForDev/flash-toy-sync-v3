@@ -70,6 +70,10 @@ package controllers {
 			var stimPoint : Point = null;
 			var tipPoint : Point = null;
 			
+			baseMarkerSubController.update(script, currentFrame);
+			stimMarkerSubController.update(script, currentFrame);
+			tipMarkerSubController.update(script, currentFrame);
+			
 			if (script != null && script.isFrameWithinRecordedFrames(currentFrame) == true) {
 				basePoint = script.getInterpolatedPosition(script.getBasePositions(), currentFrame);
 				stimPoint = script.getInterpolatedPosition(script.getStimPositions(), currentFrame);
@@ -79,10 +83,6 @@ package controllers {
 			scriptRecordingStates._interpolatedBasePoint.setValue(basePoint);
 			scriptRecordingStates._interpolatedStimPoint.setValue(stimPoint);
 			scriptRecordingStates._interpolatedTipPoint.setValue(tipPoint);
-			
-			baseMarkerSubController.update(script, currentFrame);
-			stimMarkerSubController.update(script, currentFrame);
-			tipMarkerSubController.update(script, currentFrame);
 		}
 		
 		private function onTrackerAttachedToStatesChange() : void {

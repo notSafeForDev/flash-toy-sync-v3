@@ -5,6 +5,7 @@ package controllers {
 	import models.SceneModel;
 	import models.SceneScriptModel;
 	import stateTypes.BooleanState;
+	import stateTypes.PointState;
 	import states.AnimationInfoStates;
 	import states.AnimationSceneStates;
 	import states.EditorStates;
@@ -83,6 +84,14 @@ package controllers {
 			
 			if (marker.isDragging() == false) {
 				marker.setPosition(position.x, position.y);
+			} else {
+				if (type == MARKER_TYPE_BASE) {
+					_script.setBasePosition(_currentFrame, marker.getPosition());
+				} else if (type == MARKER_TYPE_STIM) {
+					_script.setStimPosition(_currentFrame, marker.getPosition());
+				} else if (type == MARKER_TYPE_TIP) {
+					_script.setTipPosition(_currentFrame, marker.getPosition());
+				}
 			}
 			
 			if (isKeyPosition == true) {
