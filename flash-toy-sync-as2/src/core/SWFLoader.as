@@ -11,7 +11,7 @@ class core.SWFLoader {
 	private var loadedSWF : MovieClip;
 	
 	public function SWFLoader() {
-		loader = new MovieClipLoader();
+		
 	}
 	
 	public function browse(_scope, _onSelected : Function, _customFileDescription : String) : Void {
@@ -29,6 +29,8 @@ class core.SWFLoader {
 	}
 
 	public function load(_path : String, _container : MovieClip, _scope, _onLoadedHandler : Function, _onErrorHandler : Function) : Void {
+		loader = new MovieClipLoader();
+		
 		var swf : MovieClip = _container.createEmptyMovieClip("loadedSWF", _container.getNextHighestDepth());
 		loadedSWF = swf; // We need a local copy of the loadedSWF, otherwise it gives an unknow variable error when it's referenced in the function below
 		
@@ -49,5 +51,6 @@ class core.SWFLoader {
 	
 	public function unload() : Void {
 		loader.unloadClip(loadedSWF);
+		loadedSWF.removeMovieClip(); // This is absolutely crucial, as it otherwise doesn't load properly when any animation is loaded again
 	}
 }
