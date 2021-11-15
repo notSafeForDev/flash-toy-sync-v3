@@ -52,6 +52,10 @@ package controllers {
 		}
 		
 		public function update() : void {
+			if (EditorStates.isEditor.value == false) {
+				return;
+			}
+			
 			var subControllerForDraggedMarker : ScriptTrackerSubController;
 			
 			for (var i : Number = 0; i < subControllers.length; i++) {

@@ -94,6 +94,15 @@ package ui {
 			_text.setTextFormat(textFormat);
 		}
 		
+		public static function applyDrowdownStyle(_text : TextElement) : void {
+			var textFormat : TextFormat = new TextFormat();
+			textFormat.font = font;
+			textFormat.color = 0x000000;
+			
+			_text.element.height = 20; // TODO: Add some way to detect the actual height of the text
+			_text.setTextFormat(textFormat);
+		}
+		
 		public static function applyInputStyle(_text : TextElement) : void {			
 			var textFormat : TextFormat = new TextFormat();
 			textFormat.font = font;

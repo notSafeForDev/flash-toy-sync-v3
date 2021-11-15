@@ -31,6 +31,8 @@ package ui {
 		
 		private var connectionKeyInputText : TextElement;
 		
+		private var qualityDropdown : UIDropdown;
+		
 		public function MainMenu(_container : TPMovieClip) {
 			menuContainer = TPMovieClip.create(_container, "mainMenu");
 			
@@ -66,10 +68,19 @@ package ui {
 			connectionKeyInputText.element.width = menuWidth;
 			connectionKeyInputText.element.height = 20;
 			
+			var qualityTitleText : TextElement = new TextElement(menuContainer, "Quality:");
+			TextStyles.applyParagraphStyle(qualityTitleText);
+			qualityTitleText.element.y = 190;
+			qualityTitleText.element.width = menuWidth;
+			
+			qualityDropdown = new UIDropdown(menuContainer, ["HIGH", "MEDIUM", "LOW"], TPStage.quality, menuWidth);
+			qualityDropdown.element.y = 210;
+			qualityDropdown.selectEvent.listen(this, onQualityDropdownSelect);
+			
 			menuContainer.x = (TPStage.stageWidth - menuWidth) / 2;
 			menuContainer.y = (TPStage.stageHeight - menuContainer.height) / 2;
 			
-			AnimationInfoStates.listen(this, onAnimationInfoStatesChange, [AnimationInfoStates.name, AnimationInfoStates.isLoaded]);
+			AnimationInfoStates.listen(this, onAnimationInfoStatesChange, [AnimationInfoStates.isStandalone, AnimationInfoStates.name, AnimationInfoStates.isLoaded]);
 			ToyStates.listen(this, onTheHandyConnectionKeyStateChange, [ToyStates.theHandyConnectionKey]);
 		}
 		
@@ -80,6 +91,7 @@ package ui {
 				selectedAnimationText.text = "Animation: " + AnimationInfoStates.name.value;
 			}
 			
+			browseButton.setEnabled(AnimationInfoStates.isStandalone.value == false);
 			playButton.setEnabled(AnimationInfoStates.name.value != "");
 			editButton.setEnabled(AnimationInfoStates.name.value != "");
 			
@@ -87,6 +99,7 @@ package ui {
 				menuContainer.visible = false;
 			} else {
 				menuContainer.visible = true;
+				qualityDropdown.setSelectedOption(TPStage.quality);
 			}
 		}
 		
@@ -96,6 +109,10 @@ package ui {
 		
 		private function onTheHandyConnectionKeyStateChange() : void {
 			connectionKeyInputText.text = ToyStates.theHandyConnectionKey.value;
+		}
+		
+		private function onQualityDropdownSelect(_value : String) : void {
+			TPStage.quality = _value;
 		}
 		
 		private function createButton(_width : Number, _text : String, _event : CustomEvent) : UIButton {

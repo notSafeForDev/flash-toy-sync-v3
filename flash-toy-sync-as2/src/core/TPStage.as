@@ -36,6 +36,14 @@ class core.TPStage {
 		trace("Error: Unable to set frameRate, it's not supported in AS2");
 	}
 	
+	public static function get quality() : String {
+		return _stage._quality;
+	}
+		
+	public static function set quality(_value : String) : Void {
+		_stage._quality = _value;
+	}
+	
 	public static function get stage() {
 		return _stage;
 	}

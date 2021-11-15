@@ -47,6 +47,14 @@ package core {
 			_stage.frameRate = _value;
 		}
 		
+		public static function get quality() : String {
+			return _stage.quality;
+		}
+		
+		public static function set quality(_value : String) : void {
+			_stage.quality = _value;
+		}
+		
 		public static function get stage() : Stage {
 			return _stage;
 		}
