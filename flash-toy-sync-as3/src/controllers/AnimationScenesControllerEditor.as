@@ -89,6 +89,8 @@ package controllers {
 				currentScene = null;
 			}
 			
+			// TODO: Add advanced scene options for auto selecting children
+			
 			// While no child have been selected find one that is potentially part of an existing scene
 			/* if (activeChild == null) {
 				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
@@ -104,7 +106,6 @@ package controllers {
 			} */
 			
 			// Similar to above, but only try to find a child based on the previously selected one
-			// TODO: Add advanced scene options for this
 			if (activeChild == null && AnimationSceneStates.recoveryChildPath.value != null) {
 				var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
 				var recoveryChildPath : Vector.<String> = ArrayUtil.addValuesFromArrayToVector(new Vector.<String>(), AnimationSceneStates.recoveryChildPath.value);

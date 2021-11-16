@@ -22,15 +22,14 @@ package controllers {
 		}
 		
 		public function update() : void {
-			var activeScene : SceneModel = getActiveScene();
 			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
 			
-			if (activeScene != currentScene) {
+			if (currentScene == null || currentScene.isActive() == false) {
 				if (currentScene != null) {
 					currentScene.exit();
 				}
 				
-				currentScene = activeScene;
+				currentScene = getActiveScene();
 				
 				if (currentScene != null) {
 					currentScene.enter();
