@@ -14,9 +14,7 @@ Flash toy sync is being developed to make existing flash games able to control d
 
 Once you have downloaded a build, you will have to find flash animations to use with it. Either ones that have already been scripted, or any other flash animation, which you can script yourself in the built in editor.
 
-The editor is designed to make the process as quick as possible. Scripting is mainly done by attaching trackers to different moving parts within the animation. The trackers consist of a base and tip tracker, which is intended to be attached to the penis, and a third tracker, the stimulation tracker, which is intended to to be attached to anything in the animation which stimulates the penis.  
-
-A basic guide can be viewed [here](https://imgur.com/a/lkGZJ4z).
+The editor is designed to make the process as quick as possible. Scripting is mainly done by attaching trackers to different moving parts within the animation. The trackers consist of a base and tip tracker, which is intended to be attached to the penis, and a third tracker, the stimulation tracker, which is intended to to be attached to anything in the animation which stimulates the penis.
 
 &nbsp;
 
