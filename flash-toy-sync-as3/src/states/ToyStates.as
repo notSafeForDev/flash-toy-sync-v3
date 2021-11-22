@@ -12,7 +12,13 @@ package states {
 	 */
 	public class ToyStates {
 		
+		public static var THE_HANDY_CONNECTION_TYPE : String = "theHandy API";
+		public static var INTIFACE_CONNECTION_TYPE : String = "Intiface Desktop";
+		
 		private static var stateManager : StateManager;
+		
+		public var _toyConnectionType : StringState;
+		public static var toyConnectionType : StringStateReference;
 		
 		public var _theHandyConnectionKey : StringState;
 		public static var theHandyConnectionKey : StringStateReference;
@@ -30,6 +36,9 @@ package states {
 			if (stateManager != null) {
 				throw new Error("Unable to create new instance, there can only be one instance");
 			}
+			
+			_toyConnectionType = _stateManager.addState(StringState, THE_HANDY_CONNECTION_TYPE);
+			toyConnectionType = _toyConnectionType.reference;
 			
 			_theHandyConnectionKey = _stateManager.addState(StringState, "");
 			theHandyConnectionKey = _theHandyConnectionKey.reference;

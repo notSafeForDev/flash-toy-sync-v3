@@ -5,6 +5,7 @@ package ui {
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import core.TPStage;
+	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	import utils.ArrayUtil;
 	
@@ -40,6 +41,7 @@ package ui {
 			element = TPMovieClip.create(_parent, "dropdownBackground");
 			
 			selectedText = new TextElement(element, " > " + _default);
+			selectedText.element.width = _width;
 			
 			selectedIndex = ArrayUtil.indexOf(_options, _default);
 			
@@ -84,6 +86,8 @@ package ui {
 			list.x = element.x;
 			list.y = element.y + optionHeight;
 			
+			list.filters = [new GlowFilter(0x000000, 0.25)];
+			
 			var visibleItemCount : Number = 0;
 			for (var i : Number = 0; i < options.length; i++) {
 				if (i == selectedIndex) {
@@ -121,6 +125,7 @@ package ui {
 			TextStyles.applyDrowdownStyle(text);
 			
 			text.text = _value;
+			text.element.width = width;
 			
 			MouseEvents.addOnMouseDown(this, background.sourceDisplayObject, onListOptionMouseDown, _value);
 		}

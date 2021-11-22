@@ -227,11 +227,16 @@ package {
 			editorStates._isEditor.setValue(true);
 		}
 		
+		private function onMainMenuToyConnectionTypeChange(_type : String) : void {
+			toyStates._toyConnectionType.setValue(_type);
+		}
+		
 		private function onMainMenuTheHandyConnectionKeyChange(_key : String) : void {
 			toyStates._theHandyConnectionKey.setValue(_key);
 		}
 		
 		private function onMenuBarExit() : void {
+			var toyConnectionType : String = ToyStates.toyConnectionType.value;
 			var theHandyConnectionKey : String = ToyStates.theHandyConnectionKey.value;
 			
 			// We set is loaded to false before resetting all states, to give controllers the chance to reset things based on the current states 
@@ -241,6 +246,7 @@ package {
 			stateManager.resetToInitialStates();
 			panelsContainer.visible = false;
 			
+			toyStates._toyConnectionType.setValue(toyConnectionType);
 			toyStates._theHandyConnectionKey.setValue(theHandyConnectionKey);
 		}
 		
@@ -293,6 +299,7 @@ package {
 			mainMenu.browseAnimationEvent.listen(this, onMainMenuBrowseAnimation);
 			mainMenu.playAnimationEvent.listen(this, onMainMenuPlayAnimation);
 			mainMenu.editAnimationEvent.listen(this, onMainMenuEditAnimation);
+			mainMenu.toyConnectionTypeChangeEvent.listen(this, onMainMenuToyConnectionTypeChange);
 			mainMenu.theHandyConnectionKeyChangeEvent.listen(this, onMainMenuTheHandyConnectionKeyChange);
 		}
 		

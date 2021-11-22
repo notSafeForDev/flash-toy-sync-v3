@@ -1,0 +1,19 @@
+{
+  "name": "intiface-bridge",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pkg -t win,linux index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "performance-now": "^2.1.0",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "pkg": "^5.4.1"
+  }
+}

@@ -1,5 +1,6 @@
 package controllers {
 	
+	import api.IntifaceLinearCmdAPI;
 	import api.StrokerToyApi;
 	import api.StrokerToyResponse;
 	import api.StrokerToyScriptPosition;
@@ -21,13 +22,9 @@ package controllers {
 	 */
 	public class StrokerToyController {
 		
-		protected static var ID_THE_HANDY : String = "ID_THE_HANDY";
-		
 		protected var toyApi : StrokerToyApi;
 		
 		private var toyStates : ToyStates
-		
-		private var toyID : String;
 		
 		private var sceneLoopCounts : Vector.<Number>;
 		private var sceneStartTimes : Vector.<Number>;
@@ -37,12 +34,7 @@ package controllers {
 		public function StrokerToyController(_toyStates : ToyStates) {
 			toyStates = _toyStates;
 			
-			toyID = ID_THE_HANDY;
-			
-			if (toyID == ID_THE_HANDY) {
-				toyApi = new TheHandyApi();
-			}
-			
+			ToyStates.listen(this, onToyConnectionTypeStateChange, [ToyStates.toyConnectionType]);
 			AnimationSceneStates.listen(this, onCurrentSceneStateChange, [AnimationSceneStates.currentScene]);
 			AnimationSceneStates.listen(this, onSceneLoopCountStateChange, [AnimationSceneStates.currentSceneLoopCount]);
 			AnimationInfoStates.listen(this, onAnimationLoadedStateChange, [AnimationInfoStates.isLoaded]);
@@ -180,6 +172,14 @@ package controllers {
 			if (_response.error != "") {
 				clearPreparedScript();
 				toyStates._error.setValue(_response.error);
+			}
+		}
+		
+		private function onToyConnectionTypeStateChange() : void {
+			if (ToyStates.toyConnectionType.value == ToyStates.THE_HANDY_CONNECTION_TYPE) {
+				toyApi = new TheHandyApi();
+			} else {
+				toyApi = new IntifaceLinearCmdAPI();
 			}
 		}
 		

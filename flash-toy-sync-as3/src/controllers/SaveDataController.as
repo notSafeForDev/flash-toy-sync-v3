@@ -37,13 +37,18 @@ package controllers {
 			
 			// Different setting save files are used for both versions as the AS3 version can't read data that have been modified by the AS2 version
 			settingsSharedData = SharedObject.getLocal("flash-toy-sync-settings-" + (isActionScript3 ? "as3" : "as2"), "/");
+			
 			_toyStates._theHandyConnectionKey.setValue(settingsSharedData.data.theHandyConnectionKey || "");
+			if (settingsSharedData.data.toyConnectionType != undefined) {
+				_toyStates._toyConnectionType.setValue(settingsSharedData.data.toyConnectionType);
+			}
 			
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.save1, this, onSaveShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.save2, this, onSaveShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.copyJSONSaveData, this, onCopyJSONSaveDataShortcut, []);
 			
 			AnimationInfoStates.isLoaded.listen(this, onAnimationLoadedStateChange);
+			ToyStates.listen(this, onToyConnectionTypeStateChange, [ToyStates.toyConnectionType]);
 			ToyStates.listen(this, onTheHandyConnectionKeyStateChange, [ToyStates.theHandyConnectionKey]);
 		}
 		
@@ -72,6 +77,10 @@ package controllers {
 			}
 			
 			JSONLoader.load(saveDataPath, this, onJSONLoaded);
+		}
+		
+		private function onToyConnectionTypeStateChange() : void {
+			settingsSharedData.data.toyConnectionType = ToyStates.toyConnectionType.value;
 		}
 		
 		private function onTheHandyConnectionKeyStateChange() : void {
