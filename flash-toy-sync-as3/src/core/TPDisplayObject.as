@@ -229,6 +229,9 @@ package core {
 		}
 		
 		public static function getChildAtIndex(_parent : DisplayObjectContainer, _index : Number) : DisplayObject {
+			if (_parent.numChildren <= _index) {
+				return null;
+			}
 			return _parent.getChildAt(_index);
 		}
 		

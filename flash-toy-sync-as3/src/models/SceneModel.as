@@ -50,8 +50,11 @@ package models {
 		
 		protected var startFrames : Vector.<Number> = null;
 		protected var endFrames : Vector.<Number> = null;
+		/** The total number of frames inside each child movieClip, not necessarily the total frames in the scene */
+		protected var totalTimelineFrames : Vector.<Number> = null;
 		protected var firstStopFrames : Vector.<Number> = null;
 		protected var haveDeterminedEndFrames : Vector.<Boolean> = null;
+		protected var endsAtLastFrame : Boolean = false;
 		
 		/** The last frames for each child that the animation was on, while not force stopped */
 		private var lastPlayingFrames : Vector.<Number> = null;
@@ -90,8 +93,10 @@ package models {
 			
 			scene.startFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.startFrames);
 			scene.endFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.endFrames);
+			scene.totalTimelineFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>, _saveData.totalTimelineFrames);
 			scene.firstStopFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.firstStopFrames);
 			scene.haveDeterminedEndFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Boolean>(), _saveData.haveDeterminedEndFrames);
+			scene.endsAtLastFrame = _saveData.endsAtLastFrame;
 			
 			scene.plugins = ScenePluginsModel.fromSaveData(_saveData.plugins, scene);
 			
@@ -104,11 +109,15 @@ package models {
 		 */
 		public function toSaveData() : Object {
 			var saveData : Object = {};
+			
 			saveData.path = ArrayUtil.vectorToArray(path);
 			saveData.startFrames = ArrayUtil.vectorToArray(startFrames);
 			saveData.endFrames = ArrayUtil.vectorToArray(endFrames);
+			saveData.totalTimelineFrames = ArrayUtil.vectorToArray(totalTimelineFrames);
 			saveData.firstStopFrames = ArrayUtil.vectorToArray(firstStopFrames);
 			saveData.haveDeterminedEndFrames = ArrayUtil.vectorToArray(haveDeterminedEndFrames);
+			saveData.endsAtLastFrame = endsAtLastFrame;
+			
 			saveData.plugins = plugins.toSaveData();
 			
 			return saveData;
@@ -123,8 +132,10 @@ package models {
 			
 			clonedScene.startFrames = startFrames.slice();
 			clonedScene.endFrames = endFrames.slice();
+			clonedScene.totalTimelineFrames = totalTimelineFrames.slice();
 			clonedScene.firstStopFrames = firstStopFrames.slice();
 			clonedScene.haveDeterminedEndFrames = haveDeterminedEndFrames.slice();
+			clonedScene.endsAtLastFrame = endsAtLastFrame;
 			
 			clonedScene.plugins = plugins.clone(clonedScene);
 			
@@ -248,6 +259,14 @@ package models {
 		}
 		
 		/**
+		 * Check wether the scene ends at the last timeline frame of the inner child
+		 * @return 
+		 */
+		public function doesEndAtLastTimelineFrame() : Boolean {
+			return endsAtLastFrame;
+		}
+		
+		/**
 		 * Get the path to the children that are part of the scene
 		 * @return
 		 */
@@ -266,9 +285,18 @@ package models {
 			enteredScene = this;
 			
 			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
+			var children : Vector.<TPMovieClip> = getChildrenWhileActive();
+			var i : Number;
 			
 			haveDoneInitialUpdate = false;
 			updateLastPlayingFrames(currentFrames.slice());
+			
+			// For compatibility with save data format version 1
+			if (totalTimelineFrames != null && ArrayUtil.includes(totalTimelineFrames, -1) == true) {
+				for (i = 0; i < children.length; i++) {
+					totalTimelineFrames[i] = children[i].totalFrames;
+				}
+			}
 			
 			if (startFrames != null) {
 				return;
@@ -277,9 +305,12 @@ package models {
 			startFrames = currentFrames.slice();
 			endFrames = currentFrames.slice();
 			
+			totalTimelineFrames = new Vector.<Number>();
 			firstStopFrames = new Vector.<Number>();
 			haveDeterminedEndFrames = new Vector.<Boolean>();
-			for (var i : Number = 0; i < startFrames.length; i++) {
+			
+			for (i = 0; i < startFrames.length; i++) {
+				totalTimelineFrames.push(children[i].totalFrames);
 				firstStopFrames.push(-1);
 				haveDeterminedEndFrames.push(false);
 			}
@@ -363,6 +394,10 @@ package models {
 					currentFrame = children[i].currentFrame;
 					var totalFrames : Number = children[i].totalFrames;
 					
+					if (i == lastChildIndex && currentFrame == totalFrames) {
+						endsAtLastFrame = true;
+					}
+					
 					if (haveDoneInitialUpdate == true && currentFrame == lastPlayingFrames[i] && firstStopFrames[i] < 0) {
 						firstStopFrames[i] = currentFrame;
 						haveDeterminedEndFrames[i] = true;
@@ -430,7 +465,9 @@ package models {
 				var currentFrame : Number = children[i].currentFrame;
 				var startFrame : Number = startFrames[i];
 				var endFrame : Number = endFrames[i];
-				if (currentFrame < startFrame || currentFrame > endFrame) {
+				// We also check if it's -1, for compatibility with save data format version 1
+				var hasValidTotalFrames : Boolean = children[i].totalFrames == totalTimelineFrames[i] || totalTimelineFrames[i] == -1;
+				if (hasValidTotalFrames == false || currentFrame < startFrame || currentFrame > endFrame) {
 					return false;
 				}
 			}

@@ -87,15 +87,25 @@ package controllers {
 					continue;
 				}
 				
-				var loopDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(scene.getTotalInnerFrames());
+				var loopPadding : Number = 0;
+				
+				// When the scene doesn't end at the last timeline frame, 1 frame is excluded to prevent it from looping when stepping to the last frame
+				if (scene.doesEndAtLastTimelineFrame() == false) {
+					loopPadding = StrokerToyUtil.getMilisecondsAtFrame(1);
+				}
+				
+				var loopDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(scene.getTotalInnerFrames() + loopPadding);
 				var loopCount : Number = Math.ceil(minSceneDuration / loopDuration);
 				var depths : Vector.<Number> = script.calculateDepths();
 				var positions : Vector.<StrokerToyScriptPosition> = StrokerToyUtil.depthsToPositions(depths, startTime);
-				var timeStretch : Number = loopDuration < 5000 ? 1.03 : 1;
+				
+				// For fast loops, adding an extra loop makes it more seamless when it goes back to the start
+				if (loopCount >= 5) {
+					loopCount++;
+				}
 				
 				positions = StrokerToyUtil.reducePositions(positions);
-				positions = StrokerToyUtil.getRepeatedPositions(positions, loopCount);
-				positions = StrokerToyUtil.timeStretchPositions(positions, timeStretch); // To account for a slight bit of lag when it loops
+				positions = StrokerToyUtil.getRepeatedPositions(positions, loopCount + 1, loopPadding);
 				
 				var frameDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(1);
 				var lastPosition : StrokerToyScriptPosition = positions[positions.length - 1];

@@ -25,15 +25,19 @@ package utils {
 			return output;
 		}
 		
-		public static function getRepeatedPositions(_positions : Vector.<StrokerToyScriptPosition>, _repeatCount : Number) : Vector.<StrokerToyScriptPosition> {
+		public static function getRepeatedPositions(_positions : Vector.<StrokerToyScriptPosition>, _repeatCount : Number, _loopPadding : Number) : Vector.<StrokerToyScriptPosition> {
 			var output : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
 			
 			var frameRate : Number = TPStage.frameRate;
 			var singleFrameDuration : Number = getMilisecondsAtFrame(1);
-			var scriptDuration : Number = (_positions[_positions.length - 1].time - _positions[0].time) + singleFrameDuration;
+			var scriptDuration : Number = (_positions[_positions.length - 1].time - _positions[0].time);
+			
+			if (VersionConfig.actionScriptVersion == 3) {
+				scriptDuration += singleFrameDuration;
+			}
 			
 			for (var i : Number = 0; i < _repeatCount; i++) {
-				var startTime : Number = i * scriptDuration;
+				var startTime : Number = i * (scriptDuration + _loopPadding);
 				var loop : Vector.<StrokerToyScriptPosition> = offsetTimeForPositions(_positions, startTime);
 				if (i > 0) {
 					loop = loop.slice(1);

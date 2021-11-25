@@ -14,6 +14,7 @@ package controllers {
 	import states.ToyStates;
 	import ui.Shortcuts;
 	import utils.ArrayUtil;
+	import utils.SaveDataMigrationUtil;
 	
 	/**
 	 * ...
@@ -148,6 +149,10 @@ package controllers {
 				return false;
 			}
 			
+			if (_saveData.formatVersion < SaveDataMigrationUtil.currentFormatVersion) {
+				_saveData = SaveDataMigrationUtil.migrate(_saveData);
+			}
+			
 			var scenes : Array = [];
 			for (var i : Number = 0; i < _saveData.scenes.length; i++) {
 				scenes.push(SceneModel.fromSaveData(_saveData.scenes[i]));
@@ -161,15 +166,7 @@ package controllers {
 		}
 		
 		private function updateSaveDataFromState(_target : Object) : void {
-			// formatVersion will be used later to be able to migrate old data, incase of changes to the save data format
-			// Each time changes are made to the save data format, a new function will have to be added to a list of migrator functions
-			// Where each function in the list will migrate the version by 1, and then pass on the migrated data to the next migrator function
-			// Example, function[0]: v1 -> v2, function[1]: v2 -> v3, function[2]: v3 -> v4 and so on
-			// This should ensure that save data can always be made up to date, no matter the version,
-			// and that we don't have to write (and rewrite) one massive function just to handle any number of possible formats
-			// There should also be some kind of validation, to ensure that we don't override valid data with invalid data
-			
-			_target.formatVersion = 1;
+			_target.formatVersion = SaveDataMigrationUtil.currentFormatVersion;
 			_target.animationWidth = AnimationSizeStates.width.value;
 			_target.animationHeight = AnimationSizeStates.height.value;
 			_target.scenes = [];
