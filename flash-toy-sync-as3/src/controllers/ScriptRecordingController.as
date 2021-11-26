@@ -12,6 +12,7 @@ package controllers {
 	import ui.Colors;
 	import ui.Shortcuts;
 	import utils.ArrayUtil;
+	import utils.MathUtil;
 	
 	/**
 	 * ...
@@ -41,6 +42,11 @@ package controllers {
 			
 			ScriptTrackerStates.listen(this, onTrackerAttachedToStatesChange, [ScriptTrackerStates.baseTrackerAttachedTo, ScriptTrackerStates.stimTrackerAttachedTo, ScriptTrackerStates.tipTrackerAttachedTo]);
 			AnimationSceneStates.currentScene.listen(this, onCurrentSceneStateChange);
+			
+			for (var i : Number = 0; i < 10; i++) {
+				var moveStimShortcut : Array = Shortcuts["moveStimTo" + i];
+				KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, moveStimShortcut, this, onMoveStimShortcut, [i / 9]);
+			}
 		}
 		
 		public function update() : void {
@@ -83,6 +89,24 @@ package controllers {
 			scriptRecordingStates._interpolatedBasePoint.setValue(basePoint);
 			scriptRecordingStates._interpolatedStimPoint.setValue(stimPoint);
 			scriptRecordingStates._interpolatedTipPoint.setValue(tipPoint);
+		}
+		
+		private function onMoveStimShortcut(_depth : Number) : void {
+			var activeChild : TPMovieClip = AnimationSceneStates.activeChild.value;
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
+			var currentFrame : Number = activeChild != null ? activeChild.currentFrame : -1;
+			var script : SceneScriptModel = currentScene != null ? currentScene.getPlugins().getScript() : null;
+		
+			if (script == null || script.hasAnyRecordedPositions() == false) {
+				return;
+			}
+			
+			var basePoint : Point = script.getInterpolatedPosition(script.getBasePositions(), currentFrame);
+			var tipPoint : Point = script.getInterpolatedPosition(script.getTipPositions(), currentFrame);
+			var stimPoint : Point = new Point(MathUtil.lerp(tipPoint.x, basePoint.x, _depth), MathUtil.lerp(tipPoint.y, basePoint.y, _depth));
+			
+			script.setStimPosition(currentFrame, stimPoint);
+			scriptRecordingStates._interpolatedStimPoint.setValue(stimPoint);
 		}
 		
 		private function onTrackerAttachedToStatesChange() : void {

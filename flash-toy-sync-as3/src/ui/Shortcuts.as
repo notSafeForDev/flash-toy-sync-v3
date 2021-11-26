@@ -38,6 +38,17 @@ package ui {
 		public static var recordFrame : Array = [Keyboard.R];
 		public static var recordScene : Array = [Keyboard.SHIFT, Keyboard.R];
 		
+		public static var moveStimTo0 : Array = [Keyboard.NUMPAD_0];
+		public static var moveStimTo1 : Array = [Keyboard.NUMPAD_1];
+		public static var moveStimTo2 : Array = [Keyboard.NUMPAD_2];
+		public static var moveStimTo3 : Array = [Keyboard.NUMPAD_3];
+		public static var moveStimTo4 : Array = [Keyboard.NUMPAD_4];
+		public static var moveStimTo5 : Array = [Keyboard.NUMPAD_5];
+		public static var moveStimTo6 : Array = [Keyboard.NUMPAD_6];
+		public static var moveStimTo7 : Array = [Keyboard.NUMPAD_7];
+		public static var moveStimTo8 : Array = [Keyboard.NUMPAD_8];
+		public static var moveStimTo9 : Array = [Keyboard.NUMPAD_9];
+		
 		public static var remove : Array = [Keyboard.BACKSPACE];
 		
 		public static var save1 : Array = [Keyboard.CONTROL, Keyboard.S];

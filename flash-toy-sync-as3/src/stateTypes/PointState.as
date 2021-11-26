@@ -17,7 +17,13 @@ package stateTypes {
 		}
 		
 		public function setValue(_value : Point) : void {
-			changeValue(_value);
+			if (_value == null || value == null) {
+				changeValue(_value);
+				return;
+			}
+			if (_value.x != value.x || _value.y != value.y) {
+				changeValue(_value);
+			}
 		}
 	}
 }
