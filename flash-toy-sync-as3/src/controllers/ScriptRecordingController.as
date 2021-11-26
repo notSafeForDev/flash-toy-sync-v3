@@ -103,10 +103,13 @@ package controllers {
 			
 			var basePoint : Point = script.getInterpolatedPosition(script.getBasePositions(), currentFrame);
 			var tipPoint : Point = script.getInterpolatedPosition(script.getTipPositions(), currentFrame);
-			var stimPoint : Point = new Point(MathUtil.lerp(tipPoint.x, basePoint.x, _depth), MathUtil.lerp(tipPoint.y, basePoint.y, _depth));
 			
-			script.setStimPosition(currentFrame, stimPoint);
-			scriptRecordingStates._interpolatedStimPoint.setValue(stimPoint);
+			if (basePoint != null && tipPoint != null) {
+				var stimPoint : Point = new Point(MathUtil.lerp(tipPoint.x, basePoint.x, _depth), MathUtil.lerp(tipPoint.y, basePoint.y, _depth));
+				
+				script.setStimPosition(currentFrame, stimPoint);
+				scriptRecordingStates._interpolatedStimPoint.setValue(stimPoint);
+			}
 		}
 		
 		private function onTrackerAttachedToStatesChange() : void {
