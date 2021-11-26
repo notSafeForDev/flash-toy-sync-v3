@@ -68,8 +68,6 @@ package visualComponents {
 		}
 		
 		private function onInterpolatedStimPointStateChange() : void {
-			trace(ScriptRecordingStates.isDraggingSampleMarker.value);
-			
 			if (ScriptTrackerStates.isDraggingTrackerMarker.value == true || ScriptRecordingStates.isDraggingSampleMarker.value == true) {
 				return;
 			}
