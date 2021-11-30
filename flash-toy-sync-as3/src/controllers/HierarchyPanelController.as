@@ -198,7 +198,7 @@ package controllers {
 			var tpMovieClip : TPMovieClip = new TPMovieClip(_child);
 			
 			if (tpMovieClip.visible == false) {
-				return TPMovieClip.ITERATE_SKIP_SIBLINGS;
+				return TPMovieClip.ITERATE_SKIP_NESTED;
 			}
 			
 			var parent : DisplayObjectContainer = tpMovieClip.parent;
