@@ -197,6 +197,10 @@ package controllers {
 		private function getInfoForActiveChildrenIterator(_child : MovieClip, _depth : Number, _childIndex : Number, _infoList : Array, _expandableChildren : Vector.<DisplayObject>) : Number {
 			var tpMovieClip : TPMovieClip = new TPMovieClip(_child);
 			
+			if (tpMovieClip.visible == false) {
+				return TPMovieClip.ITERATE_SKIP_SIBLINGS;
+			}
+			
 			var parent : DisplayObjectContainer = tpMovieClip.parent;
 			var isParentMarkedAsExpandable : Boolean = ArrayUtil.includes(_expandableChildren, parent);
 			var isParentExpanded : Boolean = ArrayUtil.includes(expandedChildren, parent);

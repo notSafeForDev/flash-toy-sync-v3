@@ -462,6 +462,10 @@ package models {
 			}
 			
 			for (var i : Number = 0; i < children.length; i++) {
+				if (children[i].visible == false) {
+					return false;
+				}
+				
 				var currentFrame : Number = children[i].currentFrame;
 				var startFrame : Number = startFrames[i];
 				var endFrame : Number = endFrames[i];
