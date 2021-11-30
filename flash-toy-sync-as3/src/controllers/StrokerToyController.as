@@ -104,7 +104,7 @@ package controllers {
 					loopCount++;
 				}
 				
-				positions = StrokerToyUtil.reducePositions(positions);
+				positions = StrokerToyUtil.simplifyPositions(positions, 0.5);
 				positions = StrokerToyUtil.getRepeatedPositions(positions, loopCount + 1, loopPadding);
 				
 				var frameDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(1);

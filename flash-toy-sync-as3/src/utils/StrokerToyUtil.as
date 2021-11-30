@@ -140,5 +140,68 @@ package utils {
 			
 			return reduced;
 		}
+		
+		public static function simplifyPositions(_positions : Vector.<StrokerToyScriptPosition>, _simplifyAmount : Number) : Vector.<StrokerToyScriptPosition> {
+			if (_positions.length <= 2) {
+				return _positions.slice();
+			}
+			
+			var simplifiedPositions : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
+			simplifiedPositions.push(_positions[0]);
+			
+			var direction : Number = MathUtil.sign(_positions[0].position - _positions[1].position);
+			var directionChangeIndexes : Vector.<Number> = new Vector.<Number>();
+			var minVelocity : Number = calculateVelocity(_positions[0], _positions[1]);
+			var maxVelocity : Number = 0;
+			var velocity : Number;
+			var i : Number;
+			
+			for (i = 0; i < _positions.length - 1; i++) {
+				var currentDirection : Number = MathUtil.sign(_positions[i + 1].position - _positions[i].position);
+				
+				velocity = calculateVelocity(_positions[i], _positions[i + 1]);
+				
+				if (velocity < minVelocity) {
+					minVelocity = velocity;
+				}
+				if (velocity > maxVelocity) {
+					maxVelocity = velocity;
+				}
+				
+				if (direction != currentDirection) {
+					directionChangeIndexes.push(i);
+					direction = currentDirection;
+				}
+			}
+			
+			directionChangeIndexes.push(_positions.length - 1);
+			
+			var velocityRange : Number = maxVelocity - minVelocity;
+			
+			for (i = 0; i < directionChangeIndexes.length - 1; i++) {
+				var startIndex : Number = directionChangeIndexes[i];
+				var endIndex : Number = directionChangeIndexes[i + 1];
+				var startVelocity : Number = calculateVelocity(_positions[startIndex], _positions[startIndex + 1]);
+				
+				for (var j : Number = startIndex; j < endIndex; j++) {
+					velocity = calculateVelocity(_positions[j], _positions[j + 1]);
+					
+					var velocityDelta : Number = Math.abs(startVelocity - velocity);
+					
+					if (velocityDelta >= velocityRange * _simplifyAmount) {
+						simplifiedPositions.push(_positions[j]);
+						startVelocity = velocity;
+					}
+				}
+				
+				simplifiedPositions.push(_positions[endIndex]);
+			}
+			
+			return simplifiedPositions;
+		}
+		
+		private static function calculateVelocity(_positionA : StrokerToyScriptPosition, _positionB : StrokerToyScriptPosition) : Number {
+			return Math.abs((_positionB.position - _positionA.position) * (_positionB.time - _positionA.time));
+		}
 	}
 }
