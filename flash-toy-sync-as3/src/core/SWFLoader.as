@@ -1,5 +1,6 @@
 package core {
 	
+	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Loader;
 	import flash.net.URLRequest;
@@ -46,7 +47,7 @@ package core {
 		 * @param 	_onErrorHandler 	(optional) function(_error : String) 
 		 * 								Called when the swf is loaded, the loaded content as a MovieClip is passed to the function
 		 */
-		public function load(_path : String, _container : MovieClip, _scope : *, _onLoadedHandler : Function = null, _onErrorHandler : Function = null) : void {				
+		public function load(_path : String, _container : DisplayObjectContainer, _scope : *, _onLoadedHandler : Function = null, _onErrorHandler : Function = null) : void {				
 			function onLoaderComplete(e : Event) : void {
 				var actionScriptVersion : Number = loader.contentLoaderInfo.actionScriptVersion;
 				if (actionScriptVersion != 3) {

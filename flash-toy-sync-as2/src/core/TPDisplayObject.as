@@ -186,6 +186,50 @@ class core.TPDisplayObject {
 		return parents;
 	}
 	
+	static var ITERATE_CONTINUE : Number = 0;
+	static var ITERATE_SKIP_NESTED : Number = 1;
+	static var ITERATE_SKIP_SIBLINGS : Number = 2;
+	static var ITERATE_ABORT : Number = 3;
+	
+	static function iterateOverChildren(_topParent : MovieClip, _scope, _handler : Function, _args : Array, _currentDepth : Number) : Number {
+		if (_currentDepth == undefined) {
+			_currentDepth = 0;
+		}
+		if (_args == undefined) {
+			_args = [];
+		}
+		
+		var i : Number = -1;
+		for (var childName : String in _topParent) {
+			if (typeof _topParent[childName] != "movieclip") {
+				continue;
+			}
+			
+			var child : MovieClip = _topParent[childName];
+			
+			// In case of external swfs, one of the properties can be itself, which puts it into an endless loop
+			if (child == _topParent) {
+				continue;
+			}
+			
+			i++;
+			
+			var code = _handler.apply(_scope, [child, _currentDepth + 1, i].concat(_args));
+			if (code == ITERATE_ABORT || code == ITERATE_SKIP_SIBLINGS) {
+				return code;
+			}
+			if (code != ITERATE_SKIP_NESTED) {
+				var recursiveCode : Number = iterateOverChildren(child, _scope, _handler, _args, _currentDepth + 1);
+				if (recursiveCode == ITERATE_ABORT) {
+					return ITERATE_ABORT;
+				}
+			}
+			
+		}
+		
+		return ITERATE_CONTINUE;
+	}
+	
 	public static function getNestedChildren(_topParent : MovieClip) : Array {
 		var children : Array = [];
 		

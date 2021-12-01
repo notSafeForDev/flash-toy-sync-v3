@@ -394,7 +394,7 @@ package controllers {
 			}
 			
 			if (activeChild != null) {
-				var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(activeChild.sourceMovieClip);
+				var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(activeChild.sourceDisplayObjectContainer);
 				if (parents.length != activeChildParentsChainLength) {
 					return false;
 				}

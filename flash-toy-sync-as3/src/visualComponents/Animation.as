@@ -52,7 +52,7 @@ package visualComponents {
 				path = "animations-" + versionFolderPostfix + "/" + _name;
 			}
 			
-			loader.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
+			loader.load(path, container.sourceDisplayObjectContainer, this, onLoaded, onLoadError);
 		}
 		
 		/**
@@ -62,7 +62,7 @@ package visualComponents {
 		public function loadStandalone(_name : String) : void {
 			var path : String = _name;
 			
-			loader.load(path, container.sourceMovieClip, this, onLoaded, onLoadError);
+			loader.load(path, container.sourceDisplayObjectContainer, this, onLoaded, onLoadError);
 		}
 		
 		public function unload() : void {

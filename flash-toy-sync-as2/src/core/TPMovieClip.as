@@ -8,23 +8,25 @@ import core.TPMovieClip;
  */
 class core.TPMovieClip extends TPDisplayObject {
 
+	public var sourceDisplayObjectContainer : MovieClip;
 	public var sourceMovieClip : MovieClip;
 	
 	private var transpiledGraphics : TPGraphics;
 
-	public function TPMovieClip(_movieClip : MovieClip) {
-		super(_movieClip);
+	public function TPMovieClip(_displayObjectContainer : MovieClip) {
+		super(_displayObjectContainer);
 
-		sourceMovieClip = _movieClip;
-		transpiledGraphics = new TPGraphics(_movieClip);
+		sourceDisplayObjectContainer = _displayObjectContainer;
+		sourceMovieClip = _displayObjectContainer;
+		transpiledGraphics = new TPGraphics(_displayObjectContainer);
 	}
 
 	public function get currentFrame() : Number {
-		return sourceMovieClip._currentframe;
+		return sourceDisplayObjectContainer._currentframe;
 	}
 
 	public function get totalFrames() : Number {
-		return sourceMovieClip._totalframes;
+		return sourceDisplayObjectContainer._totalframes;
 	}
 	
 	public function get graphics() : TPGraphics {
@@ -32,27 +34,27 @@ class core.TPMovieClip extends TPDisplayObject {
 	}
 
 	public function get buttonMode() : Boolean {
-		return sourceMovieClip.useHandCursor;
+		return sourceDisplayObjectContainer.useHandCursor;
 	}
 	
 	public function set buttonMode(_value : Boolean) : Void {
-		sourceMovieClip.useHandCursor = _value;
+		sourceDisplayObjectContainer.useHandCursor = _value;
 	}
 	
 	public function play() : Void {
-		sourceMovieClip.play();
+		sourceDisplayObjectContainer.play();
 	}
 
 	public function stop() : Void {
-		sourceMovieClip.stop();
+		sourceDisplayObjectContainer.stop();
 	}
 
 	public function gotoAndPlay(_frame : Number) : Void {
-		sourceMovieClip.gotoAndPlay(_frame);
+		sourceDisplayObjectContainer.gotoAndPlay(_frame);
 	}
 
 	public function gotoAndStop(_frame : Number) : Void {
-		sourceMovieClip.gotoAndStop(_frame);
+		sourceDisplayObjectContainer.gotoAndStop(_frame);
 	}
 	
 	public static function isMovieClip(_object) : Boolean {
@@ -64,52 +66,8 @@ class core.TPMovieClip extends TPDisplayObject {
 	}
 	
 	public static function create(_parent : TPMovieClip, _name : String) : TPMovieClip {
-		var movieClip : MovieClip = _parent.sourceMovieClip.createEmptyMovieClip(_name, _parent.sourceMovieClip.getNextHighestDepth());
+		var movieClip : MovieClip = _parent.sourceDisplayObjectContainer.createEmptyMovieClip(_name, _parent.sourceDisplayObjectContainer.getNextHighestDepth());
 		return new TPMovieClip(movieClip);
-	}
-	
-	static var ITERATE_CONTINUE : Number = 0;
-	static var ITERATE_SKIP_NESTED : Number = 1;
-	static var ITERATE_SKIP_SIBLINGS : Number = 2;
-	static var ITERATE_ABORT : Number = 3;
-	
-	static function iterateOverChildren(_topParent : MovieClip, _scope, _handler : Function, _args : Array, _currentDepth : Number) : Number {
-		if (_currentDepth == undefined) {
-			_currentDepth = 0;
-		}
-		if (_args == undefined) {
-			_args = [];
-		}
-		
-		var i : Number = -1;
-		for (var childName : String in _topParent) {
-			if (typeof _topParent[childName] != "movieclip") {
-				continue;
-			}
-			
-			var child : MovieClip = _topParent[childName];
-			
-			// In case of external swfs, one of the properties can be itself, which puts it into an endless loop
-			if (child == _topParent) {
-				continue;
-			}
-			
-			i++;
-			
-			var code = _handler.apply(_scope, [child, _currentDepth + 1, i].concat(_args));
-			if (code == ITERATE_ABORT || code == ITERATE_SKIP_SIBLINGS) {
-				return code;
-			}
-			if (code != ITERATE_SKIP_NESTED) {
-				var recursiveCode : Number = iterateOverChildren(child, _scope, _handler, _args, _currentDepth + 1);
-				if (recursiveCode == ITERATE_ABORT) {
-					return ITERATE_ABORT;
-				}
-			}
-			
-		}
-		
-		return ITERATE_CONTINUE;
 	}
 	
 	static function hasNestedAnimations(_topParent : MovieClip) : Boolean {

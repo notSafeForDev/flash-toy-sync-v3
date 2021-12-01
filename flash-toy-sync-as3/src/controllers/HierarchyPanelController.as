@@ -116,7 +116,7 @@ package controllers {
 			
 			infoList.push(rootInfo);
 			
-			TPMovieClip.iterateOverChildren(root.sourceMovieClip, this, getInfoForActiveChildrenIterator, [infoList, expandableChildren]);
+			TPDisplayObject.iterateOverChildren(root.sourceDisplayObjectContainer, this, getInfoForActiveChildrenIterator, [infoList, expandableChildren]);
 			
 			for (var i : Number = 0; i < infoList.length; i++) {
 				var info : HierarchyChildInfo = infoList[i];
@@ -194,11 +194,15 @@ package controllers {
 			_includedChildren.splice(insertIndex + 1 + parents.length, 0, _child.sourceDisplayObject);
 		}
 		
-		private function getInfoForActiveChildrenIterator(_child : MovieClip, _depth : Number, _childIndex : Number, _infoList : Array, _expandableChildren : Vector.<DisplayObject>) : Number {
-			var tpMovieClip : TPMovieClip = new TPMovieClip(_child);
+		private function getInfoForActiveChildrenIterator(_child : DisplayObject, _depth : Number, _childIndex : Number, _infoList : Array, _expandableChildren : Vector.<DisplayObject>) : Number {
+			if (TPDisplayObject.isDisplayObjectContainer(_child) == false) {
+				return TPDisplayObject.ITERATE_SKIP_NESTED;
+			}
+			
+			var tpMovieClip : TPMovieClip = new TPMovieClip(TPDisplayObject.asDisplayObjectContainer(_child));
 			
 			if (tpMovieClip.visible == false) {
-				return TPMovieClip.ITERATE_SKIP_NESTED;
+				return TPDisplayObject.ITERATE_SKIP_NESTED;
 			}
 			
 			var parent : DisplayObjectContainer = tpMovieClip.parent;
@@ -206,12 +210,12 @@ package controllers {
 			var isParentExpanded : Boolean = ArrayUtil.includes(expandedChildren, parent);
 			
 			if (isParentMarkedAsExpandable == true && isParentExpanded == false) {
-				return TPMovieClip.ITERATE_SKIP_SIBLINGS;
+				return TPDisplayObject.ITERATE_SKIP_SIBLINGS;
 			}
 			
-			var hasNestedAnimations : Boolean = TPMovieClip.hasNestedAnimations(_child);
-			if (hasNestedAnimations == false && tpMovieClip.totalFrames == 1) {
-				return TPMovieClip.ITERATE_SKIP_NESTED;
+			var hasNestedAnimations : Boolean = tpMovieClip.sourceMovieClip != null && TPMovieClip.hasNestedAnimations(tpMovieClip.sourceMovieClip);
+			if (tpMovieClip.sourceMovieClip != null && hasNestedAnimations == false && tpMovieClip.totalFrames == 1) {
+				return TPDisplayObject.ITERATE_SKIP_NESTED;
 			}
 			
 			if (isParentExpanded == true || isParentMarkedAsExpandable == false) {
@@ -222,7 +226,7 @@ package controllers {
 				_infoList.push(createInitialChildInfo(tpMovieClip, _depth, _childIndex));
 			}
 			
-			return TPMovieClip.ITERATE_CONTINUE;
+			return TPDisplayObject.ITERATE_CONTINUE;
 		}
 	}
 }

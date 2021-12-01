@@ -12,7 +12,7 @@ package core {
 		
 		public static function create(_parent : TPMovieClip) : TextField {
 			var textField : TextField = new TextField();
-			_parent.sourceMovieClip.addChild(textField);
+			_parent.sourceDisplayObjectContainer.addChild(textField);
 			return textField;
 		}
 		

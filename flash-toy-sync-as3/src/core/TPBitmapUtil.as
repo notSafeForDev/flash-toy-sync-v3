@@ -25,7 +25,7 @@ package core {
 			
 			var bitmap : Bitmap = new Bitmap(bitmapData);
 			
-			_parent.sourceMovieClip.addChild(bitmap);
+			_parent.sourceDisplayObjectContainer.addChild(bitmap);
 			
 			return new TPDisplayObject(bitmap);
 		}

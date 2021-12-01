@@ -34,7 +34,7 @@ package ui {
 			element = _button;
 			
 			element.buttonMode = true;
-			element.sourceMovieClip.mouseEnabled = true;
+			element.sourceDisplayObjectContainer.mouseEnabled = true;
 			
 			defaultColorTransform = new ColorTransform();
 			overColorTransform = new ColorTransform();
@@ -53,11 +53,11 @@ package ui {
 			mouseClickEvent = new CustomEvent();
 			startDragEvent = new CustomEvent();
 			
-			MouseEvents.addOnMouseOver(this, _button.sourceMovieClip, _onMouseOver);
-			MouseEvents.addOnMouseOut(this, _button.sourceMovieClip, _onMouseOut);
-			MouseEvents.addOnMouseDown(this, _button.sourceMovieClip, _onMouseDown);
-			MouseEvents.addOnMouseUp(this, _button.sourceMovieClip, _onMouseUp);
-			MouseEvents.addOnMouseMove(this, _button.sourceMovieClip, _onMouseMove);
+			MouseEvents.addOnMouseOver(this, _button.sourceDisplayObjectContainer, _onMouseOver);
+			MouseEvents.addOnMouseOut(this, _button.sourceDisplayObjectContainer, _onMouseOut);
+			MouseEvents.addOnMouseDown(this, _button.sourceDisplayObjectContainer, _onMouseDown);
+			MouseEvents.addOnMouseUp(this, _button.sourceDisplayObjectContainer, _onMouseUp);
+			MouseEvents.addOnMouseMove(this, _button.sourceDisplayObjectContainer, _onMouseMove);
 		}
 		
 		private function _onMouseOver() : void {
@@ -126,7 +126,7 @@ package ui {
 		
 		public function enable() : void {
 			element.buttonMode = true;
-			element.sourceMovieClip.mouseEnabled = true;
+			element.sourceDisplayObjectContainer.mouseEnabled = true;
 			
 			if (isMouseOver) {
 				element.colorTransform = overColorTransform;
@@ -137,7 +137,7 @@ package ui {
 		
 		public function disable() : void {
 			element.buttonMode = false;
-			element.sourceMovieClip.mouseEnabled = false;
+			element.sourceDisplayObjectContainer.mouseEnabled = false;
 			
 			element.colorTransform = disabledColorTransform;
 		}

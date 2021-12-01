@@ -113,8 +113,8 @@ package utils {
 		public static function getMovieClipFromPath(_topParent : TPMovieClip, _path : Vector.<String>) : TPMovieClip {
 			var child : TPDisplayObject = getChildFromPath(_topParent, _path);
 			
-			if (child != null && TPMovieClip.isMovieClip(child.sourceDisplayObject) == true) {
-				return new TPMovieClip(TPMovieClip.asMovieClip(child.sourceDisplayObject));
+			if (child != null && TPDisplayObject.isDisplayObjectContainer(child.sourceDisplayObject) == true) {
+				return new TPMovieClip(TPDisplayObject.asDisplayObjectContainer(child.sourceDisplayObject));
 			}
 			
 			return null;
@@ -178,14 +178,14 @@ package utils {
 				return null;
 			}
 			
-			var movieClips : Vector.<TPMovieClip> = new Vector.<core.TPMovieClip>();
+			var movieClips : Vector.<TPMovieClip> = new Vector.<TPMovieClip>();
 			for (var i : Number = 0; i < objects.length; i++) {
-				if (TPMovieClip.isMovieClip(objects[i].sourceDisplayObject) == false) {
+				if (TPDisplayObject.isDisplayObjectContainer(objects[i].sourceDisplayObject) == false) {
 					return null;
 				}
 				
-				var movieClip : MovieClip = TPMovieClip.asMovieClip(objects[i].sourceDisplayObject);
-				movieClips.push(new TPMovieClip(movieClip));
+				var displayObjectContainer : DisplayObjectContainer = TPDisplayObject.asDisplayObjectContainer(objects[i].sourceDisplayObject);
+				movieClips.push(new TPMovieClip(displayObjectContainer));
 			}
 			
 			return movieClips;
