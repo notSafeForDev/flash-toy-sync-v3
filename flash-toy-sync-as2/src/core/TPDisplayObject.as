@@ -132,17 +132,6 @@ class core.TPDisplayObject {
 		sourceDisplayObject.setMask(_mask.sourceDisplayObject);
 	}
 	
-	public function addEnterFrameListener(_scope, _handler : Function) {
-		var originalFunction = sourceDisplayObject.onEnterFrame;
-		
-		sourceDisplayObject.onEnterFrame = function() {
-			if (originalFunction != undefined) {
-				originalFunction();
-			}
-			_handler.apply(_scope);
-		}
-	}
-	
 	public function localToGlobal(_point : Point) : Point {
 		var modifiedPoint : Point = _point.clone();
 		sourceDisplayObject.localToGlobal(modifiedPoint);

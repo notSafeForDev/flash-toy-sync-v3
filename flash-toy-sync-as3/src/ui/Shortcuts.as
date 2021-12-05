@@ -57,5 +57,8 @@ package ui {
 		public static var prepareScript : Array = [Keyboard.P];
 		
 		public static var copyJSONSaveData : Array = [Keyboard.J];
+		
+		// TODO: Remove this after the next release
+		public static var clearStopFrame : Array = [Keyboard.CONTROL, Keyboard.I];
 	}
 }

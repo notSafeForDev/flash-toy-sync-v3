@@ -404,9 +404,6 @@ package models {
 					}
 					
 					if (currentFrame < lastPlayingFrames[i]) {
-						if (endFrames[i] != totalFrames && isActionsScript3 == true) {
-							endFrames[i] = lastPlayingFrames[i] - 1;
-						}
 						haveDeterminedEndFrames[i] = true;
 					}
 					
@@ -472,6 +469,27 @@ package models {
 				// We also check if it's -1, for compatibility with save data format version 1
 				var hasValidTotalFrames : Boolean = children[i].totalFrames == totalTimelineFrames[i] || totalTimelineFrames[i] == -1;
 				if (hasValidTotalFrames == false || currentFrame < startFrame || currentFrame > endFrame) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * Check wether the scene can be accessed from the current frame
+		 * @return Wether it is available
+		 */
+		public function isAvailable() : Boolean {
+			var root : TPMovieClip = AnimationInfoStates.animationRoot.value;
+			
+			var children : Vector.<TPMovieClip> = HierarchyUtil.getMovieClipsFromPath(root, path);
+			if (children == null) {
+				return false;
+			}
+			
+			for (var i : Number = 0; i < children.length; i++) {
+				if (children[i].visible == false) {
 					return false;
 				}
 			}
@@ -650,6 +668,12 @@ package models {
 			}
 			
 			return true;
+		}
+		
+		// TODO: Remove this after the next release
+		public function clearStopFrame() : void {
+			firstStopFrames[lastChildIndex] = -1;
+			trace("Cleared stop frame");
 		}
 	}
 }

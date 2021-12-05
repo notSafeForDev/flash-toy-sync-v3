@@ -1,5 +1,6 @@
 package ui {
 	
+	import core.FrameEvents;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
 	import flash.display.DisplayObject;
@@ -26,7 +27,7 @@ package ui {
 			scrollbar.progressUpdateEvent.listen(this, onScrollbarProgressUpdate);
 			scrollbar.setContentSize(mask.height);
 			
-			content.addEnterFrameListener(this, onEnterFrame);
+			FrameEvents.processFrameEvent.listen(this, onProcessFrame);
 		}
 		
 		private function onScrollbarProgressUpdate(_progress : Number) : void {
@@ -35,7 +36,7 @@ package ui {
 			content.y = -availableScrollHeight * _progress;
 		}
 		
-		private function onEnterFrame() : void {
+		private function onProcessFrame() : void {
 			scrollbar.setContentSize(content.height);
 		}
 		

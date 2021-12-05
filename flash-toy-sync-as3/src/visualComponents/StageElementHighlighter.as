@@ -1,5 +1,6 @@
 package visualComponents {
 	
+	import core.FrameEvents;
 	import core.TPBitmapUtil;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
@@ -21,12 +22,12 @@ package visualComponents {
 		public function StageElementHighlighter(_container : TPMovieClip) {
 			overlay = TPMovieClip.create(_container, "stageElementHighlighterOverlay");
 			
-			overlay.addEnterFrameListener(this, onEnterFrame);
+			FrameEvents.processFrameEvent.listen(this, onProcessFrame);
 			
 			childBitmaps = new Vector.<TPDisplayObject>();
 		}
 		
-		private function onEnterFrame() : void {
+		private function onProcessFrame() : void {
 			for (var i : Number = 0; i < childBitmaps.length; i++) {
 				TPDisplayObject.remove(childBitmaps[i]);
 			}
@@ -36,6 +37,7 @@ package visualComponents {
 			if (ScriptTrackerStates.isDraggingTrackerMarker.value == true && ScriptTrackerStates.childUnderDraggedMarker.value != null) {
 				highlightElement(ScriptTrackerStates.childUnderDraggedMarker.value, 0x00FF00);
 				
+				// Highlights the parents of the child
 				/* var child : * = ScriptTrackerStates.childUnderDraggedMarker.value.parent;
 				while (child != null) {
 					highlightElement(new TPDisplayObject(child), 0xFF0000);

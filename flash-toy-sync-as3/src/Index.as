@@ -13,6 +13,7 @@ package {
 	import controllers.StrokerToyController;
 	import controllers.StrokerToyControllerEditor;
 	import core.CustomEvent;
+	import core.FrameEvents;
 	import core.JSONLoader;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
@@ -92,6 +93,9 @@ package {
 		
 		private var previousFrameTime : Number = 0;
 		
+		private var haveEnteredFrame : Object = {state: false};
+		private var haveProcessedFrame : Boolean = false;
+		
 		public function Index(_container : MovieClip) {
 			enterFrameEvent = new CustomEvent();
 			
@@ -103,6 +107,7 @@ package {
 			
 			TPStage.init(_container, 30);
 			KeyboardInput.init(container);
+			FrameEvents.init(_container);
 			
 			initializeStates();
 			
@@ -122,7 +127,8 @@ package {
 			
 			initializeControllers();
 			
-			container.addEnterFrameListener(this, onEnterFrame);
+			FrameEvents.enterFrameEvent.listen(this, onEnterFrame);
+			FrameEvents.processFrameEvent.listen(this, onProcessFrame);
 			
 			JSONLoader.load("flash-toy-sync-standalone.json", this, onStandaloneJSONLoaded);
 		}
@@ -178,9 +184,19 @@ package {
 			animationInfoStates._loadStatus.setValue(_error);
 		}
 		
-		private function onEnterFrame() : void {	
+		private function onEnterFrame() : void {
+			haveProcessedFrame = false;
+		}
+		
+		private function onProcessFrame() : void {
 			var startTime : Number = getTimer();
 			// TEMP ^
+			
+			if (haveProcessedFrame == true) {
+				return;
+			}
+			
+			haveProcessedFrame = true;
 			
 			if (AnimationInfoStates.isLoaded.value == true) {
 				updateControllers();

@@ -56,6 +56,9 @@ package controllers {
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.stepFrameForwards2, this, onStepFramesShortcut, [1]);
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.rewind1, this, onRewindShortcut, []);
 			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.rewind2, this, onRewindShortcut, []);
+
+			// TODO: Remove this after the next release
+			KeyboardInput.addShortcut(Shortcuts.EDITOR_ONLY, Shortcuts.clearStopFrame, this, onClearStopFrameShortcut, []);
 		}
 		
 		public override function update() : void {
@@ -122,17 +125,23 @@ package controllers {
 			
 			var hasBothScenes : Boolean = currentScene != null && sceneAtFrame != null;
 			var isSameScene : Boolean = hasBothScenes == true && currentScene == sceneAtFrame;
+			var isCurrentSceneUnavailable : Boolean = currentScene != null && currentScene.isAvailable() == false;
 			var bothScenesHasSamePath : Boolean = hasBothScenes == true && currentScene.getPath().join(",") == sceneAtFrame.getPath().join(",");
 			var currentEndsBeforeSceneAtFrame : Boolean = hasBothScenes == true && currentScene.getInnerEndFrame() + 1 == sceneAtFrame.getInnerStartFrame();
 			
 			var shouldEnterNewScene : Boolean = currentScene == null && sceneAtFrame == null;
 			var shouldMergeWithSceneAtFrame : Boolean = isSameScene == false && bothScenesHasSamePath == true && currentEndsBeforeSceneAtFrame == true && sceneAtFrame.isTemporary == true;
 			var shouldEnterSceneAtFrame : Boolean = sceneAtFrame != null && isSameScene == false && shouldMergeWithSceneAtFrame == false;
-			var shouldExitCurrentScene : Boolean = currentScene != null && shouldEnterSceneAtFrame == true;
+			var shouldExitCurrentScene : Boolean = currentScene != null && (shouldEnterSceneAtFrame == true || isCurrentSceneUnavailable == true);
 			
 			if (shouldExitCurrentScene == true) {
 				exitCurrentScene();
 				currentScene = null;
+			}
+			
+			if (isCurrentSceneUnavailable == true) {
+				animationSceneStates._activeChild.setValue(null);
+				activeChild = null;
 			}
 			
 			if (shouldEnterNewScene == true) {
@@ -215,6 +224,14 @@ package controllers {
 			if (currentScene != null) {
 				currentScene.gotoAndStop(currentScene.getStartFrames());
 				animationSceneStates._isForceStopped.setValue(currentScene.isForceStopped());
+			}
+		}
+		
+		// TODO: Remove this after the next release
+		private function onClearStopFrameShortcut() : void {
+			var currentScene : SceneModel = AnimationSceneStates.currentScene.value;
+			if (currentScene != null) {
+				currentScene.clearStopFrame();
 			}
 		}
 		
@@ -393,9 +410,18 @@ package controllers {
 				return false;
 			}
 			
-			if (activeChild != null) {
-				var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(activeChild.sourceDisplayObjectContainer);
-				if (parents.length != activeChildParentsChainLength) {
+			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(activeChild.sourceDisplayObjectContainer);
+			return parents.length == activeChildParentsChainLength;
+		}
+		
+		private function isChildVisible(_child : TPDisplayObject) : Boolean {
+			if (_child.visible == false) {
+				return false;
+			}
+			
+			var parents : Vector.<DisplayObjectContainer> = TPDisplayObject.getParents(_child.sourceDisplayObject);
+			for (var i : Number = 0; i < parents.length; i++) {
+				if (parents[i].visible == false) {
 					return false;
 				}
 			}

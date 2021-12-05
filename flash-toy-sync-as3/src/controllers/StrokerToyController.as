@@ -89,9 +89,8 @@ package controllers {
 				
 				var loopPadding : Number = 0;
 				
-				// When the scene doesn't end at the last timeline frame, 1 frame is excluded to prevent it from looping when stepping to the last frame
-				if (scene.doesEndAtLastTimelineFrame() == false) {
-					loopPadding = StrokerToyUtil.getMilisecondsAtFrame(1);
+				if (VersionConfig.actionScriptVersion == 2 && scene.doesEndAtLastTimelineFrame() == false) {
+					loopPadding = 1;
 				}
 				
 				var loopDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(scene.getTotalInnerFrames() + loopPadding);

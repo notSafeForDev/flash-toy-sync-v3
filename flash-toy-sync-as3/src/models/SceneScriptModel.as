@@ -14,7 +14,7 @@ package models {
 		/** The scene this script is used for */
 		protected var scene : SceneModel;
 		
-		/** The first recorded frame of the scene, which won't necessariliy be the same as the first inner frame of the scene */
+		/** The first recorded frame of the scene, usually the same as the first inner frame of the scene */
 		protected var firstRecordedInnerFrame : Number = -1;
 		
 		/** The screen position of the base of the "penis", on each frame in the scene */
@@ -197,27 +197,29 @@ package models {
 				return;
 			}
 			
-			firstRecordedInnerFrame = scene.getInnerStartFrame();
 			trimPositions();
+			firstRecordedInnerFrame = scene.getInnerStartFrame();
 			
 			var firstHalfScript : SceneScriptModel = _firstHalf.getPlugins().getScript();
 			
-			firstHalfScript.firstRecordedInnerFrame = _firstHalf.getInnerStartFrame();
 			firstHalfScript.trimPositions();
+			firstHalfScript.firstRecordedInnerFrame = _firstHalf.getInnerStartFrame();
 		}
 		
 		private function onSceneMerged(_otherScene : SceneModel) : void {
 			var otherScript : SceneScriptModel = _otherScene.getPlugins().getScript();
-			if (otherScript.basePositions.length == 0) {
+			
+			if (firstRecordedInnerFrame < 0 && otherScript.firstRecordedInnerFrame < 0) {
 				return;
 			}
 			
 			var totalFillBeginning : Number = Math.max(0, firstRecordedInnerFrame - _otherScene.getInnerStartFrame());
 			
 			fillInBlankPositionsAtBeginning(totalFillBeginning);
+			firstRecordedInnerFrame = Math.min(scene.getInnerStartFrame(), _otherScene.getInnerStartFrame());
 			
-			if (otherScript.firstRecordedInnerFrame >= 0 && (otherScript.firstRecordedInnerFrame < firstRecordedInnerFrame || firstRecordedInnerFrame < 0)) {
-				firstRecordedInnerFrame = otherScript.firstRecordedInnerFrame;
+			if (otherScript.basePositions.length == 0) {
+				return;
 			}
 			
 			var i : Number;
