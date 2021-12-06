@@ -182,7 +182,7 @@ let app = express();
 app.listen(3000);
 
 // We use text instead of JSON, as the AS2 version can't post JSON
-app.post("/prepareScript", express.text(), (req, res) => {
+app.post("/prepareScript", express.text({limit: "10mb"}), (req, res) => {
     if (isConnected == false) {
         res.send({ error: "Unable to prepare script, it's not connected to intiface" });
         return;
