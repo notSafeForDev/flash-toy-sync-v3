@@ -1,3 +1,4 @@
+import core.FrameEvents;
 import core.TPArrayUtil;
 import core.TPDisplayObject;
 import transpilers.ArrayTranspilerFunctions;
@@ -70,7 +71,7 @@ class core.TPKeyboardInput {
 			}
 		}
 
-		_object.addEnterFrameListener(this, onEnterFrame);
+		FrameEvents.processFrameEvent.listen(this, onProcessFrame);
 	}
 
 	public function getPressedKeys() : Array {
@@ -81,7 +82,7 @@ class core.TPKeyboardInput {
 		return TPArrayUtil.indexOf(pressedKeys, _key) >= 0;
 	}
 
-	private function onEnterFrame() : Void {
+	private function onProcessFrame() : Void {
 		// The onKeyUp event doesn't always trigger, such as when the control key is held and focus of the window is lost
 		// so we check each key at the start of the frame as well
 		for (var i : Number = 0; i < pressedKeys.length; i++) {

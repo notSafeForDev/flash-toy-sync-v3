@@ -123,44 +123,42 @@ package utils {
 		/**
 		 * Get nested children as displayObjects from list of identifiers
 		 * @param	_topParent	The Object that is parent to the first child in the path
-		 * @param	_path		An array of identifiers representing the path to a nested child
+		 * @param	_path		An array of identifiers representing the path to a nested child. Does not include the id to the top parent
 		 * @return 	The children in the path, including the top parent, as displayObjects, or null if the children can't be found
 		 */
 		public static function getDisplayObjectsFromPath(_topParent : TPMovieClip, _path : Vector.<String>) : Vector.<TPDisplayObject> {
 			var objects : Vector.<TPDisplayObject> = new Vector.<TPDisplayObject>();
 			objects.push(_topParent);
 			
-			var child : DisplayObject = _topParent.sourceDisplayObject;
+			var currentObject : DisplayObject = _topParent.sourceDisplayObject;
 			
 			for (var i : Number = 0; i < _path.length; i++) {
-				if (child == null) {
+				// While the last object in the path can be something other than a displayObjectContainer, all objects before it has to be
+				if (currentObject == null || TPDisplayObject.isDisplayObjectContainer(currentObject) == false) {
 					return null;
 				}
 				
 				var lastHashIndex : Number = _path[i].lastIndexOf("#");
+				var hasValidInstanceName : Boolean = lastHashIndex < 0;
 				
-				if (lastHashIndex < 0) {
-					child = child[_path[i]];
-					if (child == null) {
+				if (hasValidInstanceName == true) {
+					currentObject = currentObject[_path[i]];
+					if (currentObject == null) {
 						return null;
 					}
-					objects.push(new TPDisplayObject(child));
+					objects.push(new TPDisplayObject(currentObject));
 					continue;
 				}
 				
-				if (TPDisplayObject.isDisplayObjectContainer(child) == false) {
-					return null;
-				}
-				
-				var childAsParent : DisplayObjectContainer = TPDisplayObject.asDisplayObjectContainer(child);
+				var childAsParent : DisplayObjectContainer = TPDisplayObject.asDisplayObjectContainer(currentObject);
 				var childIndex : Number = parseInt(_path[i].substr(lastHashIndex + 1));
 				
-				child = TPDisplayObject.getChildAtIndex(childAsParent, childIndex);
-				if (child == null) {
+				currentObject = TPDisplayObject.getChildAtIndex(childAsParent, childIndex);
+				if (currentObject == null) {
 					return null;
 				}
 				
-				objects.push(new TPDisplayObject(child));
+				objects.push(new TPDisplayObject(currentObject));
 			}
 			
 			return objects;

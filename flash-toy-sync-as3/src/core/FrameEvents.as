@@ -35,7 +35,6 @@ package core {
 			processFrameEvent = new CustomEvent();
 			
 			_object.addEventListener(Event.ENTER_FRAME, function(e : Event) : void {
-				trace("ENTER_FRAME");
 				enterFrameEvent.emit();
 			});
 			
