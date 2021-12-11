@@ -6,12 +6,12 @@ let lastMessageId = 1;
 let pendingResponseHandlers = [];
 let isConnected = false;
 let isPlayingScript = false;
+let lastSentPosition = -1;
 let lastTimestamp = -1;
 
 let preparedPositions = null;
 let playStartTime = -1;
 let playStartTimeInScript = -1;
-let playScriptTimeout = -1;
 
 // Websocket
 let socket = new W3CWebSocket("ws://localhost:12345");
@@ -140,7 +140,7 @@ setInterval(() => {
     let currentTimestamp = Math.floor(performanceNow());
     let elapsedTime = currentTimestamp - playStartTime;
     let currentScriptTime = playStartTimeInScript + elapsedTime;
-    let lastScriptTime = currentScriptTime - (currentTimestamp - lastTimestamp);
+    let lastScriptTime = Math.round(currentScriptTime - (currentTimestamp - lastTimestamp));
 
     let lastPosition = preparedPositions.find(pos => pos.time >= currentScriptTime);
     let currentPosition = preparedPositions.find(pos => pos.time >= lastScriptTime);
@@ -151,8 +151,15 @@ setInterval(() => {
         nextPosition = preparedPositions[currentPositionIndex + 1];
     }
 
+    if (lastSentPosition < 0 && nextPosition === null) {
+        nextPosition = preparedPositions[currentPositionIndex];
+    }
+
+    let position = nextPosition === null ? -1 : parseFloat(nextPosition.position.toFixed(3));
+
     if (nextPosition !== null) {
         let duration = nextPosition.time - currentScriptTime;
+        let unitsPerSecond = (position - lastSentPosition) / duration;
 
         let messageId = getNextMessageId();
         let linearCmdMessage = [
@@ -164,13 +171,14 @@ setInterval(() => {
                         {
                             "Index": 0,
                             "Duration": duration,
-                            "Position": nextPosition.position
+                            "Position": position
                         }
                     ]
                 }
             }
         ]
 
+        lastSentPosition = position;
         sendSocketMessage(linearCmdMessage, messageId);
     }
 
@@ -215,16 +223,14 @@ app.get("/playScript", (req, res) => {
     playStartTime = Math.floor(performanceNow());
     playStartTimeInScript = parseInt(req.query.time);
     isPlayingScript = true;
-
-    clearTimeout(playScriptTimeout);
+    lastSentPosition = -1;
 
     res.send({});
 });
 
-
 app.get("/stop", (req, res) => {
-    if (isConnected == false) {
-        res.send("Unable to stop script, it's not connected to intiface");
+    if (isConnected === false) {
+        res.send({ error: "Unable to stop script, it's not connected to intiface" });
         return;
     }
 
@@ -236,8 +242,7 @@ app.get("/stop", (req, res) => {
     playStartTime = -1;
     playStartTimeInScript = -1;
     isPlayingScript = false;
-
-    clearTimeout(playScriptTimeout);
+    lastSentPosition = -1;
 
     let messageId = getNextMessageId();
     let stopMessage = [

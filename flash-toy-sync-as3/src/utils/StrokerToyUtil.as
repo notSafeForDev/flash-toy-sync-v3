@@ -2,6 +2,7 @@ package utils {
 	
 	import api.StrokerToyScriptPosition;
 	import core.TPStage;
+	import flash.geom.Point;
 	
 	/**
 	 * ...
@@ -132,6 +133,55 @@ package utils {
 			if (reduced[0].time != _positions[0].time) {
 				reduced.unshift(new StrokerToyScriptPosition(_positions[0].position, _positions[0].time));
 			}
+			
+			return reduced;
+		}
+		
+		/**
+		 * Reduces the positions from a script by keeping all extreme positions and limiting the number of positions between each set of extreme positions
+		 * @param	_positions					The positions to reduce
+		 * @param	_minTimeBetweenPositions	The minimum time between positions, used only for positions between each set of extreme positions
+		 * @return
+		 */
+		public static function reducePositionsSimple(_positions : Vector.<StrokerToyScriptPosition>, _minTimeBetweenPositions : Number) : Vector.<StrokerToyScriptPosition> {
+			if (_positions.length <= 2) {
+				return _positions.slice();
+			}
+			
+			var reduced : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
+			var directionChangeIndexes : Vector.<Number> = new Vector.<Number>();
+			var direction : Number = MathUtil.sign(_positions[1].position - _positions[0].position);
+			var i : Number;
+			
+			directionChangeIndexes.push(0);
+			
+			for (i = 1; i < _positions.length - 1; i++) {
+				var currentDirection : Number = MathUtil.sign(_positions[i + 1].position - _positions[i].position);
+				if (currentDirection != direction) {
+					direction = currentDirection;
+					directionChangeIndexes.push(i);
+				}
+			}
+			
+			directionChangeIndexes.push(_positions.length - 1);
+			
+			for (i = 0; i < directionChangeIndexes.length - 1; i++) {
+				var currentIndex : Number = directionChangeIndexes[i];
+				var nextIndex : Number = directionChangeIndexes[i + 1];
+				
+				reduced.push(_positions[currentIndex]);
+				
+				var elapsed : Number = 0;
+				for (var j : Number = currentIndex + 1; j < nextIndex; j++) {
+					elapsed += Math.round(1000 / TPStage.frameRate); // TODO: Change TPStage.frameRate to sceneModel.frameRate, once that is changed
+					var remaining : Number = Math.round(1000 / 30) * (nextIndex - j); // TODO: Change TPStage.frameRate to sceneModel.frameRate, once that is changed
+					if (elapsed >= _minTimeBetweenPositions && remaining >= _minTimeBetweenPositions) {
+						elapsed = 0;
+					}
+				}
+			}
+			
+			reduced.push(_positions[_positions.length - 1]);
 			
 			return reduced;
 		}

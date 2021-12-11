@@ -1,4 +1,5 @@
 package utils {
+	
 	import flash.geom.Point;
 	
 	/**
@@ -20,10 +21,10 @@ package utils {
 		
 		/**
 		 * Returns the value wrapped in a range
-		 * 
+		 *
 		 * Example:
 		 * value: 22, min: 0, max: 10 output: 2
-		 * 
+		 *
 		 * @param	_value	The value to put within a range
 		 * @param	_min	The minimum value in the range
 		 * @param	_max	The maximum value in the range
@@ -67,7 +68,7 @@ package utils {
 		 * @param	_value	The value to check
 		 * @return	The percentage, 1.0 for 100%
 		 */
-		public static function getPercentage(_value : Number, _from : Number, _to: Number) : Number {
+		public static function getPercentage(_value : Number, _from : Number, _to : Number) : Number {
 			if (_value == _from) {
 				return 0;
 			}
@@ -118,7 +119,7 @@ package utils {
 			if (_points.length <= 2) {
 				return _points.slice();
 			}
-		
+			
 			var keepPoints : Vector.<Point> = new Vector.<Point>();
 			keepPoints.push(_points[0]);
 			

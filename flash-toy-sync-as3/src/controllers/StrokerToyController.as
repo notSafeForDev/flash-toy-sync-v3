@@ -103,8 +103,13 @@ package controllers {
 					loopCount++;
 				}
 				
-				positions = StrokerToyUtil.reducePositions(positions);
 				positions = StrokerToyUtil.getRepeatedPositions(positions, loopCount + 1, loopPadding);
+				
+				if (ToyStates.toyConnectionType.value == ToyStates.THE_HANDY_CONNECTION_TYPE) {
+					positions = StrokerToyUtil.reducePositions(positions);
+				} else {
+					positions = StrokerToyUtil.reducePositionsSimple(positions, 50);
+				}
 				
 				var frameDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(1);
 				var lastPosition : StrokerToyScriptPosition = positions[positions.length - 1];
