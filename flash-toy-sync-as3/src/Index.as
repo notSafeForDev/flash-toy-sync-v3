@@ -106,8 +106,8 @@ package {
 			previousFrameRates = new Vector.<Number>();
 			
 			TPStage.init(_container, 30);
-			KeyboardInput.init(container);
 			FrameEvents.init(_container);
+			KeyboardInput.init(container);
 			
 			initializeStates();
 			
