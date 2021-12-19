@@ -93,17 +93,17 @@ package controllers {
 					loopPadding = 1;
 				}
 				
-				var loopDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(scene.getTotalInnerFrames() + loopPadding);
+				var loopDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(scene.getTotalInnerFrames() + loopPadding, scene.getFrameRate());
 				var loopCount : Number = Math.ceil(minSceneDuration / loopDuration);
 				var depths : Vector.<Number> = script.calculateDepths();
-				var positions : Vector.<StrokerToyScriptPosition> = StrokerToyUtil.depthsToPositions(depths, startTime);
+				var positions : Vector.<StrokerToyScriptPosition> = StrokerToyUtil.depthsToPositions(depths, startTime, scene.getFrameRate());
 				
 				// For fast loops, adding an extra loop makes it more seamless when it goes back to the start
 				if (loopCount >= 5) {
 					loopCount++;
 				}
 				
-				positions = StrokerToyUtil.getRepeatedPositions(positions, loopCount + 1, loopPadding);
+				positions = StrokerToyUtil.getRepeatedPositions(positions, scene.getFrameRate(), loopCount + 1, loopPadding);
 				
 				if (ToyStates.toyConnectionType.value == ToyStates.THE_HANDY_CONNECTION_TYPE) {
 					positions = StrokerToyUtil.reducePositions(positions);
@@ -111,7 +111,7 @@ package controllers {
 					positions = StrokerToyUtil.reducePositionsSimple(positions, 50);
 				}
 				
-				var frameDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(1);
+				var frameDuration : Number = StrokerToyUtil.getMilisecondsAtFrame(1, scene.getFrameRate());
 				var lastPosition : StrokerToyScriptPosition = positions[positions.length - 1];
 				var duration : Number = lastPosition.time - startTime;
 				
@@ -154,7 +154,7 @@ package controllers {
 			var currentFrame : Number = activeChild.currentFrame;
 			var currentSceneIndex : Number = getCurrentSceneIndex();
 			var startTime : Number = sceneStartTimes[currentSceneIndex];
-			var elapsedTime : Number = StrokerToyUtil.getMilisecondsAtFrame(currentFrame - currentScene.getInnerStartFrame());
+			var elapsedTime : Number = StrokerToyUtil.getMilisecondsAtFrame(currentFrame - currentScene.getInnerStartFrame(), currentScene.getFrameRate());
 			
 			toyApi.playScript(startTime + elapsedTime, this, onPlayScriptResponse);
 		}

@@ -10,27 +10,25 @@ package utils {
 	 */
 	public class StrokerToyUtil {
 		
-		public static function getMilisecondsAtFrame(_frame : Number) : Number {
-			return Math.floor(_frame * 1000 / TPStage.frameRate);
+		public static function getMilisecondsAtFrame(_frame : Number, _frameRate : Number) : Number {
+			return Math.floor(_frame * 1000 / _frameRate);
 		}
 		
-		public static function depthsToPositions(_depths : Vector.<Number>, _startTime : Number) : Vector.<StrokerToyScriptPosition> {
+		public static function depthsToPositions(_depths : Vector.<Number>, _startTime : Number, _frameRate : Number) : Vector.<StrokerToyScriptPosition> {
 			var output : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
-			var frameRate : Number = TPStage.frameRate;
 			
 			for (var i : Number = 0; i < _depths.length; i++) {
-				var time : Number = _startTime + Math.floor(i * 1000 / frameRate);
+				var time : Number = _startTime + Math.floor(i * 1000 / _frameRate);
 				output.push(new StrokerToyScriptPosition(_depths[i], time));
 			}
 			
 			return output;
 		}
 		
-		public static function getRepeatedPositions(_positions : Vector.<StrokerToyScriptPosition>, _repeatCount : Number, _loopPadding : Number) : Vector.<StrokerToyScriptPosition> {
+		public static function getRepeatedPositions(_positions : Vector.<StrokerToyScriptPosition>, _frameRate : Number, _repeatCount : Number, _loopPadding : Number) : Vector.<StrokerToyScriptPosition> {
 			var output : Vector.<StrokerToyScriptPosition> = new Vector.<StrokerToyScriptPosition>();
 			
-			var frameRate : Number = TPStage.frameRate;
-			var singleFrameDuration : Number = getMilisecondsAtFrame(1);
+			var singleFrameDuration : Number = getMilisecondsAtFrame(1, _frameRate);
 			var scriptDuration : Number = (_positions[_positions.length - 1].time - _positions[0].time);
 			
 			scriptDuration += singleFrameDuration;
@@ -171,10 +169,9 @@ package utils {
 				
 				reduced.push(_positions[currentIndex]);
 				
-				var elapsed : Number = 0;
 				for (var j : Number = currentIndex + 1; j < nextIndex; j++) {
-					elapsed += Math.round(1000 / TPStage.frameRate); // TODO: Change TPStage.frameRate to sceneModel.frameRate, once that is changed
-					var remaining : Number = Math.round(1000 / 30) * (nextIndex - j); // TODO: Change TPStage.frameRate to sceneModel.frameRate, once that is changed
+					var elapsed : Number = _positions[j].time - _positions[currentIndex].time;
+					var remaining : Number = _positions[nextIndex].time - _positions[j].time;
 					if (elapsed >= _minTimeBetweenPositions && remaining >= _minTimeBetweenPositions) {
 						elapsed = 0;
 					}

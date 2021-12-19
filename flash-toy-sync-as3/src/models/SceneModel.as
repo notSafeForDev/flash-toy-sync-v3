@@ -3,6 +3,7 @@ package models {
 	import core.CustomEvent;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
+	import core.TPStage;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Scene;
@@ -55,6 +56,7 @@ package models {
 		protected var firstStopFrames : Vector.<Number> = null;
 		protected var haveDeterminedEndFrames : Vector.<Boolean> = null;
 		protected var endsAtLastFrame : Boolean = false;
+		protected var frameRate : Number = -1;
 		
 		/** The last frames for each child that the animation was on, while not force stopped */
 		private var lastPlayingFrames : Vector.<Number> = null;
@@ -80,6 +82,8 @@ package models {
 			mergeEvent = new CustomEvent();
 			
 			plugins = new ScenePluginsModel(this, true);
+			
+			frameRate = TPStage.frameRate;
 		}
 		
 		/**
@@ -97,6 +101,7 @@ package models {
 			scene.firstStopFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Number>(), _saveData.firstStopFrames);
 			scene.haveDeterminedEndFrames = ArrayUtil.addValuesFromArrayToVector(new Vector.<Boolean>(), _saveData.haveDeterminedEndFrames);
 			scene.endsAtLastFrame = _saveData.endsAtLastFrame;
+			scene.frameRate = _saveData.frameRate;
 			
 			scene.plugins = ScenePluginsModel.fromSaveData(_saveData.plugins, scene);
 			
@@ -117,6 +122,7 @@ package models {
 			saveData.firstStopFrames = ArrayUtil.vectorToArray(firstStopFrames);
 			saveData.haveDeterminedEndFrames = ArrayUtil.vectorToArray(haveDeterminedEndFrames);
 			saveData.endsAtLastFrame = endsAtLastFrame;
+			saveData.frameRate = frameRate;
 			
 			saveData.plugins = plugins.toSaveData();
 			
@@ -275,6 +281,14 @@ package models {
 		}
 		
 		/**
+		 * Get the frameRate of the animation while the scene is playing
+		 * @return
+		 */
+		public function getFrameRate() : Number {
+			return frameRate;
+		}
+		
+		/**
 		 * Has to be called before calling the update method
 		 */
 		public function enter() : void {
@@ -283,6 +297,10 @@ package models {
 			}
 			
 			enteredScene = this;
+			
+			if (VersionConfig.actionScriptVersion == 3) {
+				TPStage.frameRate = frameRate;
+			}
 			
 			var currentFrames : Vector.<Number> = getCurrentFramesWhileActive();
 			var children : Vector.<TPMovieClip> = getChildrenWhileActive();
@@ -455,6 +473,10 @@ package models {
 			
 			var children : Vector.<TPMovieClip> = HierarchyUtil.getMovieClipsFromPath(root, path);
 			if (children == null) {
+				return false;
+			}
+			
+			if (frameRate != TPStage.frameRate) {
 				return false;
 			}
 			

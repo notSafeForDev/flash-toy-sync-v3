@@ -3,6 +3,7 @@ package controllers {
 	import components.KeyboardInput;
 	import core.TPDisplayObject;
 	import core.TPMovieClip;
+	import core.TPStage;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.ui.Keyboard;
@@ -128,11 +129,12 @@ package controllers {
 			var isCurrentSceneUnavailable : Boolean = currentScene != null && currentScene.isAvailable() == false;
 			var bothScenesHasSamePath : Boolean = hasBothScenes == true && currentScene.getPath().join(",") == sceneAtFrame.getPath().join(",");
 			var currentEndsBeforeSceneAtFrame : Boolean = hasBothScenes == true && currentScene.getInnerEndFrame() + 1 == sceneAtFrame.getInnerStartFrame();
+			var currentHasDifferentFrameRate : Boolean = currentScene != null && currentScene.getFrameRate() != TPStage.frameRate;
 			
 			var shouldEnterNewScene : Boolean = currentScene == null && sceneAtFrame == null;
 			var shouldMergeWithSceneAtFrame : Boolean = isSameScene == false && bothScenesHasSamePath == true && currentEndsBeforeSceneAtFrame == true && sceneAtFrame.isTemporary == true;
 			var shouldEnterSceneAtFrame : Boolean = sceneAtFrame != null && isSameScene == false && shouldMergeWithSceneAtFrame == false;
-			var shouldExitCurrentScene : Boolean = currentScene != null && (shouldEnterSceneAtFrame == true || isCurrentSceneUnavailable == true);
+			var shouldExitCurrentScene : Boolean = currentScene != null && (shouldEnterSceneAtFrame == true || isCurrentSceneUnavailable == true || currentHasDifferentFrameRate == true);
 			
 			if (shouldExitCurrentScene == true) {
 				exitCurrentScene();

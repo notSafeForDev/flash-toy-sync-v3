@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "pkg -t win,linux index.js"
+    "build-win": "pkg -t win index.js",
+    "build-mac": "pkg -t mac index.js"
   },
   "author": "",
   "license": "MIT",
