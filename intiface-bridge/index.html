@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <title>Settings</title>
+  </head>
+  <body>
+    <p>Range</p>
+    <div>
+      <input type="range" id="rangemax" name="rangemax"
+            min="0" max="100" step="1" value="68">
+      <label for="rangemax">Range Max</label>
+    </div>
+    <div>
+      <input type="range" id="rangemin" name="rangemin"
+            min="0" max="100" step="1" value="0">
+      <label for="rangemin">Range Min</label>
+    </div>
+    <p>Speed limit</p>
+    <div>
+      <input type="range" id="speed" name="speed" 
+            min="0" max="100" value="0" step="1">
+      <label for="speed">Speed</label>
+    </div>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

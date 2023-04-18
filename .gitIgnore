@@ -9,6 +9,8 @@ flash-toy-sync-as2/src/*
 flash-toy-sync-as3/obj
 
 node_modules
+.vscode/
+dist/
 
 !flash-toy-sync-as2/src/core*
 !flash-toy-sync-as2/src/Main.as

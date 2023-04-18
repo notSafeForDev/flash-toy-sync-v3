@@ -1,6 +1,9 @@
 let express = require("express");
 let W3CWebSocket = require("websocket").w3cwebsocket;
 let performanceNow = require("performance-now");
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const { exit } = require("process");
 
 let lastMessageId = 1;
 let pendingResponseHandlers = [];
@@ -14,12 +17,13 @@ let playStartTimeInScript = -1;
 let playScriptTimeout = -1;
 
 // Websocket
-let socket = new W3CWebSocket("ws://localhost:12345");
+let socket = new W3CWebSocket("ws://127.0.0.1:12345");
 
 socket.onerror = (error) => {
     if (isConnected === false) {
         console.log("Unable to connect to intiface server");
         console.log("Make sure the server is running in intiface desktop and that no other clients have been connected to it, including the device list panel")
+        console.log(error);
         anyKeyToExitPrompt();
     }
 };
@@ -29,9 +33,10 @@ socket.onopen = () => {
     init();
 };
 
-socket.onclose = () => {
+socket.onclose = (event) => {
     if (isConnected === true) {
         console.log("Disconnected from intiface server");
+        console.log(event);
         anyKeyToExitPrompt();
     }
     isConnected = false;
@@ -63,7 +68,10 @@ socket.onmessage = (e) => {
 let anyKeyToExitPrompt = () => {
     console.log("");
     console.log("Press any key to exit");
-    process.stdin.setRawMode(true);
+    if (process.stdin.isTTY)
+    {
+        process.stdin.setRawMode(true);
+    }
     process.stdin.resume();
     process.stdin.on("data", process.exit.bind(process, 0));
 }
@@ -131,6 +139,8 @@ let init = async (callback) => {
     }
 }
 
+const position_projection = [0.0, 0.68];
+
 setInterval(() => {
     if (isPlayingScript === false) {
         lastTimestamp = performanceNow();
@@ -164,12 +174,12 @@ setInterval(() => {
                         {
                             "Index": 0,
                             "Duration": duration,
-                            "Position": nextPosition.position
+                            "Position": position_projection[0] + (nextPosition.position * position_projection[1])
                         }
                     ]
                 }
             }
-        ]
+        ];
 
         sendSocketMessage(linearCmdMessage, messageId);
     }
@@ -177,12 +187,36 @@ setInterval(() => {
     lastTimestamp = currentTimestamp;
 }, 1);
 
+function createWindow() {
+    const win = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            nodeIntegration:true,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js'),
+        }
+    });
+    
+    ipcMain.on('setSliderValues', (event, values) => {
+        if (values.range[0] >= values.range[1])
+        {
+            console.log(`Impossible range, clamping to ${values.range[1]}`);
+            values.range[0] = values.range[1];
+        }
+        console.log(`Updating range and speed to ${values.range[0]}-${values.range[1]}, ${values.speed}`);
+        position_projection[0] = values.range[0] / 100.0;
+        position_projection[1] = values.range[1] / 100.0;
+    });
+    win.loadFile('index.html');
+}
+
 // Server
-let app = express();
-app.listen(3000);
+let listener = express();
+listener.listen(3000);
 
 // We use text instead of JSON, as the AS2 version can't post JSON
-app.post("/prepareScript", express.text(), (req, res) => {
+listener.post("/prepareScript", express.text({ limit: '10mb' }), (req, res) => {
     if (isConnected == false) {
         res.send({ error: "Unable to prepare script, it's not connected to intiface" });
         return;
@@ -201,7 +235,7 @@ app.post("/prepareScript", express.text(), (req, res) => {
     res.send({});
 });
 
-app.get("/playScript", (req, res) => {
+listener.get("/playScript", (req, res) => {
     if (isConnected == false) {
         res.send({ error: "Unable to play script, it's not connected to intiface" });
         return;
@@ -222,7 +256,7 @@ app.get("/playScript", (req, res) => {
 });
 
 
-app.get("/stop", (req, res) => {
+listener.get("/stop", (req, res) => {
     if (isConnected == false) {
         res.send("Unable to stop script, it's not connected to intiface");
         return;
@@ -251,4 +285,13 @@ app.get("/stop", (req, res) => {
     sendSocketMessage(stopMessage, messageId).then(date => {
         res.send({});
     });
+});
+
+app.whenReady().then(() => {
+    createWindow();
+});
+
+app.on('window-all-closed', () => {
+    app.quit();
+    exit(0);
 });
